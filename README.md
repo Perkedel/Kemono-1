@@ -1,4 +1,5 @@
-Kemono is an open-source reimplementation of [yiff.party](https://yiff.party/) built for speed and reliability. Scraping is performed asynchronously, and as of v1.3, the server only needs 20MB of working memory to function.
+Kemono is an open-source reimplementation of [yiff.party](https://yiff.party/). Still in development.
+
 ### Supported Sites
 - Patreon
 - Gumroad
@@ -6,15 +7,14 @@ Kemono is an open-source reimplementation of [yiff.party](https://yiff.party/) b
 - Pixiv Fanbox *(experimental)*
 
 ### Running
-The source code for Kemono is provided as-is, and I have no plans to make a customizable self-host version. You can obviously still do it, but your mileage may vary and you will need to change things in the source.
+- Install dependencies (`yarn`/`npm install`)
+- Copy `.env.example` to `.env` and configure
+- Start the development server. (`yarn run dev`/`npm run dev`) 
 
-- Install dependencies (`yarn install`/`npm install`)
-- Copy .env.example to .env and configure
-- Start the server (`yarn run dev`/`npm run dev`)
+Your instance should now be running [here](http://localhost:8000).
 
-If you just want to test the importer, standalone scripts are provided at `importer-test.js` for each service. *Note that these are deprecated for the most part, and no longer maintained.*
+**Where did the test scripts go?** The importer test scripts have been moved to the `legacy` folder and are no longer maintained.
 
-`node importer-test.js <token>`
 ### Legal
 [Licensed under BSD 3-Clause.](/LICENSE) [tldr.](https://www.tldrlegal.com/l/bsd3)
 

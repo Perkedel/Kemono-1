@@ -133,7 +133,7 @@ async function scraper(key, server, channels) {
                 model.attachments.push({
                   isImage: isImage(attachment.filename),
                   name: attachment.filename,
-                  path: `https://kemono.party/${attachmentsKey}/${attachment.filename}`
+                  path: `/${attachmentsKey}/${attachment.filename}`
                 })
               })
   

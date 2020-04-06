@@ -31,7 +31,7 @@ const sanitizePostContent = async(content) => {
       await new Promise(resolve => {
         request.get({url: val, encoding: null})
           .on('complete', () => {
-            content = content.replace(val, `https://kemono.party/inline/${filename}`);
+            content = content.replace(val, `/inline/${filename}`);
             resolve();
           })
           .on('error', () => resolve())
@@ -52,7 +52,6 @@ async function scraper(key, uri = 'https://api.patreon.com/stream?json-api-versi
   await Promise.map(patreon.body.data, async(post) => {
     let attr = post.attributes;
     let rel = post.relationships;
-    let cdn = 'https://kemono.party'
     let fileKey = `files/${rel.user.data.id}/${post.id}`
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`
 
@@ -90,7 +89,7 @@ async function scraper(key, uri = 'https://api.patreon.com/stream?json-api-versi
       await request.get({url: attr.post_file.url, encoding: null})
         .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`))
       postDb.post_file['name'] = attr.post_file.name
-      postDb.post_file['path'] = `${cdn}/${fileKey}/${filename}.${ext}`
+      postDb.post_file['path'] = `/${fileKey}/${filename}.${ext}`
     }
 
     if (attr.embed) {
@@ -123,7 +122,7 @@ async function scraper(key, uri = 'https://api.patreon.com/stream?json-api-versi
             postDb.attachments.push({
               id: attachment.id,
               name: info.parameters.filename,
-              path: `${cdn}/${attachmentsKey}/${filename}.${ext}`
+              path: `/${attachmentsKey}/${filename}.${ext}`
             })
             await fs.rename(
               `${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`,
@@ -153,7 +152,7 @@ async function scraper(key, uri = 'https://api.patreon.com/stream?json-api-versi
         .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`))
       postDb.attachments.push({
         name: includedFile.attributes.file_name,
-        path: `${cdn}/${attachmentsKey}/${filename}.${ext}`
+        path: `/${attachmentsKey}/${filename}.${ext}`
       })
     }).catch(() => {})
 

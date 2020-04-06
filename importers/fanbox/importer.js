@@ -59,8 +59,8 @@ async function processFanbox(url, key) {
     let postExists = await posts.findOne({id: post.id, service: 'fanbox'});
     if (postExists) return;
 
-    let filesLocation = 'https://kemono.party/files/fanbox'
-    let attachmentsLocation = 'https://kemono.party/attachments/fanbox'
+    let filesLocation = '/files/fanbox'
+    let attachmentsLocation = '/attachments/fanbox'
     if (post.body.images) {
       await Promise.mapSeries(post.body.images, async(image, index) => {
         if (index == 0 && !postModel.post_file['name']) {
@@ -195,7 +195,7 @@ async function concatenateArticle(body, key) {
           .on('error', err => operation.retry(err))
           .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`))
       })
-      concatenatedString += `<img src="https://kemono.party/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}"><br>`
+      concatenatedString += `<img src="/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}"><br>`
     } else if (block.type == 'p') {
       concatenatedString += `${unraw(block.text)}<br>`
     }

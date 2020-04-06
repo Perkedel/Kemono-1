@@ -97,7 +97,7 @@ async function scraper(key) {
       request.get({url: downloadData.thumbnail, encoding: null})
         .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`))
       model.post_file['name'] = filename;
-      model.post_file['path'] = `https://kemono.party/files/gumroad/${userId}/${product.id}/${filename}`
+      model.post_file['path'] = `/files/gumroad/${userId}/${product.id}/${filename}`
     }
 
     await Promise.map(downloadData.files, async(file) => {
@@ -112,7 +112,7 @@ async function scraper(key) {
             let filename = slugify(file.filename, { lowercase: false });
             model.attachments.push({
               name: `${filename}.${ext}`,
-              path: `https://kemono.party/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
+              path: `/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
             });
             await fs.move(
               `${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`,

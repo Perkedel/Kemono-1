@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const getUrls = require('get-urls');
@@ -11,7 +11,6 @@ const esc = require('escape-string-regexp')
 const compression = require('compression');
 require('./indexer')()
 posts.createIndex({ user: 1 });
-// sharp.cache(false);
 express()
   .use(compression())
   .use(bodyParser.urlencoded({ extended: false }))
@@ -253,12 +252,12 @@ express()
           }
         },
         name: 'h2.creator-profile-card__name.js-creator-name'
-      })
+      });
 
       res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch {
-      res.sendStatus(404)
+      res.sendStatus(404);
     }
   })
   .get('/proxy/discord/server/:id', async(req, res) => {

@@ -1,10 +1,13 @@
 const Promise = require('bluebird');
 const request = require('request-promise');
 const { unraw } = require('unraw');
-const cloudscraper = require('cloudscraper').defaults({onCaptcha: require('./captcha')()});
+const cloudscraper = require('cloudscraper')
+  .defaults({
+    onCaptcha: require('./captcha')()
+  })
 const { posts, lookup } = require('./db');
-posts.createIndex({ added_at: -1 });
 async function indexer() {
+  posts.createIndex({ added_at: -1 });
   let postsData = await posts
     .find({})
     .sort({ added_at: -1 })
@@ -43,7 +46,7 @@ async function indexer() {
         break;
       }
       case 'gumroad': {
-        let api = 'https://kemono.party/proxy/gumroad/user';
+        let api = `${process.env.ORIGIN}/proxy/gumroad/user`;
         let user = await request.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,

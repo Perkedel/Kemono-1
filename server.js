@@ -1,7 +1,4 @@
 require('dotenv').config()
-const sharp = require('sharp');
-const fs = require('fs-extra');
-const isImage = require('is-image');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const getUrls = require('get-urls');
@@ -35,23 +32,6 @@ express()
     dotfiles: 'allow',
     setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600')
   }))
-  // temporarily disabled.
-  // .get('/thumbnail/*', async(req, res) => {
-  //   let file = `${process.env.DB_ROOT}/${req.params[0]}`
-  //   let fileExists = await fs.pathExists(file);
-  //   if (!fileExists || !isImage(file)) return res.sendStatus(404);
-  //   res.setHeader('Cache-Control', 'max-age=31557600, public');
-  //   fs.createReadStream(file)
-  //     .pipe(
-  //       sharp({
-  //         failOnError: false,
-  //         sequentialRead: true
-  //       })
-  //         .resize({ width: 800, withoutEnlargement: true })
-  //         .jpeg()
-  //     )
-  //     .pipe(res)
-  // })
   .get('/user/:id', (req, res) => {
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.sendFile(__dirname + '/www/user.html');

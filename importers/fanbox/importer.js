@@ -1,5 +1,5 @@
 const { posts } = require('../../db');
-const { workerData, parentPort } = require('worker_threads');
+const { workerData } = require('worker_threads');
 const fs = require('fs-extra');
 const request = require('request-promise');
 const request2 = require('request')
@@ -31,7 +31,6 @@ let fileRequestOptions = (key) => {
 };
 
 async function scraper(key) {
-  parentPort.postMessage('fanbox scraper fired!');
   let fanboxIndex = await request.get('https://fanbox.pixiv.net/api/plan.listSupporting', requestOptions(key));
   Promise.map(fanboxIndex.body, async(artist) => {
     processFanbox(`https://fanbox.pixiv.net/api/post.listCreator?userId=${artist.user.userId}&limit=100`, key)
@@ -41,7 +40,6 @@ async function scraper(key) {
 async function processFanbox(url, key) {
   let data = await request.get(unraw(url), requestOptions(key));
   await Promise.mapSeries(data.body.items, async(post) => {
-    parentPort.postMessage(post);
     if (!post.body) return // locked content; nothing to do
     let postModel = {
       version: 2,
@@ -176,7 +174,6 @@ async function processFanbox(url, key) {
 
 async function concatenateArticle(body, key) {
   let concatenatedString = '<p>';
-  parentPort.postMessage(JSON.stringify(body))
   await Promise.mapSeries(body.blocks, async(block) => {
     if (block.type == 'image') {
       let imageInfo = body.imageMap[block.imageId];

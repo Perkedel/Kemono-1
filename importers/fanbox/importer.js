@@ -1,5 +1,4 @@
 const { posts } = require('../../db');
-const { workerData } = require('worker_threads');
 const fs = require('fs-extra');
 const request = require('request-promise');
 const request2 = require('request')

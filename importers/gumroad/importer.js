@@ -1,5 +1,4 @@
 const { posts } = require('../../db');
-const { workerData } = require('worker_threads');
 const scrapeIt = require('scrape-it');
 const Promise = require('bluebird');
 const fs = require('fs-extra');

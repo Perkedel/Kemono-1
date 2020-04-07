@@ -1,4 +1,3 @@
-const { workerData } = require('worker_threads');
 const { posts, lookup } = require('../../db');
 const Promise = require('bluebird');
 const cloudscraper = require('cloudscraper')

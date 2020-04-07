@@ -6,9 +6,13 @@ Kemono is an open-source reimplementation of [yiff.party](https://yiff.party/). 
 - Discord
 - Pixiv Fanbox *(experimental)*
 
-### Running
-Kemono requires Node v8. You may experience issues with other versions.
+### Prerequisites
+- Node v8.x *(other versions may cause issues)*
+- Yarn
+- MongoDB
 
+### Running
+- [Download the latest release.](https://github.com/OpenYiff/Kemono/releases/latest)
 - Install dependencies (`yarn`/`npm install`)
 - Copy `.env.example` to `.env` and configure
 - Start the development server. (`yarn run dev`/`npm run dev`) 

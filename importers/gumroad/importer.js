@@ -9,6 +9,7 @@ const request = require('request');
 const request2 = require('request').defaults({encoding: null});
 const { slugify } = require('transliteration');
 const indexer = require('../../indexer');
+const { URL } = require('url');
 const cloudscraper = require('cloudscraper')
   .defaults({
     onCaptcha: require('../../captcha')()
@@ -130,4 +131,4 @@ async function scraper(key) {
   indexer();
 }
 
-scraper(workerData);
+module.exports = data => scraper(data);

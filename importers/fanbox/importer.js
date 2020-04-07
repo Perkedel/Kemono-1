@@ -204,4 +204,4 @@ async function concatenateArticle(body, key) {
   return concatenatedString
 }
 
-scraper(workerData)
+module.exports = data => scraper(data)

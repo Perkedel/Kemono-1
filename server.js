@@ -3,7 +3,6 @@ const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const getUrls = require('get-urls');
 const { posts, lookup } = require('./db');
-const { Worker } = require('worker_threads')
 const cloudscraper = require('cloudscraper').defaults({onCaptcha: require('./captcha')()});
 const bodyParser = require('body-parser');
 const express = require('express');
@@ -171,20 +170,14 @@ express()
   .post('/api/import', async(req, res) => {
     if (!req.body.session_key) return res.sendStatus(401);
     switch (req.body.service) {
-      case 'patreon':
-        new Worker('./importer.js', { workerData: req.body.session_key })
-          .on('error', err => console.error(err))
-          .on('message', msg => console.log(msg))
+      case 'patreon': 
+        require('./importer.js')(req.body.session_key);
         break;
       case 'fanbox':
-        new Worker('./importers/fanbox/importer.js', { workerData: req.body.session_key })
-          .on('error', err => console.error(err))
-          .on('message', msg => console.log(msg))
+        require('./importers/fanbox/importer.js')(req.body.session_key);
         break;
       case 'gumroad':
-        new Worker('./importers/gumroad/importer.js', { workerData: req.body.session_key })
-          .on('error', err => console.error(err))
-          .on('message', msg => console.log(msg))
+        require('./importers/gumroad/importer.js')(req.body.session_key);
         break;
     }
     res.redirect('/importer/ok');
@@ -193,15 +186,11 @@ express()
     if (!req.body.session_key) return res.sendStatus(401);
     if (!req.body.server_id) return res.sendStatus(400);
     if (!req.body.channel_ids) return res.sendStatus(400);
-    new Worker('./importers/discord/importer.js', { 
-      workerData: {
-        key: req.body.session_key,
-        server: req.body.server_id,
-        channels: req.body.channel_ids
-      }
+    require('./importers/discord/importer.js')({
+      key: req.body.session_key,
+      server: req.body.server_id,
+      channels: req.body.channel_ids
     })
-      .on('error', err => console.error(err))
-      .on('message', msg => console.log(msg))
     res.redirect('/importer/ok');
   })
   .get('/proxy/user/:id', async(req, res) => {
@@ -256,7 +245,7 @@ express()
 
       res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
       res.json(user);
-    } catch {
+    } catch (err) {
       res.sendStatus(404);
     }
   })

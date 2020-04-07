@@ -4,7 +4,6 @@ const cloudscraper = require('cloudscraper')
   .defaults({
     onCaptcha: require('./captcha')()
   })
-const { workerData } = require('worker_threads');
 const { slugify } = require('transliteration');
 const cd = require('content-disposition');
 const Promise = require('bluebird');
@@ -15,6 +14,7 @@ const mime = require('mime')
 const getUrls = require('get-urls');
 const crypto = require('crypto');
 const hasha = require('hasha');
+const { URL } = require('url');
 const sanitizePostContent = async(content) => {
   // mirror and replace any inline images
   if (!content) return '';
@@ -166,4 +166,4 @@ async function scraper(key, uri = 'https://api.patreon.com/stream?json-api-versi
   }
 }
 
-scraper(workerData);
+module.exports = data => scraper(data)

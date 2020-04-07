@@ -147,4 +147,4 @@ async function scraper(key, server, channels) {
   })
 }
 
-scraper(workerData.key, workerData.server, workerData.channels)
+module.exports = data => scraper(data.key, data.server, data.channels)

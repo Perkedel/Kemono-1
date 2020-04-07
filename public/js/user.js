@@ -76,13 +76,13 @@ async function main() {
   let avatar;
   let cover;
   let subtitle = '';
-  if (!user.included) {
+  if (user.included) {
     avatar = user.included[0].attributes.avatar_photo_url;
     cover = user.included[0].attributes.cover_photo_url;
     subtitle = user.included[0].attributes.creation_name;
   } else {
     avatar = user.data.attributes.image_url;
-    cover = user.data.attributes.image_ur;
+    cover = user.data.attributes.image_url;
   }
   marthaView.innerHTML += `
     <div 

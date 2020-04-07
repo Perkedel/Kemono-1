@@ -130,7 +130,7 @@ async function main() {
 
       let marthaView = document.getElementById('recent-view');
       let avatar;
-      if (!user.included) {
+      if (user.included) {
         avatar = user.included[0].attributes.avatar_photo_url;
       } else {
         avatar = user.data.attributes.image_url;

@@ -46,6 +46,16 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.sendFile(__dirname + '/www/discord/server.html');
   })
+  .get('/random', async(req, res) => {
+    const lookupCount = await lookup.count({ service: 'patreon' });
+    const random = await lookup
+      .find({ service: 'patreon' })
+      .skip(Math.random() * lookupCount)
+      .limit(1)
+      .toArray();
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.redirect('/user/' + random[0].id)
+  })
   .get('/api/lookup', async(req, res) => {
     if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400)
     let index = await lookup

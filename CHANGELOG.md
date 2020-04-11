@@ -1,5 +1,6 @@
 ### v1.1.1
 - Code has been tidied up and [standardized](https://github.com/standard/semistandard).
+- Legacy scripts have been removed.
 
 ### v1.1
 - Issues causing duplicate lookup entries are now fixed

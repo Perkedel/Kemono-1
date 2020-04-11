@@ -2,45 +2,45 @@ const { posts } = require('../../db');
 const fs = require('fs-extra');
 const request = require('request-promise');
 const request2 = require('request')
-  .defaults({ encoding: null })
+  .defaults({ encoding: null });
 const { slugify } = require('transliteration');
 const { unraw } = require('unraw');
 const nl2br = require('nl2br');
 const Promise = require('bluebird');
 const crypto = require('crypto');
 const retry = require('retry');
-let requestOptions = (key) => {
+const requestOptions = (key) => {
   return {
     json: true,
-    headers: { 
-      'cookie': `PHPSESSID=${key}`,
-      'origin': 'https://www.pixiv.net'
+    headers: {
+      cookie: `PHPSESSID=${key}`,
+      origin: 'https://www.pixiv.net'
     }
-  }
+  };
 };
 
-let fileRequestOptions = (key) => {
+const fileRequestOptions = (key) => {
   return {
     encoding: null,
-    headers: { 
-      'cookie': `PHPSESSID=${key}`,
-      'origin': 'https://www.pixiv.net',
+    headers: {
+      cookie: `PHPSESSID=${key}`,
+      origin: 'https://www.pixiv.net'
     }
-  }
+  };
 };
 
-async function scraper(key) {
-  let fanboxIndex = await request.get('https://fanbox.pixiv.net/api/plan.listSupporting', requestOptions(key));
-  Promise.map(fanboxIndex.body, async(artist) => {
-    processFanbox(`https://fanbox.pixiv.net/api/post.listCreator?userId=${artist.user.userId}&limit=100`, key)
+async function scraper (key) {
+  const fanboxIndex = await request.get('https://fanbox.pixiv.net/api/plan.listSupporting', requestOptions(key));
+  Promise.map(fanboxIndex.body, async (artist) => {
+    processFanbox(`https://fanbox.pixiv.net/api/post.listCreator?userId=${artist.user.userId}&limit=100`, key);
   });
 }
 
-async function processFanbox(url, key) {
-  let data = await request.get(unraw(url), requestOptions(key));
-  await Promise.mapSeries(data.body.items, async(post) => {
-    if (!post.body) return // locked content; nothing to do
-    let postModel = {
+async function processFanbox (url, key) {
+  const data = await request.get(unraw(url), requestOptions(key));
+  await Promise.mapSeries(data.body.items, async (post) => {
+    if (!post.body) return; // locked content; nothing to do
+    const postModel = {
       version: 2,
       service: 'fanbox',
       title: unraw(post.title),
@@ -55,21 +55,21 @@ async function processFanbox(url, key) {
       attachments: []
     };
 
-    let postExists = await posts.findOne({id: post.id, service: 'fanbox'});
+    const postExists = await posts.findOne({ id: post.id, service: 'fanbox' });
     if (postExists) return;
 
-    let filesLocation = '/files/fanbox'
-    let attachmentsLocation = '/attachments/fanbox'
+    const filesLocation = '/files/fanbox';
+    const attachmentsLocation = '/attachments/fanbox';
     if (post.body.images) {
-      await Promise.mapSeries(post.body.images, async(image, index) => {
-        if (index == 0 && !postModel.post_file['name']) {
+      await Promise.mapSeries(post.body.images, async (image, index) => {
+        if (index === 0 && !postModel.post_file.name) {
           const operation = retry.operation({
             retries: 10,
             factor: 1,
             minTimeout: 1000
           });
-          operation.attempt(async() => {
-            let randomKey = crypto.randomBytes(20).toString('hex');
+          operation.attempt(async () => {
+            const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
             request2.get(unraw(image.originalUrl), fileRequestOptions(key))
               .on('complete', () => {
@@ -79,19 +79,19 @@ async function processFanbox(url, key) {
                 );
               })
               .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`))
-          })
-          
-          postModel.post_file['name'] = `${image.id}.${image.extension}`
-          postModel.post_file['path'] = `${filesLocation}/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`
+              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+          });
+
+          postModel.post_file.name = `${image.id}.${image.extension}`;
+          postModel.post_file.path = `${filesLocation}/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`;
         } else {
           const operation = retry.operation({
             retries: 10,
             factor: 1,
             minTimeout: 1000
           });
-          operation.attempt(async() => {
-            let randomKey = crypto.randomBytes(20).toString('hex');
+          operation.attempt(async () => {
+            const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
             request2.get(unraw(image.originalUrl), fileRequestOptions(key))
               .on('complete', () => {
@@ -101,27 +101,27 @@ async function processFanbox(url, key) {
                 );
               })
               .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`))
-          })
+              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+          });
           postModel.attachments.push({
             id: image.id,
             name: `${image.id}.${image.extension}`,
             path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`
           });
         }
-      })
+      });
     }
-    
+
     if (post.body.files) {
-      await Promise.mapSeries(post.body.files, async(file, index) => {
-        if (index == 0 && !postModel.post_file['name']) {
+      await Promise.mapSeries(post.body.files, async (file, index) => {
+        if (index === 0 && !postModel.post_file.name) {
           const operation = retry.operation({
             retries: 10,
             factor: 1,
             minTimeout: 1000
           });
-          operation.attempt(async() => {
-            let randomKey = crypto.randomBytes(20).toString('hex');
+          operation.attempt(async () => {
+            const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
             request2.get(unraw(file.url), fileRequestOptions(key))
               .on('complete', () => {
@@ -131,18 +131,18 @@ async function processFanbox(url, key) {
                 );
               })
               .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`))
-          })
-          postModel.post_file['name'] = `${file.name}.${file.extension}`
-          postModel.post_file['path'] = `${filesLocation}/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`
+              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+          });
+          postModel.post_file.name = `${file.name}.${file.extension}`;
+          postModel.post_file.path = `${filesLocation}/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`;
         } else {
           const operation = retry.operation({
             retries: 10,
             factor: 1,
             minTimeout: 1000
           });
-          operation.attempt(async() => {
-            let randomKey = crypto.randomBytes(20).toString('hex');
+          operation.attempt(async () => {
+            const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
             request2.get(unraw(file.url), fileRequestOptions(key))
               .on('complete', () => {
@@ -152,37 +152,37 @@ async function processFanbox(url, key) {
                 );
               })
               .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`))
-          })
+              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+          });
           postModel.attachments.push({
             id: file.id,
             name: `${file.name}.${file.extension}`,
             path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`
           });
         }
-      })
+      });
     }
 
-    await posts.insertOne(postModel)
-  })
+    await posts.insertOne(postModel);
+  });
 
   if (data.body.nextUrl) {
-    processFanbox(data.body.nextUrl, key)
+    processFanbox(data.body.nextUrl, key);
   }
 }
 
-async function concatenateArticle(body, key) {
+async function concatenateArticle (body, key) {
   let concatenatedString = '<p>';
-  await Promise.mapSeries(body.blocks, async(block) => {
-    if (block.type == 'image') {
-      let imageInfo = body.imageMap[block.imageId];
+  await Promise.mapSeries(body.blocks, async (block) => {
+    if (block.type === 'image') {
+      const imageInfo = body.imageMap[block.imageId];
       const operation = retry.operation({
         retries: 10,
         factor: 1,
         minTimeout: 1000
       });
-      operation.attempt(async() => {
-        let randomKey = crypto.randomBytes(20).toString('hex');
+      operation.attempt(async () => {
+        const randomKey = crypto.randomBytes(20).toString('hex');
         await fs.ensureFile(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`);
         request2.get(unraw(imageInfo.originalUrl), fileRequestOptions(key))
           .on('complete', () => {
@@ -192,15 +192,15 @@ async function concatenateArticle(body, key) {
             );
           })
           .on('error', err => operation.retry(err))
-          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`))
-      })
-      concatenatedString += `<img src="/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}"><br>`
-    } else if (block.type == 'p') {
-      concatenatedString += `${unraw(block.text)}<br>`
+          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`));
+      });
+      concatenatedString += `<img src="/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}"><br>`;
+    } else if (block.type === 'p') {
+      concatenatedString += `${unraw(block.text)}<br>`;
     }
-  }).catch(() => {})
-  concatenatedString += '</p>'
-  return concatenatedString
+  }).catch(() => {});
+  concatenatedString += '</p>';
+  return concatenatedString;
 }
 
-module.exports = data => scraper(data)
+module.exports = data => scraper(data);

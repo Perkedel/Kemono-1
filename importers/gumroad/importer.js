@@ -5,34 +5,34 @@ const fs = require('fs-extra');
 const mime = require('mime');
 const crypto = require('crypto');
 const request = require('request');
-const request2 = require('request').defaults({encoding: null});
+const request2 = require('request').defaults({ encoding: null });
 const { slugify } = require('transliteration');
 const indexer = require('../../indexer');
 const { URL } = require('url');
 const cloudscraper = require('cloudscraper')
   .defaults({
     onCaptcha: require('../../captcha')()
-  })
+  });
 const apiOptions = key => {
   return {
     json: true,
     headers: {
       cookie: `_gumroad_session=${key}`
     }
-  }
-}
+  };
+};
 const scrapeOptions = key => {
   return {
     headers: {
       cookie: `_gumroad_session=${key}`
     }
-  }
-}
+  };
+};
 
-async function scraper(key) {
-  let gumroad = await cloudscraper.get('https://gumroad.com/discover_search?from=1&user_purchases_only=true', apiOptions(key));
-  if (gumroad.total > 500000) return // not logged in
-  let data = await scrapeIt.scrapeHTML(gumroad.products_html, {
+async function scraper (key) {
+  const gumroad = await cloudscraper.get('https://gumroad.com/discover_search?from=1&user_purchases_only=true', apiOptions(key));
+  if (gumroad.total > 500000) return; // not logged in
+  const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
       listItem: '.product-card',
       data: {
@@ -51,13 +51,13 @@ async function scraper(key) {
         }
       }
     }
-  })
-  await Promise.map(data.products, async(product) => {
-    let postExists = await posts.findOne({id: product.id, service: 'gumroad'});
+  });
+  await Promise.map(data.products, async (product) => {
+    const postExists = await posts.findOne({ id: product.id, service: 'gumroad' });
     if (postExists) return;
 
-    let userId = new URL(product.userHref).pathname.replace('/', '')
-    let model = {
+    const userId = new URL(product.userHref).pathname.replace('/', '');
+    const model = {
       version: 2,
       service: 'gumroad',
       title: product.title,
@@ -70,9 +70,9 @@ async function scraper(key) {
       post_file: {},
       attachments: []
     };
-    let productInfo = await cloudscraper.get(`https://gumroad.com/links/${product.id}/user_info`, apiOptions(key));
-    let downloadPage = await cloudscraper.get(productInfo.purchase.redirect_url, scrapeOptions(key));
-    let downloadData = await scrapeIt.scrapeHTML(downloadPage, {
+    const productInfo = await cloudscraper.get(`https://gumroad.com/links/${product.id}/user_info`, apiOptions(key));
+    const downloadPage = await cloudscraper.get(productInfo.purchase.redirect_url, scrapeOptions(key));
+    const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail: {
         selector: '.image-preview-container img',
         attr: 'src'
@@ -88,28 +88,28 @@ async function scraper(key) {
           }
         }
       }
-    })
+    });
 
     if (downloadData.thumbnail) {
-      let urlBits = new URL(downloadData.thumbnail).pathname.split('/')
-      let filename = urlBits[urlBits.length - 1].replace(/%20/g, '_')
+      const urlBits = new URL(downloadData.thumbnail).pathname.split('/');
+      const filename = urlBits[urlBits.length - 1].replace(/%20/g, '_');
       await fs.ensureFile(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`);
-      request.get({url: downloadData.thumbnail, encoding: null})
-        .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`))
-      model.post_file['name'] = filename;
-      model.post_file['path'] = `/files/gumroad/${userId}/${product.id}/${filename}`
+      request.get({ url: downloadData.thumbnail, encoding: null })
+        .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`));
+      model.post_file.name = filename;
+      model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
     }
 
-    await Promise.map(downloadData.files, async(file) => {
-      let randomKey = crypto.randomBytes(20).toString('hex');
+    await Promise.map(downloadData.files, async (file) => {
+      const randomKey = crypto.randomBytes(20).toString('hex');
       await fs.ensureFile(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`);
       await new Promise(resolve => {
         request2
           .get(file.link, scrapeOptions(key))
-          .on('complete', async(res) => {
+          .on('complete', async (res) => {
             let ext = mime.getExtension(res.headers['content-type']);
             if (res.headers['content-type'] === 'attachment') ext = 'pdf';
-            let filename = slugify(file.filename, { lowercase: false });
+            const filename = slugify(file.filename, { lowercase: false });
             model.attachments.push({
               name: `${filename}.${ext}`,
               path: `/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
@@ -118,14 +118,14 @@ async function scraper(key) {
               `${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`,
               `${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
             );
-            resolve()
+            resolve();
           })
-          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`))
-      })
-    })
+          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`));
+      });
+    });
 
     posts.insertOne(model);
-  })
+  });
 
   indexer();
 }

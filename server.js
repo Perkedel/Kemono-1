@@ -3,12 +3,13 @@ const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const getUrls = require('get-urls');
 const { posts, lookup } = require('./db');
-const cloudscraper = require('cloudscraper').defaults({onCaptcha: require('./captcha')()});
+const cloudscraper = require('cloudscraper').defaults({ onCaptcha: require('./captcha')() });
 const bodyParser = require('body-parser');
 const express = require('express');
-const esc = require('escape-string-regexp')
+const esc = require('escape-string-regexp');
 const compression = require('compression');
-require('./indexer')()
+const path = require('path');
+require('./indexer')();
 posts.createIndex({ user: 1 });
 express()
   .use(compression())
@@ -32,21 +33,21 @@ express()
   }))
   .get('/user/:id', (req, res) => {
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(__dirname + '/www/user.html');
+    res.sendFile(path.join(__dirname, '/www/user.html'));
   })
   .get('/fanbox/user/:id', (req, res) => {
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(__dirname + '/www/fanbox/user.html');
+    res.sendFile(path.join(__dirname, '/www/fanbox/user.html'));
   })
   .get('/gumroad/user/:id', (req, res) => {
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(__dirname + '/www/gumroad/user.html');
+    res.sendFile(path.join(__dirname, '/www/gumroad/user.html'));
   })
   .get('/discord/server/:id', (req, res) => {
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(__dirname + '/www/discord/server.html');
+    res.sendFile(path.join(__dirname, '/www/discord/server.html'));
   })
-  .get('/random', async(req, res) => {
+  .get('/random', async (req, res) => {
     const lookupCount = await lookup.count({ service: 'patreon' });
     const random = await lookup
       .find({ service: 'patreon' })
@@ -54,11 +55,11 @@ express()
       .limit(1)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.redirect('/user/' + random[0].id)
+    res.redirect('/user/' + random[0].id);
   })
-  .get('/api/lookup', async(req, res) => {
-    if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400)
-    let index = await lookup
+  .get('/api/lookup', async (req, res) => {
+    if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
+    const index = await lookup
       .find({
         service: 'patreon',
         name: {
@@ -72,9 +73,9 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
-  .get('/api/fanbox/lookup', async(req, res) => {
+  .get('/api/fanbox/lookup', async (req, res) => {
     if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
-    let index = await lookup
+    const index = await lookup
       .find({
         service: 'fanbox',
         name: {
@@ -88,9 +89,9 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
-  .get('/api/gumroad/lookup', async(req, res) => {
+  .get('/api/gumroad/lookup', async (req, res) => {
     if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
-    let index = await lookup
+    const index = await lookup
       .find({
         service: 'gumroad',
         name: {
@@ -104,9 +105,9 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
-  .get('/api/discord/lookup', async(req, res) => {
+  .get('/api/discord/lookup', async (req, res) => {
     if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
-    let index = await lookup
+    const index = await lookup
       .find({
         service: 'discord',
         name: {
@@ -120,9 +121,9 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
-  .get('/api/discord/channels/lookup', async(req, res) => {
+  .get('/api/discord/channels/lookup', async (req, res) => {
     if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
-    let index = await lookup
+    const index = await lookup
       .find({
         service: 'discord-channel',
         server: req.query.q
@@ -132,8 +133,8 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
-  .get('/api/user/:id', async(req, res) => {
-    let userPosts = await posts.find({ user: req.params.id })
+  .get('/api/user/:id', async (req, res) => {
+    const userPosts = await posts.find({ user: req.params.id })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) || 25)
@@ -141,8 +142,8 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
-  .get('/api/fanbox/user/:id', async(req, res) => {
-    let userPosts = await posts.find({ user: req.params.id, service: 'fanbox' })
+  .get('/api/fanbox/user/:id', async (req, res) => {
+    const userPosts = await posts.find({ user: req.params.id, service: 'fanbox' })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) || 25)
@@ -150,8 +151,8 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
-  .get('/api/gumroad/user/:id', async(req, res) => {
-    let userPosts = await posts.find({ user: req.params.id, service: 'gumroad' })
+  .get('/api/gumroad/user/:id', async (req, res) => {
+    const userPosts = await posts.find({ user: req.params.id, service: 'gumroad' })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) || 25)
@@ -159,8 +160,8 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
-  .get('/api/discord/channel/:id', async(req, res) => {
-    let userPosts = await posts.find({ channel: req.params.id, service: 'discord' })
+  .get('/api/discord/channel/:id', async (req, res) => {
+    const userPosts = await posts.find({ channel: req.params.id, service: 'discord' })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) || 10)
@@ -168,8 +169,8 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
-  .get('/api/recent', async(req, res) => {
-    let recentPosts = await posts.find({ service: { $ne: 'discord' } })
+  .get('/api/recent', async (req, res) => {
+    const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) || 50)
@@ -177,10 +178,10 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
-  .post('/api/import', async(req, res) => {
+  .post('/api/import', async (req, res) => {
     if (!req.body.session_key) return res.sendStatus(401);
     switch (req.body.service) {
-      case 'patreon': 
+      case 'patreon':
         require('./importer.js')(req.body.session_key);
         break;
       case 'fanbox':
@@ -192,7 +193,7 @@ express()
     }
     res.redirect('/importer/ok');
   })
-  .post('/api/discord/import', async(req, res) => {
+  .post('/api/discord/import', async (req, res) => {
     if (!req.body.session_key) return res.sendStatus(401);
     if (!req.body.server_id) return res.sendStatus(400);
     if (!req.body.channel_ids) return res.sendStatus(400);
@@ -200,13 +201,13 @@ express()
       key: req.body.session_key,
       server: req.body.server_id,
       channels: req.body.channel_ids
-    })
+    });
     res.redirect('/importer/ok');
   })
-  .get('/proxy/user/:id', async(req, res) => {
-    let api = 'https://www.patreon.com/api/user';
-    let options = cloudscraper.defaultParams;
-    options['json'] = true;
+  .get('/proxy/user/:id', async (req, res) => {
+    const api = 'https://www.patreon.com/api/user';
+    const options = cloudscraper.defaultParams;
+    options.json = true;
     cloudscraper.get(`${api}/${req.params.id}`, options)
       .then(user => {
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
@@ -214,14 +215,14 @@ express()
       })
       .catch(() => res.sendStatus(404));
   })
-  .get('/proxy/fanbox/user/:id', async(req, res) => {
-    let api = 'https://fanbox.pixiv.net/api/creator.get?userId';
+  .get('/proxy/fanbox/user/:id', async (req, res) => {
+    const api = 'https://fanbox.pixiv.net/api/creator.get?userId';
     request
-      .get(`${api}=${req.params.id}`, { 
-        json: true, 
+      .get(`${api}=${req.params.id}`, {
+        json: true,
         headers: {
-          'origin': 'https://www.pixiv.net',
-          'cookie': `PHPSESSID=${process.env.FANBOX_KEY}`
+          origin: 'https://www.pixiv.net',
+          cookie: `PHPSESSID=${process.env.FANBOX_KEY}`
         }
       })
       .then(user => {
@@ -230,11 +231,11 @@ express()
       })
       .catch(() => res.sendStatus(404));
   })
-  .get('/proxy/gumroad/user/:id', async(req, res) => {
-    let api = 'https://gumroad.com';
+  .get('/proxy/gumroad/user/:id', async (req, res) => {
+    const api = 'https://gumroad.com';
     try {
-      let html = await request.get(`${api}/${req.params.id}`)
-      let user = scrapeIt.scrapeHTML(html, {
+      const html = await request.get(`${api}/${req.params.id}`);
+      const user = scrapeIt.scrapeHTML(html, {
         background: {
           selector: '.profile-background-container.js-background-image-container img',
           attr: 'src'
@@ -243,11 +244,11 @@ express()
           selector: '.profile-picture.js-profile-picture',
           attr: 'style',
           convert: x => {
-            let urls = getUrls(x, {
+            const urls = getUrls(x, {
               sortQueryParameters: false,
               stripWWW: false
             });
-            return urls.values().next().value.replace(');', '')
+            return urls.values().next().value.replace(');', '');
           }
         },
         name: 'h2.creator-profile-card__name.js-creator-name'
@@ -259,12 +260,12 @@ express()
       res.sendStatus(404);
     }
   })
-  .get('/proxy/discord/server/:id', async(req, res) => {
-    let index = await lookup
+  .get('/proxy/discord/server/:id', async (req, res) => {
+    const index = await lookup
       .find({ service: 'discord', id: req.params.id })
       .project({ name: 1, icon: 1 })
       .toArray();
     res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
     res.json(index);
   })
-  .listen(process.env.PORT || 8000)
+  .listen(process.env.PORT || 8000);

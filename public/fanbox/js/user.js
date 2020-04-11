@@ -1,14 +1,14 @@
-async function loadMorePosts(skip) {
-  document.getElementById("load-more-button").outerHTML = "";
-  let pathname = window.location.pathname.split('/')
-  let marthaView = document.getElementById('martha-view');
+async function loadMorePosts (skip) {
+  document.getElementById('load-more-button').outerHTML = '';
+  const pathname = window.location.pathname.split('/');
+  const marthaView = document.getElementById('martha-view');
   const userPostsData = await fetch(`/api/fanbox/user/${pathname[3]}?skip=${skip}`);
   const userPosts = await userPostsData.json();
-  await userPosts.map(async(post) => {
-    let image = ''
-    let imageDl = ''
-    let attachmentDl = ''
-    let embed = ''
+  await userPosts.map(async (post) => {
+    let image = '';
+    let imageDl = '';
+    let attachmentDl = '';
+    const embed = '';
     post.attachments.map(attachment => {
       attachmentDl += `
         <a 
@@ -18,10 +18,10 @@ async function loadMorePosts(skip) {
         >
           <p>Download ${attachment.name}</p>
         </a>
-      `
-    })
+      `;
+    });
 
-    if (post.post_type == 'image') {
+    if (post.post_type === 'image') {
       image = `
         <a class="fileThumb" href="${post.post_file.path}">
           <img 
@@ -29,7 +29,7 @@ async function loadMorePosts(skip) {
             data-src="${post.post_file.path}"
           >
         </a>
-      `
+      `;
       imageDl = `
         <a 
           class="user-post-attachment-link" 
@@ -38,7 +38,7 @@ async function loadMorePosts(skip) {
         >
           <p>Download ${post.post_file.name}</p>
         </a>
-      `
+      `;
     }
 
     // embeds are not supported
@@ -61,21 +61,21 @@ async function loadMorePosts(skip) {
         ${attachmentDl}
         <p style="color: #757575;">${post.published_at}</p>
       </div>
-    `
-  })
+    `;
+  });
   marthaView.innerHTML += `
     <button onClick="loadMorePosts(${skip + 26})" id="load-more-button" class="load-more-button">Load More</a>
-  `
+  `;
   lazyload();
 }
 
-async function main() {
-  let pathname = window.location.pathname.split('/')
+async function main () {
+  const pathname = window.location.pathname.split('/');
   const userData = await fetch(`/proxy/fanbox/user/${pathname[3]}`);
   const user = await userData.json();
-  require(["https://unpkg.com/unraw@1.2.5/dist/index.min.js"], function(unraw) {
-    document.title = `${unraw.unraw(user.body.user.name)} | kemono`
-    let marthaView = document.getElementById('martha-view');
+  require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
+    document.title = `${unraw.unraw(user.body.user.name)} | kemono`;
+    const marthaView = document.getElementById('martha-view');
     marthaView.innerHTML += `
       <div 
         class="user-header-view" 
@@ -91,11 +91,11 @@ async function main() {
           </div>
         </div>
       </div>
-    `
+    `;
     marthaView.innerHTML += `
       <button onClick="loadMorePosts(26)" id="load-more-button" class="load-more-button">Load More</a>
-    `
-    loadMorePosts(0)
+    `;
+    loadMorePosts(0);
   });
 }
-main()
+main();

@@ -12,24 +12,24 @@ module.exports = () => {
         '&json=1'
       )
       .then(res => {
-        let json = JSON.parse(res)
-        let operation = retry.operation({
+        const json = JSON.parse(res);
+        const operation = retry.operation({
           retries: 5,
           factor: 1,
           minTimeout: 10000
         });
-        operation.attempt(async() => {
-          let token = await request.get(
+        operation.attempt(async () => {
+          const token = await request.get(
             'http://azcaptcha.com/res.php?key=' + process.env.AZCAPTCHA_KEY +
             '&action=get' +
             '&id=' + json.request
           );
-          if (token == 'CAPTCHA_NOT_READY') return;
+          if (token === 'CAPTCHA_NOT_READY') return;
           captcha.form['g-recaptcha-response'] = token;
           captcha.form['h-recaptcha-response'] = token;
           captcha.submit();
-        })
+        });
       })
-      .catch(err => captcha.submit(err))
-  }
-}
+      .catch(err => captcha.submit(err));
+  };
+};

@@ -6,7 +6,8 @@
   },
   "scripts": {
     "dev": "supervisor -i node_modules,public -n error server.js",
-    "start": "node --inspect=0.0.0.0:9229 server.js"
+    "start": "node --inspect=0.0.0.0:9229 server.js",
+    "lint": "semistandard --fix"
   },
   "dependencies": {
     "bluebird": "^3.7.2",
@@ -35,6 +36,7 @@
     "unraw": "^1.2.5"
   },
   "devDependencies": {
-    "supervisor": "^0.12.0"
+    "supervisor": "^0.12.0",
+    "semistandard": "*"
   }
 }

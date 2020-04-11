@@ -1,14 +1,14 @@
-async function loadMorePosts(skip) {
-  document.getElementById("load-more-button").outerHTML = "";
-  let pathname = window.location.pathname.split('/')
-  let marthaView = document.getElementById('martha-view');
+async function loadMorePosts (skip) {
+  document.getElementById('load-more-button').outerHTML = '';
+  const pathname = window.location.pathname.split('/');
+  const marthaView = document.getElementById('martha-view');
   const userPostsData = await fetch(`/api/user/${pathname[2]}?skip=${skip}`);
   const userPosts = await userPostsData.json();
-  await userPosts.map(async(post) => {
-    let image = ''
-    let imageDl = ''
-    let attachmentDl = ''
-    let embed = ''
+  await userPosts.map(async (post) => {
+    let image = '';
+    let imageDl = '';
+    let attachmentDl = '';
+    let embed = '';
     post.attachments.map(attachment => {
       attachmentDl += `
         <a 
@@ -18,10 +18,10 @@ async function loadMorePosts(skip) {
         >
           <p>Download ${attachment.name}</p>
         </a>
-      `
-    })
+      `;
+    });
 
-    if (post.post_type == 'image_file') {
+    if (post.post_type === 'image_file') {
       image = `
         <a class="fileThumb" href="${post.post_file.path}">
           <img 
@@ -29,7 +29,7 @@ async function loadMorePosts(skip) {
             data-src="${post.post_file.path}"
           >
         </a>
-      `
+      `;
       imageDl = `
         <a 
           class="user-post-attachment-link" 
@@ -38,17 +38,19 @@ async function loadMorePosts(skip) {
         >
           <p>Download ${post.post_file.name}</p>
         </a>
-      `
+      `;
     }
 
-    if (Object.keys(post.embed).length != 0) embed = `
-      <a href="${post.embed.url}" target="_blank">
-        <div class="embed-view">
-          <h3>${post.embed.subject}</h3>
-          <p>${post.embed.description || ''}</p>
-        </div>
-      </a>
-    `
+    if (Object.keys(post.embed).length !== 0) {
+      embed = `
+        <a href="${post.embed.url}" target="_blank">
+          <div class="embed-view">
+            <h3>${post.embed.subject}</h3>
+            <p>${post.embed.description || ''}</p>
+          </div>
+        </a>
+      `;
+    }
     marthaView.innerHTML += `
       <div class="user-post-view" id=${post.id}>
         ${image}
@@ -59,20 +61,20 @@ async function loadMorePosts(skip) {
         ${attachmentDl}
         <p style="color: #757575;">${post.published_at}</p>
       </div>
-    `
-  })
+    `;
+  });
   marthaView.innerHTML += `
     <button onClick="loadMorePosts(${skip + 26})" id="load-more-button" class="load-more-button">Load More</a>
-  `
+  `;
   lazyload();
 }
 
-async function main() {
-  let pathname = window.location.pathname.split('/')
+async function main () {
+  const pathname = window.location.pathname.split('/');
   const userData = await fetch(`/proxy/user/${pathname[2]}`);
   const user = await userData.json();
-  document.title = `${user.data.attributes.vanity || user.data.attributes.full_name} | kemono`
-  let marthaView = document.getElementById('martha-view');
+  document.title = `${user.data.attributes.vanity || user.data.attributes.full_name} | kemono`;
+  const marthaView = document.getElementById('martha-view');
   let avatar;
   let cover;
   let subtitle = '';
@@ -100,10 +102,10 @@ async function main() {
         <p>${subtitle}</p>
       </div>
     </div>
-  `
+  `;
   marthaView.innerHTML += `
     <button onClick="loadMorePosts(26)" id="load-more-button" class="load-more-button">Load More</a>
-  `
-  loadMorePosts(0)
+  `;
+  loadMorePosts(0);
 }
-main()
+main();

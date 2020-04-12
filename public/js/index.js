@@ -1,26 +1,26 @@
-function debounce(func, wait, immediate) {
-	var timeout;
-	return function() {
-		var context = this, args = arguments;
-		var later = function() {
-			timeout = null;
-			if (!immediate) func.apply(context, args);
-		};
-		var callNow = immediate && !timeout;
-		clearTimeout(timeout);
-		timeout = setTimeout(later, wait);
-		if (callNow) func.apply(context, args);
-	};
+function debounce (func, wait, immediate) {
+  var timeout;
+  return function () {
+    var context = this; var args = arguments;
+    var later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
 }
 
-async function searchUpdate() {
-  let marthaView = document.getElementById('recent-view');
-  marthaView.innerHTML = ''
+async function searchUpdate () {
+  const marthaView = document.getElementById('recent-view');
+  marthaView.innerHTML = '';
   const query = document.getElementById('search-input').value;
   const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}`);
   const results = await searchData.json();
-  results.map(async(userId) => {
-    let userType = 'Patreon'
+  results.map(async (userId) => {
+    const userType = 'Patreon';
     const userData = await fetch(`/proxy/user/${userId}`);
     const user = await userData.json();
     marthaView.innerHTML += `
@@ -39,13 +39,13 @@ async function searchUpdate() {
           </div>
         </div>
       </div>
-    `
-  })
+    `;
+  });
 
   const gumroadSearchData = await fetch(`/api/gumroad/lookup?q=${encodeURIComponent(query)}`);
   const gumroadResults = await gumroadSearchData.json();
-  gumroadResults.map(async(userId) => {
-    let userType = 'Gumroad'
+  gumroadResults.map(async (userId) => {
+    const userType = 'Gumroad';
     const userData = await fetch(`/proxy/gumroad/user/${userId}`);
     const user = await userData.json();
     marthaView.innerHTML += `
@@ -64,14 +64,14 @@ async function searchUpdate() {
           </div>
         </div>
       </div>
-    `
-  })
+    `;
+  });
 
   const fanboxSearchData = await fetch(`/api/fanbox/lookup?q=${encodeURIComponent(query)}`);
   const fanboxResults = await fanboxSearchData.json();
-  require(["https://unpkg.com/unraw@1.2.5/dist/index.min.js"], function(unraw) {
-    fanboxResults.map(async(userId) => {
-      let userType = 'Pixiv Fanbox'
+  require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
+    fanboxResults.map(async (userId) => {
+      const userType = 'Pixiv Fanbox';
       const userData = await fetch(`/proxy/fanbox/user/${userId}`);
       const user = await userData.json();
       marthaView.innerHTML += `
@@ -90,14 +90,14 @@ async function searchUpdate() {
             </div>
           </div>
         </div>
-      `
-    })
-  })
+      `;
+    });
+  });
 
   const discordSearchData = await fetch(`/api/discord/lookup?q=${encodeURIComponent(query)}`);
   const discordResults = await discordSearchData.json();
-  discordResults.map(async(userId) => {
-    let userType = 'Discord'
+  discordResults.map(async (userId) => {
+    const userType = 'Discord';
     const userData = await fetch(`/proxy/discord/server/${userId}`);
     const user = await userData.json();
     marthaView.innerHTML += `
@@ -116,19 +116,19 @@ async function searchUpdate() {
           </div>
         </div>
       </div>
-    `
-  })
+    `;
+  });
 }
 
-async function main() {
+async function main () {
   const recentData = await fetch('/api/recent');
   const recent = await recentData.json();
-  recent.map(async(post) => {
-    if (post.version == 1 || post.service == 'patreon') {
+  recent.map(async (post) => {
+    if (post.version === 1 || post.service === 'patreon') {
       const userData = await fetch(`/proxy/user/${post.user}`);
       const user = await userData.json();
 
-      let marthaView = document.getElementById('recent-view');
+      const marthaView = document.getElementById('recent-view');
       let avatar;
       if (user.included) {
         avatar = user.included[0].attributes.avatar_photo_url;
@@ -151,12 +151,12 @@ async function main() {
             </div>
           </div>
         </div>
-      `
-    } else if (post.service == 'gumroad') {
+      `;
+    } else if (post.service === 'gumroad') {
       const userData = await fetch(`/proxy/gumroad/user/${post.user}`);
       const user = await userData.json();
 
-      let marthaView = document.getElementById('recent-view');
+      const marthaView = document.getElementById('recent-view');
       marthaView.innerHTML += `
         <div class="recent-row">
           <div class="recent-row-container">
@@ -173,13 +173,13 @@ async function main() {
             </div>
           </div>
         </div>
-      `
-    } else if (post.service == 'fanbox') {
-      require(["https://unpkg.com/unraw@1.2.5/dist/index.min.js"], function(unraw) {
+      `;
+    } else if (post.service === 'fanbox') {
+      require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
         fetch(`/proxy/fanbox/user/${post.user}`)
           .then(userData => userData.json())
           .then(user => {
-            let marthaView = document.getElementById('recent-view');
+            const marthaView = document.getElementById('recent-view');
             marthaView.innerHTML += `
               <div class="recent-row">
                 <div class="recent-row-container">
@@ -196,13 +196,12 @@ async function main() {
                   </div>
                 </div>
               </div>
-            `
-          })
-          
-      })
+            `;
+          });
+      });
     }
   });
-  document.getElementById('search-input').addEventListener('keyup', debounce(() => searchUpdate(), 350))
+  document.getElementById('search-input').addEventListener('keyup', debounce(() => searchUpdate(), 350));
 }
 
-main()
+main();

@@ -1,26 +1,23 @@
 const Promise = require('bluebird');
 const request = require('request-promise');
 const { unraw } = require('unraw');
-const cloudscraper = require('cloudscraper')
-  .defaults({
-    onCaptcha: require('./captcha')()
-  })
+const cloudscraper = require('cloudscraper');
 const { posts, lookup } = require('./db');
-async function indexer() {
+async function indexer () {
   posts.createIndex({ added_at: -1 });
-  let postsData = await posts
+  const postsData = await posts
     .find({})
     .sort({ added_at: -1 })
     .project({ version: 1, user: 1, service: 1 })
     .toArray();
-  Promise.mapSeries(postsData, async(post) => {
-    let indexExists = await lookup.findOne({id: post.user, service: post.service});
+  Promise.mapSeries(postsData, async (post) => {
+    const indexExists = await lookup.findOne({ id: post.user, service: post.service });
     if (indexExists) return;
 
     switch (post.service) {
       case 'patreon': {
-        let api = 'https://www.patreon.com/api/user';
-        let user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
+        const api = 'https://www.patreon.com/api/user';
+        const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'patreon',
@@ -30,12 +27,12 @@ async function indexer() {
         break;
       }
       case 'fanbox': {
-        let api = 'https://fanbox.pixiv.net/api/creator.get?userId';
-        let user = await request.get(`${api}=${post.user}`, { 
+        const api = 'https://fanbox.pixiv.net/api/creator.get?userId';
+        const user = await request.get(`${api}=${post.user}`, {
           json: true,
           headers: {
-            'origin': 'https://www.pixiv.net'
-          } 
+            origin: 'https://www.pixiv.net'
+          }
         });
         await lookup.insertOne({
           version: post.version,
@@ -46,19 +43,19 @@ async function indexer() {
         break;
       }
       case 'gumroad': {
-        let api = `${process.env.ORIGIN}/proxy/gumroad/user`;
-        let user = await request.get(`${api}/${post.user}`, { json: true });
+        const api = `${process.env.ORIGIN}/proxy/gumroad/user`;
+        const user = await request.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'gumroad',
           id: post.user,
           name: user.name
-        })
+        });
         break;
       }
       default: {
-        let api = 'https://www.patreon.com/api/user';
-        let user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
+        const api = 'https://www.patreon.com/api/user';
+        const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'patreon',
@@ -67,8 +64,7 @@ async function indexer() {
         });
       }
     }
-
   });
 }
 
-module.exports = () => indexer()
+module.exports = () => indexer();

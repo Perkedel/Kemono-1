@@ -1,9 +1,6 @@
 const { posts, lookup } = require('../../db');
 const Promise = require('bluebird');
-const cloudscraper = require('cloudscraper')
-  .defaults({
-    onCaptcha: require('../../captcha')()
-  });
+const cloudscraper = require('cloudscraper');
 const request = require('request').defaults({ encoding: null });
 const fs = require('fs-extra');
 const nl2br = require('nl2br');

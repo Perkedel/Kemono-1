@@ -19,7 +19,7 @@ Kemono is an open-source reimplementation of [yiff.party](https://yiff.party/). 
 
 Your instance should now be running [here](http://localhost:8000).
 
-**Where did the test scripts go?** The importer test scripts have been moved to the `legacy` folder and are no longer maintained.
+**Where did the test scripts go?** The importer test scripts were removed in [v1.2](https://github.com/OpenYiff/Kemono/releases/tag/v1.2).
 
 ### Legal
 [Licensed under BSD 3-Clause.](/LICENSE) [tldr.](https://www.tldrlegal.com/l/bsd3)

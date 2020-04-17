@@ -1,4 +1,6 @@
-### v1.1.1
+### v1.2
+- Added service query selection
+- Multiple API endpoints now have hard limits on how many entries the client can ask for at once. If the limit is exceeded, Kemono will revert to its' defaults.
 - Code has been tidied up and [standardized](https://github.com/standard/semistandard).
 - Legacy scripts have been removed.
 - Captcha solver has been removed.

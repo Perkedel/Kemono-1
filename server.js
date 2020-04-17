@@ -58,7 +58,7 @@ express()
     res.redirect('/user/' + random[0].id);
   })
   .get('/api/lookup', async (req, res) => {
-    if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
+    if (req.query.q.length > 35) return res.sendStatus(400);
     const index = await lookup
       .find({
         service: 'patreon',
@@ -67,14 +67,14 @@ express()
           $options: 'i'
         }
       })
-      .limit(50)
+      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
   .get('/api/fanbox/lookup', async (req, res) => {
-    if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
+    if (req.query.q.length > 35) return res.sendStatus(400);
     const index = await lookup
       .find({
         service: 'fanbox',
@@ -83,14 +83,14 @@ express()
           $options: 'i'
         }
       })
-      .limit(50)
+      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
   .get('/api/gumroad/lookup', async (req, res) => {
-    if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
+    if (req.query.q.length > 35) return res.sendStatus(400);
     const index = await lookup
       .find({
         service: 'gumroad',
@@ -99,14 +99,14 @@ express()
           $options: 'i'
         }
       })
-      .limit(50)
+      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
   .get('/api/discord/lookup', async (req, res) => {
-    if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
+    if (req.query.q.length > 35) return res.sendStatus(400);
     const index = await lookup
       .find({
         service: 'discord',
@@ -115,20 +115,20 @@ express()
           $options: 'i'
         }
       })
-      .limit(50)
+      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
   .get('/api/discord/channels/lookup', async (req, res) => {
-    if (!req.query.q || req.query.q.length > 35) return res.sendStatus(400);
+    if (req.query.q.length > 35) return res.sendStatus(400);
     const index = await lookup
       .find({
         service: 'discord-channel',
         server: req.query.q
       })
-      .limit(50)
+      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
@@ -137,7 +137,7 @@ express()
     const userPosts = await posts.find({ user: req.params.id })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) || 25)
+      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
@@ -146,7 +146,7 @@ express()
     const userPosts = await posts.find({ user: req.params.id, service: 'fanbox' })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) || 25)
+      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
@@ -155,7 +155,7 @@ express()
     const userPosts = await posts.find({ user: req.params.id, service: 'gumroad' })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) || 25)
+      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
@@ -164,7 +164,7 @@ express()
     const userPosts = await posts.find({ channel: req.params.id, service: 'discord' })
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) || 10)
+      .limit(Number(req.query.limit) < 50 ? Number(req.query.limit) : 10)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
@@ -173,7 +173,7 @@ express()
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) || 50)
+      .limit(Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(recentPosts);

@@ -101,7 +101,6 @@ async function serviceUpdate () {
   const marthaView = document.getElementById('recent-view');
   marthaView.innerHTML = '';
   const query = document.getElementById('service-input').value;
-  console.log(query);
   switch (query) {
     case 'patreon': {
       renderPatreonQuery('', 150);

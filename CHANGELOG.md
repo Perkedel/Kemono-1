@@ -1,3 +1,6 @@
+### v1.2.1
+- Removes accidental debug left in last release
+
 ### v1.2
 - Added service query selection
 - Multiple API endpoints now have hard limits on how many entries the client can ask for at once. If the limit is exceeded, Kemono will revert to its' defaults.

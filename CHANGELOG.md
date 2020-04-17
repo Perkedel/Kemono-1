@@ -1,5 +1,6 @@
 ### v1.2.1
 - Removes accidental debug left in last release
+- Code properly includes limit in API request
 
 ### v1.2
 - Added service query selection

@@ -33,7 +33,7 @@ const rowHTML = data => `
 
 async function renderPatreonQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}`);
+  const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
   const results = await searchData.json();
   results.map(async (userId) => {
     const userData = await fetch(`/proxy/user/${userId}`);
@@ -49,7 +49,7 @@ async function renderPatreonQuery (query = '', limit = 50) {
 
 async function renderGumroadQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const gumroadSearchData = await fetch(`/api/gumroad/lookup?q=${encodeURIComponent(query)}`);
+  const gumroadSearchData = await fetch(`/api/gumroad/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
   const gumroadResults = await gumroadSearchData.json();
   gumroadResults.map(async (userId) => {
     const userData = await fetch(`/proxy/gumroad/user/${userId}`);
@@ -65,7 +65,7 @@ async function renderGumroadQuery (query = '', limit = 50) {
 
 async function renderFanboxQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const fanboxSearchData = await fetch(`/api/fanbox/lookup?q=${encodeURIComponent(query)}`);
+  const fanboxSearchData = await fetch(`/api/fanbox/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
   const fanboxResults = await fanboxSearchData.json();
   require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
     fanboxResults.map(async (userId) => {

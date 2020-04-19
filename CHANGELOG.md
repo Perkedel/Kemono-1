@@ -2,6 +2,7 @@
 - Queried fields are now properly indexed
 - Lookup now uses prefix expression with case-sensitivity in order to support [indexing](https://docs.mongodb.com/manual/reference/operator/query/regex/#index-use)
 - Better handling of v1 posts in indexer
+- Patreon importer now handles multiple pages at a time
 
 ### v1.2.1
 - Removes accidental debug left in last release

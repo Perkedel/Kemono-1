@@ -14,6 +14,7 @@ posts.createIndex({ service: 1 });
 posts.createIndex({ added_at: -1 });
 posts.createIndex({ published_at: -1 });
 lookup.createIndex({ service: 1, name: 1 });
+lookup.createIndex({ id: 1, service: 1 });
 require('./indexer')();
 express()
   .use(compression())

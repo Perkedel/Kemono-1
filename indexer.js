@@ -4,7 +4,6 @@ const { unraw } = require('unraw');
 const cloudscraper = require('cloudscraper');
 const { posts, lookup } = require('./db');
 async function indexer () {
-  posts.createIndex({ added_at: -1 });
   const postsData = await posts
     .find({})
     .sort({ added_at: -1 })

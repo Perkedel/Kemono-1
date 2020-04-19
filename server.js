@@ -11,7 +11,7 @@ const compression = require('compression');
 const path = require('path');
 require('./indexer')();
 posts.createIndex({ user: 1 });
-lookup.createIndex({ name: 1, service: 1 });
+lookup.createIndex({ service: 1, name: 1 });
 express()
   .use(compression())
   .use(bodyParser.urlencoded({ extended: false }))

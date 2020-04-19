@@ -10,7 +10,7 @@ async function indexer () {
     .project({ version: 1, user: 1, service: 1 })
     .toArray();
   Promise.mapSeries(postsData, async (post) => {
-    const indexExists = await lookup.findOne({ id: post.user, service: post.service });
+    const indexExists = await lookup.findOne({ id: post.user, service: post.service || 'patreon' });
     if (indexExists) return;
 
     switch (post.service) {

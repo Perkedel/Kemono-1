@@ -1,5 +1,6 @@
 ### v1.2.2
 - Queried fields are now properly indexed
+- Lookup now uses prefix expression with case-sensitivity in order to support [indexing](https://docs.mongodb.com/manual/reference/operator/query/regex/#index-use)
 
 ### v1.2.1
 - Removes accidental debug left in last release

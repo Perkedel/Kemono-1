@@ -67,10 +67,7 @@ express()
     const index = await lookup
       .find({
         service: 'patreon',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
@@ -83,10 +80,7 @@ express()
     const index = await lookup
       .find({
         service: 'fanbox',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
@@ -99,10 +93,7 @@ express()
     const index = await lookup
       .find({
         service: 'gumroad',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
@@ -115,10 +106,7 @@ express()
     const index = await lookup
       .find({
         service: 'discord',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)

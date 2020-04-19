@@ -247,7 +247,7 @@ express()
         name: 'h2.creator-profile-card__name.js-creator-name'
       });
 
-      res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
+      res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {
       res.sendStatus(404);

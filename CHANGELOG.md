@@ -1,3 +1,6 @@
+### v1.2.2
+- Queried fields are now properly indexed
+
 ### v1.2.1
 - Removes accidental debug left in last release
 - Code properly includes limit in API request

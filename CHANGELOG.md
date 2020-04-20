@@ -4,6 +4,7 @@
 - Better handling of v1 posts in indexer
 - Patreon importer now handles multiple pages at a time
 - Gumroad proxy now caches for 1 year to avoid 404s
+- Increment current month in Discord importer to prevent missed queries
 
 ### v1.2.1
 - Removes accidental debug left in last release

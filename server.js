@@ -9,8 +9,13 @@ const express = require('express');
 const esc = require('escape-string-regexp');
 const compression = require('compression');
 const path = require('path');
+posts.createIndex({ user: 1, service: 1 });
+posts.createIndex({ service: 1 });
+posts.createIndex({ added_at: -1 });
+posts.createIndex({ published_at: -1 });
+lookup.createIndex({ service: 1, name: 1 });
+lookup.createIndex({ id: 1, service: 1 });
 require('./indexer')();
-posts.createIndex({ user: 1 });
 express()
   .use(compression())
   .use(bodyParser.urlencoded({ extended: false }))
@@ -62,10 +67,7 @@ express()
     const index = await lookup
       .find({
         service: 'patreon',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
@@ -78,10 +80,7 @@ express()
     const index = await lookup
       .find({
         service: 'fanbox',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
@@ -94,10 +93,7 @@ express()
     const index = await lookup
       .find({
         service: 'gumroad',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
@@ -110,10 +106,7 @@ express()
     const index = await lookup
       .find({
         service: 'discord',
-        name: {
-          $regex: esc(req.query.q),
-          $options: 'i'
-        }
+        name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
@@ -254,7 +247,7 @@ express()
         name: 'h2.creator-profile-card__name.js-creator-name'
       });
 
-      res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
+      res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {
       res.sendStatus(404);

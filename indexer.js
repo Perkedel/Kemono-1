@@ -4,14 +4,13 @@ const { unraw } = require('unraw');
 const cloudscraper = require('cloudscraper');
 const { posts, lookup } = require('./db');
 async function indexer () {
-  posts.createIndex({ added_at: -1 });
   const postsData = await posts
     .find({})
     .sort({ added_at: -1 })
     .project({ version: 1, user: 1, service: 1 })
     .toArray();
   Promise.mapSeries(postsData, async (post) => {
-    const indexExists = await lookup.findOne({ id: post.user, service: post.service });
+    const indexExists = await lookup.findOne({ id: post.user, service: post.service || 'patreon' });
     if (indexExists) return;
 
     switch (post.service) {

@@ -46,7 +46,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       cookie: `session_id=${key}`
     }
   });
-  await Promise.map(patreon.body.data, async (post) => {
+  Promise.map(patreon.body.data, async (post) => {
     const attr = post.attributes;
     const rel = post.relationships;
     let fileKey = `files/${rel.user.data.id}/${post.id}`;

@@ -1,3 +1,11 @@
+### v1.2.2
+- Queried fields are now properly indexed
+- Lookup now uses prefix expression with case-sensitivity in order to support [indexing](https://docs.mongodb.com/manual/reference/operator/query/regex/#index-use)
+- Better handling of v1 posts in indexer
+- Patreon importer now handles multiple pages at a time
+- Gumroad proxy now caches for 1 year to avoid 404s
+- Increment current month in Discord importer to prevent missed queries
+
 ### v1.2.1
 - Removes accidental debug left in last release
 - Code properly includes limit in API request

@@ -71,8 +71,8 @@ async function scraper (key, server, channels) {
       await Promise.mapSeries(range(12, 1), async (month) => {
         await Promise.mapSeries(range(31, 1), async (day) => {
           // skip date if future
-          if (month > date.getMonth() && year === date.getFullYear()) return;
-          if (month === date.getMonth() && day > date.getDate()) return;
+          if (month > date.getMonth() + 1 && year === date.getFullYear()) return;
+          if (month === date.getMonth() + 1 && day > date.getDate()) return;
           const snowflakes = getDay(month, day, year);
           const discord = await retry(() => {
             return new Promise((resolve, reject) => {

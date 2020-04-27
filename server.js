@@ -209,13 +209,13 @@ express()
       .catch(() => res.sendStatus(404));
   })
   .get('/proxy/fanbox/user/:id', async (req, res) => {
-    const api = 'https://fanbox.pixiv.net/api/creator.get?userId';
+    const api = 'https://api.fanbox.cc/creator.get?userId';
     request
       .get(`${api}=${req.params.id}`, {
         json: true,
         headers: {
-          origin: 'https://www.pixiv.net',
-          cookie: `PHPSESSID=${process.env.FANBOX_KEY}`
+          origin: 'https://fanbox.cc',
+          cookie: `FANBOXSESSID=${process.env.FANBOX_KEY}`
         }
       })
       .then(user => {

@@ -26,11 +26,11 @@ async function indexer () {
         break;
       }
       case 'fanbox': {
-        const api = 'https://fanbox.pixiv.net/api/creator.get?userId';
+        const api = 'https://api.fanbox.cc/creator.get?userId';
         const user = await request.get(`${api}=${post.user}`, {
           json: true,
           headers: {
-            origin: 'https://www.pixiv.net'
+            origin: 'https://fanbox.cc'
           }
         });
         await lookup.insertOne({

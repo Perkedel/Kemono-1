@@ -13,8 +13,8 @@ const requestOptions = (key) => {
   return {
     json: true,
     headers: {
-      cookie: `PHPSESSID=${key}`,
-      origin: 'https://www.pixiv.net'
+      cookie: `FANBOXSESSID=${key}`,
+      origin: 'https://fanbox.cc'
     }
   };
 };
@@ -23,16 +23,16 @@ const fileRequestOptions = (key) => {
   return {
     encoding: null,
     headers: {
-      cookie: `PHPSESSID=${key}`,
-      origin: 'https://www.pixiv.net'
+      cookie: `FANBOXSESSID=${key}`,
+      origin: 'https://fanbox.cc'
     }
   };
 };
 
 async function scraper (key) {
-  const fanboxIndex = await request.get('https://fanbox.pixiv.net/api/plan.listSupporting', requestOptions(key));
+  const fanboxIndex = await request.get('https://api.fanbox.cc/plan.listSupporting', requestOptions(key));
   Promise.map(fanboxIndex.body, async (artist) => {
-    processFanbox(`https://fanbox.pixiv.net/api/post.listCreator?userId=${artist.user.userId}&limit=100`, key);
+    processFanbox(`https://api.fanbox.cc/post.listCreator?userId=${artist.user.userId}&limit=100`, key);
   });
 }
 

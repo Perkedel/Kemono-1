@@ -1,3 +1,6 @@
+### v1.2.3
+- Update Fanbox-related scripts for new domain (fanbox.cc)
+
 ### v1.2.2
 - Queried fields are now properly indexed
 - Lookup now uses prefix expression with case-sensitivity in order to support [indexing](https://docs.mongodb.com/manual/reference/operator/query/regex/#index-use)

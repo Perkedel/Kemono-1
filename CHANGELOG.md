@@ -1,5 +1,6 @@
 ### v1.2.3
 - Update Fanbox-related scripts for new domain (fanbox.cc)
+- More fail-resistance in importer
 
 ### v1.2.2
 - Queried fields are now properly indexed

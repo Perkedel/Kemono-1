@@ -12,6 +12,7 @@ const getUrls = require('get-urls');
 const crypto = require('crypto');
 const hasha = require('hasha');
 const { URL } = require('url');
+const retry = require('p-retry');
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
   if (!content) return '';
@@ -25,27 +26,31 @@ const sanitizePostContent = async (content) => {
       const imageMime = mime.getType(url.origin + url.pathname);
       const filename = new Date().getTime() + '.' + mime.getExtension(imageMime);
       await fs.ensureFile(`${process.env.DB_ROOT}/inline/${filename}`);
-      await new Promise(resolve => {
-        request.get({ url: val, encoding: null })
-          .on('complete', () => {
-            content = content.replace(val, `/inline/${filename}`);
-            resolve();
-          })
-          .on('error', () => resolve())
-          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/${filename}`));
-      });
+      await retry(() => {
+        return new Promise(resolve => {
+          request.get({ url: val, encoding: null })
+            .on('complete', () => {
+              content = content.replace(val, `/inline/${filename}`);
+              resolve();
+            })
+            .on('error', () => resolve())
+            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/${filename}`));
+        });
+      })
     }
   });
   return content;
 };
 async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-version=1.0') {
-  const patreon = await cloudscraper.get(uri, {
-    resolveWithFullResponse: true,
-    json: true,
-    headers: {
-      cookie: `session_id=${key}`
-    }
-  });
+  const patreon = await retry(() => {
+    return cloudscraper.get(uri, {
+      resolveWithFullResponse: true,
+      json: true,
+      headers: {
+        cookie: `session_id=${key}`
+      }
+    })
+  })
   Promise.map(patreon.body.data, async (post) => {
     const attr = post.attributes;
     const rel = post.relationships;
@@ -83,8 +88,14 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       const filename = slugify(fileBits[0], { lowercase: false });
       const ext = fileBits[fileBits.length - 1];
       await fs.ensureFile(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`);
-      await request.get({ url: attr.post_file.url, encoding: null })
-        .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`));
+      await retry(() => {
+        return new Promise((resolve, reject) => {
+          request.get({ url: attr.post_file.url, encoding: null })
+            .on('complete', () => resolve())
+            .on('error', () => reject())
+            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`));
+        })
+      })
       postDb.post_file.name = attr.post_file.name;
       postDb.post_file.path = `/${fileKey}/${filename}.${ext}`;
     }
@@ -99,45 +110,52 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       // use content disposition
       const randomKey = crypto.randomBytes(20).toString('hex');
       await fs.ensureFile(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`);
-      const res = await cloudscraper.get({
-        url: `https://www.patreon.com/file?h=${post.id}&i=${attachment.id}`,
-        followRedirect: false,
-        followAllRedirects: false,
+      const res = await retry(() => {
+        return cloudscraper.get({
+          url: `https://www.patreon.com/file?h=${post.id}&i=${attachment.id}`,
+          followRedirect: false,
+          followAllRedirects: false,
+          resolveWithFullResponse: true,
+          simple: false,
+          headers: {
+            cookie: `session_id=${key}`
+          }
+        });
+      })
+      await retry(() => {
+        return new Promise((resolve, reject) => {
+          request.get({ url: res.headers.location, encoding: null })
+            .on('complete', async (attachmentData) => {
+              const info = cd.parse(attachmentData.headers['content-disposition']);
+              const fileBits = info.parameters.filename.split('.');
+              const filename = slugify(fileBits[0], { lowercase: false });
+              const ext = fileBits[fileBits.length - 1];
+              postDb.attachments.push({
+                id: attachment.id,
+                name: info.parameters.filename,
+                path: `/${attachmentsKey}/${filename}.${ext}`
+              });
+              await fs.rename(
+                `${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`,
+                `${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`
+              );
+              resolve();
+            })
+            .on('error', () => reject())
+            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`));
+        })
+      })
+    });
+
+    const postData = await retry(() => {
+      return cloudscraper.get(`https://www.patreon.com/api/posts/${post.id}?include=images.null,audio.null&json-api-use-default-includes=false&json-api-version=1.0`, {
         resolveWithFullResponse: true,
-        simple: false,
+        json: true,
         headers: {
           cookie: `session_id=${key}`
         }
       });
-      await new Promise(resolve => {
-        request.get({ url: res.headers.location, encoding: null })
-          .on('complete', async (attachmentData) => {
-            const info = cd.parse(attachmentData.headers['content-disposition']);
-            const fileBits = info.parameters.filename.split('.');
-            const filename = slugify(fileBits[0], { lowercase: false });
-            const ext = fileBits[fileBits.length - 1];
-            postDb.attachments.push({
-              id: attachment.id,
-              name: info.parameters.filename,
-              path: `/${attachmentsKey}/${filename}.${ext}`
-            });
-            await fs.rename(
-              `${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`,
-              `${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`
-            );
-            resolve();
-          })
-          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`));
-      });
-    });
-
-    const postData = await cloudscraper.get(`https://www.patreon.com/api/posts/${post.id}?include=images.null,audio.null&json-api-use-default-includes=false&json-api-version=1.0`, {
-      resolveWithFullResponse: true,
-      json: true,
-      headers: {
-        cookie: `session_id=${key}`
-      }
-    });
+    })
 
     await Promise.map(postData.body.included, async (includedFile, i) => {
       if (i === 0 && JSON.stringify(postDb.post_file) !== '{}') return;
@@ -145,8 +163,14 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       const filename = slugify(fileBits[0], { lowercase: false });
       const ext = fileBits[fileBits.length - 1];
       await fs.ensureFile(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`);
-      request.get({ url: includedFile.attributes.download_url, encoding: null })
-        .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`));
+      await retry(() => {
+        return new Promise((resolve, reject) => {
+          request.get({ url: includedFile.attributes.download_url, encoding: null })
+            .on('complete', () => resolve())
+            .on('error', () => reject())
+            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`));
+        })
+      })
       postDb.attachments.push({
         name: includedFile.attributes.file_name,
         path: `/${attachmentsKey}/${filename}.${ext}`

@@ -10,6 +10,7 @@ const { slugify } = require('transliteration');
 const indexer = require('../../indexer');
 const { URL } = require('url');
 const cloudscraper = require('cloudscraper');
+const retry = require('p-retry');
 const apiOptions = key => {
   return {
     json: true,
@@ -91,8 +92,15 @@ async function scraper (key) {
       const urlBits = new URL(downloadData.thumbnail).pathname.split('/');
       const filename = urlBits[urlBits.length - 1].replace(/%20/g, '_');
       await fs.ensureFile(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`);
-      request.get({ url: downloadData.thumbnail, encoding: null })
-        .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`));
+      await retry(() => {
+        return new Promise((resolve, reject) => {
+          request.get({ url: downloadData.thumbnail, encoding: null })
+            .on('complete', () => resolve())
+            .on('error', () => reject())
+            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`));
+        })
+      })
+      
       model.post_file.name = filename;
       model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
     }
@@ -100,25 +108,28 @@ async function scraper (key) {
     await Promise.map(downloadData.files, async (file) => {
       const randomKey = crypto.randomBytes(20).toString('hex');
       await fs.ensureFile(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`);
-      await new Promise(resolve => {
-        request2
-          .get(file.link, scrapeOptions(key))
-          .on('complete', async (res) => {
-            let ext = mime.getExtension(res.headers['content-type']);
-            if (res.headers['content-type'] === 'attachment') ext = 'pdf';
-            const filename = slugify(file.filename, { lowercase: false });
-            model.attachments.push({
-              name: `${filename}.${ext}`,
-              path: `/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
-            });
-            await fs.move(
-              `${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`,
-              `${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
-            );
-            resolve();
-          })
-          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`));
-      });
+      await retry(() => {
+        return new Promise((resolve, reject) => {
+          request2
+            .get(file.link, scrapeOptions(key))
+            .on('complete', async (res) => {
+              let ext = mime.getExtension(res.headers['content-type']);
+              if (res.headers['content-type'] === 'attachment') ext = 'pdf';
+              const filename = slugify(file.filename, { lowercase: false });
+              model.attachments.push({
+                name: `${filename}.${ext}`,
+                path: `/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
+              });
+              await fs.move(
+                `${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`,
+                `${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`
+              );
+              resolve();
+            })
+            .on('error', () => reject())
+            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`));
+        });
+      })
     });
 
     posts.insertOne(model);

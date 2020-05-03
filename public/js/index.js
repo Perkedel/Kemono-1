@@ -146,59 +146,62 @@ async function main () {
         } else {
           avatar = user.data.attributes.image_url;
         }
-        marthaView.innerHTML += rowHTML({
-          href: '/user/' + user.data.id,
-          avatar: avatar,
-          title: post.title,
-          subtitle: user.data.attributes.vanity || user.data.attributes.full_name
-        });
+        if (!post.post_file.path) break;
+        marthaView.innerHTML += `
+          <div class="recent-row">
+            <img 
+              class="user-post-image" 
+              src="${post.post_file.path}"
+            >
+          </div>
+        `
         break;
       }
-      case 'gumroad': {
-        const userData = await fetch(`/proxy/gumroad/user/${post.user}`);
-        const user = await userData.json();
-        const marthaView = document.getElementById('recent-view');
-        marthaView.innerHTML += rowHTML({
-          href: '/gumroad/user/' + post.user,
-          avatar: user.avatar,
-          title: post.title,
-          subtitle: user.name
-        });
-        break;
-      }
-      case 'fanbox': {
-        require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
-          fetch(`/proxy/fanbox/user/${post.user}`)
-            .then(userData => userData.json())
-            .then(user => {
-              const marthaView = document.getElementById('recent-view');
-              marthaView.innerHTML += rowHTML({
-                href: '/fanbox/user/' + post.user,
-                avatar: unraw.unraw(user.body.user.iconUrl),
-                title: post.title,
-                subtitle: unraw.unraw(user.body.user.name)
-              });
-            });
-        });
-        break;
-      }
-      default: {
-        const userData = await fetch(`/proxy/user/${post.user}`);
-        const user = await userData.json();
-        const marthaView = document.getElementById('recent-view');
-        let avatar;
-        if (user.included) {
-          avatar = user.included[0].attributes.avatar_photo_url;
-        } else {
-          avatar = user.data.attributes.image_url;
-        }
-        marthaView.innerHTML += rowHTML({
-          href: '/user/' + user.data.id,
-          avatar: avatar,
-          title: post.title,
-          subtitle: user.name
-        });
-      }
+    //   case 'gumroad': {
+    //     const userData = await fetch(`/proxy/gumroad/user/${post.user}`);
+    //     const user = await userData.json();
+    //     const marthaView = document.getElementById('recent-view');
+    //     marthaView.innerHTML += rowHTML({
+    //       href: '/gumroad/user/' + post.user,
+    //       avatar: user.avatar,
+    //       title: post.title,
+    //       subtitle: user.name
+    //     });
+    //     break;
+    //   }
+    //   case 'fanbox': {
+    //     require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
+    //       fetch(`/proxy/fanbox/user/${post.user}`)
+    //         .then(userData => userData.json())
+    //         .then(user => {
+    //           const marthaView = document.getElementById('recent-view');
+    //           marthaView.innerHTML += rowHTML({
+    //             href: '/fanbox/user/' + post.user,
+    //             avatar: unraw.unraw(user.body.user.iconUrl),
+    //             title: post.title,
+    //             subtitle: unraw.unraw(user.body.user.name)
+    //           });
+    //         });
+    //     });
+    //     break;
+    //   }
+    //   default: {
+    //     const userData = await fetch(`/proxy/user/${post.user}`);
+    //     const user = await userData.json();
+    //     const marthaView = document.getElementById('recent-view');
+    //     let avatar;
+    //     if (user.included) {
+    //       avatar = user.included[0].attributes.avatar_photo_url;
+    //     } else {
+    //       avatar = user.data.attributes.image_url;
+    //     }
+    //     marthaView.innerHTML += rowHTML({
+    //       href: '/user/' + user.data.id,
+    //       avatar: avatar,
+    //       title: post.title,
+    //       subtitle: user.name
+    //     });
+    //   }
     }
   });
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));

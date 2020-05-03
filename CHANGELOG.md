@@ -1,3 +1,6 @@
+### v1.3
+- Brand new client
+
 ### v1.2.3
 - Update Fanbox-related scripts for new domain (fanbox.cc)
 - More fail-resistance in importer

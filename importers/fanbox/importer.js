@@ -37,7 +37,7 @@ async function scraper (key) {
 }
 
 async function processFanbox (url, key) {
-  const data = await request.get(unraw(url), requestOptions(key));
+  const data = await request.get(process.env.PROXY + unraw(url), requestOptions(key));
   await Promise.mapSeries(data.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
     const postModel = {
@@ -71,7 +71,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(unraw(image.originalUrl), fileRequestOptions(key))
+            request2.get(process.env.PROXY + unraw(image.originalUrl), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -93,7 +93,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(unraw(image.originalUrl), fileRequestOptions(key))
+            request2.get(process.env.PROXY + unraw(image.originalUrl), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -123,7 +123,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(unraw(file.url), fileRequestOptions(key))
+            request2.get(process.env.PROXY + unraw(file.url), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -144,7 +144,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(unraw(file.url), fileRequestOptions(key))
+            request2.get(process.env.PROXY + unraw(file.url), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -184,7 +184,7 @@ async function concatenateArticle (body, key) {
       operation.attempt(async () => {
         const randomKey = crypto.randomBytes(20).toString('hex');
         await fs.ensureFile(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`);
-        request2.get(unraw(imageInfo.originalUrl), fileRequestOptions(key))
+        request2.get(process.env.PROXY + unraw(imageInfo.originalUrl), fileRequestOptions(key))
           .on('complete', () => {
             fs.rename(
               `${process.env.DB_ROOT}/inline/fanbox/${randomKey}`,

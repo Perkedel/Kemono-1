@@ -30,9 +30,9 @@ const fileRequestOptions = (key) => {
 };
 
 async function scraper (key) {
-  const fanboxIndex = await request.get('https://api.fanbox.cc/plan.listSupporting', requestOptions(key));
+  const fanboxIndex = await request.get(`${process.env.PROXY || ''}https://api.fanbox.cc/plan.listSupporting`, requestOptions(key));
   Promise.map(fanboxIndex.body, async (artist) => {
-    processFanbox(`https://api.fanbox.cc/post.listCreator?userId=${artist.user.userId}&limit=100`, key);
+    processFanbox(`${process.env.PROXY || ''}https://api.fanbox.cc/post.listCreator?userId=${artist.user.userId}&limit=100`, key);
   });
 }
 

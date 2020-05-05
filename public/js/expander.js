@@ -1,32 +1,36 @@
-Expand = function(c, t)
+var Expand = function(c, t)
 {
   if(!c.naturalWidth)
-  {return setTimeout(Expand, 10, c, t);}
-  c.style.maxWidth = "100%"
-  c.style.display = ""
-  t.style.display = "none"
-  t.style.opacity = ""
-}
+  {
+    return setTimeout(Expand, 10, c, t);
+  }
+  c.style.maxWidth = "100%";
+  c.style.display = "";
+  t.style.display = "none";
+  t.style.opacity = "";
+};
 
-Expander = function(e)
+var Expander = function(e)
 {
-  t = e.target;
+  var t = e.target;
   if(t.parentNode.classList.contains("fileThumb"))
   {
     e.preventDefault();
     if(t.hasAttribute("data-src"))
     {
-      c = document.createElement("img")
-      c.setAttribute("src", t.parentNode.getAttribute("href"))
-      c.style.display = "none"
-      t.parentNode.insertBefore(c, t.nextElementSibling)
-      t.style.opacity = "0.75"
-      setTimeout(Expand, 10, c, t)
+      var c = document.createElement("img");
+      c.setAttribute("src", t.parentNode.getAttribute("href"));
+      c.style.display = "none";
+      t.parentNode.insertBefore(c, t.nextElementSibling);
+      t.style.opacity = "0.75";
+      setTimeout(Expand, 10, c, t);
     } else {
-      t.parentNode.firstChild.style.display = ""
-      t.parentNode.removeChild(t)
+      var a = t.parentNode;
+      a.firstChild.style.display = "";
+      a.removeChild(t);
+      a.offsetTop < window.pageYOffset && a.scrollIntoView({top: 0, behavior: "smooth"});
     }
   }
-}
+};
 
 document.addEventListener("click", Expander);

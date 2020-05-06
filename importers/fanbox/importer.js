@@ -9,6 +9,7 @@ const nl2br = require('nl2br');
 const Promise = require('bluebird');
 const crypto = require('crypto');
 const retry = require('retry');
+const proxy = require('../../proxy');
 const requestOptions = (key) => {
   return {
     json: true,
@@ -30,14 +31,15 @@ const fileRequestOptions = (key) => {
 };
 
 async function scraper (key) {
-  const fanboxIndex = await request.get(`${process.env.PROXY || ''}https://api.fanbox.cc/plan.listSupporting`, requestOptions(key));
+  const fanboxIndex = await proxy('https://api.fanbox.cc/plan.listSupporting', requestOptions(key), request);
   Promise.map(fanboxIndex.body, async (artist) => {
-    processFanbox(`${process.env.PROXY || ''}https://api.fanbox.cc/post.listCreator?userId=${artist.user.userId}&limit=100`, key);
+    processFanbox(`https://api.fanbox.cc/post.listCreator?userId=${artist.user.userId}&limit=100`, key);
   });
 }
 
 async function processFanbox (url, key) {
-  const data = await request.get(process.env.PROXY + unraw(url), requestOptions(key));
+  let proxyaddr = process.env.PROXY ? process.env.PROXY : '';
+  const data = await proxy(unraw(url), requestOptions(key), request);
   await Promise.mapSeries(data.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
     const postModel = {
@@ -71,7 +73,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(process.env.PROXY + unraw(image.originalUrl), fileRequestOptions(key))
+            request2.get(proxyaddr + unraw(image.originalUrl), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -93,7 +95,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(process.env.PROXY + unraw(image.originalUrl), fileRequestOptions(key))
+            request2.get(proxyaddr + unraw(image.originalUrl), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -123,7 +125,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(process.env.PROXY + unraw(file.url), fileRequestOptions(key))
+            request2.get(proxyaddr + unraw(file.url), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -144,7 +146,7 @@ async function processFanbox (url, key) {
           operation.attempt(async () => {
             const randomKey = crypto.randomBytes(20).toString('hex');
             await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(process.env.PROXY + unraw(file.url), fileRequestOptions(key))
+            request2.get(proxyaddr + unraw(file.url), fileRequestOptions(key))
               .on('complete', () => {
                 fs.rename(
                   `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
@@ -173,6 +175,7 @@ async function processFanbox (url, key) {
 
 async function concatenateArticle (body, key) {
   let concatenatedString = '<p>';
+  let proxyaddr = process.env.PROXY ? process.env.PROXY : '';
   await Promise.mapSeries(body.blocks, async (block) => {
     if (block.type === 'image') {
       const imageInfo = body.imageMap[block.imageId];
@@ -184,7 +187,7 @@ async function concatenateArticle (body, key) {
       operation.attempt(async () => {
         const randomKey = crypto.randomBytes(20).toString('hex');
         await fs.ensureFile(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`);
-        request2.get(process.env.PROXY + unraw(imageInfo.originalUrl), fileRequestOptions(key))
+        request2.get(proxyaddr + unraw(imageInfo.originalUrl), fileRequestOptions(key))
           .on('complete', () => {
             fs.rename(
               `${process.env.DB_ROOT}/inline/fanbox/${randomKey}`,

@@ -13,6 +13,7 @@ const crypto = require('crypto');
 const hasha = require('hasha');
 const { URL } = require('url');
 const retry = require('p-retry');
+const proxy = require('./proxy');
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
   if (!content) return '';
@@ -42,15 +43,13 @@ const sanitizePostContent = async (content) => {
   return content;
 };
 async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-version=1.0') {
-  const patreon = await retry(() => {
-    return cloudscraper.get(uri, {
-      resolveWithFullResponse: true,
-      json: true,
-      headers: {
-        cookie: `session_id=${key}`
-      }
-    });
-  });
+  const patreon = await proxy(uri, {
+    resolveWithFullResponse: true,
+    json: true,
+    headers: {
+      cookie: `session_id=${key}`
+    }
+  }, cloudscraper);
   Promise.map(patreon.body.data, async (post) => {
     const attr = post.attributes;
     const rel = post.relationships;
@@ -110,18 +109,15 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       // use content disposition
       const randomKey = crypto.randomBytes(20).toString('hex');
       await fs.ensureFile(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`);
-      const res = await retry(() => {
-        return cloudscraper.get({
-          url: `https://www.patreon.com/file?h=${post.id}&i=${attachment.id}`,
-          followRedirect: false,
-          followAllRedirects: false,
-          resolveWithFullResponse: true,
-          simple: false,
-          headers: {
-            cookie: `session_id=${key}`
-          }
-        });
-      });
+      const res = await proxy(`https://www.patreon.com/file?h=${post.id}&i=${attachment.id}`, {
+        followRedirect: false,
+        followAllRedirects: false,
+        resolveWithFullResponse: true,
+        simple: false,
+        headers: {
+          cookie: `session_id=${key}`
+        }
+      }, cloudscraper);
       await retry(() => {
         return new Promise((resolve, reject) => {
           request.get({ url: res.headers.location, encoding: null })
@@ -147,15 +143,13 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       });
     });
 
-    const postData = await retry(() => {
-      return cloudscraper.get(`https://www.patreon.com/api/posts/${post.id}?include=images.null,audio.null&json-api-use-default-includes=false&json-api-version=1.0`, {
-        resolveWithFullResponse: true,
-        json: true,
-        headers: {
-          cookie: `session_id=${key}`
-        }
-      });
-    });
+    const postData = await proxy(`https://www.patreon.com/api/posts/${post.id}?include=images.null,audio.null&json-api-use-default-includes=false&json-api-version=1.0`, {
+      resolveWithFullResponse: true,
+      json: true,
+      headers: {
+        cookie: `session_id=${key}`
+      }
+    }, cloudscraper);
 
     await Promise.map(postData.body.included, async (includedFile, i) => {
       if (i === 0 && JSON.stringify(postDb.post_file) !== '{}') return;

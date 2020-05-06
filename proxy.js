@@ -1,6 +1,8 @@
+const retry = require('p-retry');
 module.exports = (uri, options, wrap) => {
-  let proxy = process.env.PROXY ? process.env.PROXY : '';
-  let req = await wrap.get(proxy + uri, options)
-    .catch(() => await wrap.get(uri, options));
-  return req;
+  return retry(i => {
+    let proxy = process.env.PROXY ? process.env.PROXY : '';
+    if (i > 1) proxy = '';
+    return wrap.get(proxy + uri, options)
+  });
 };

@@ -9,6 +9,7 @@ const express = require('express');
 const esc = require('escape-string-regexp');
 const compression = require('compression');
 const path = require('path');
+const proxy = require('./proxy');
 posts.createIndex({ user: 1, service: 1 });
 posts.createIndex({ service: 1 });
 posts.createIndex({ added_at: -1 });
@@ -201,7 +202,7 @@ express()
     const api = 'https://www.patreon.com/api/user';
     const options = cloudscraper.defaultParams;
     options.json = true;
-    cloudscraper.get(`${api}/${req.params.id}`, options)
+    proxy(`${api}/${req.params.id}`, options, cloudscraper)
       .then(user => {
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
@@ -210,14 +211,13 @@ express()
   })
   .get('/proxy/fanbox/user/:id', async (req, res) => {
     const api = 'https://api.fanbox.cc/creator.get?userId';
-    request
-      .get(`${process.env.PROXY || ''}${api}=${req.params.id}`, {
-        json: true,
-        headers: {
-          origin: 'https://fanbox.cc',
-          cookie: `FANBOXSESSID=${process.env.FANBOX_KEY}`
-        }
-      })
+    proxy(`${api}/${req.params.id}`, {
+      json: true,
+      headers: {
+        origin: 'https://fanbox.cc',
+        cookie: `FANBOXSESSID=${process.env.FANBOX_KEY}`
+      }
+    }, request)
       .then(user => {
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
@@ -227,7 +227,7 @@ express()
   .get('/proxy/gumroad/user/:id', async (req, res) => {
     const api = 'https://gumroad.com';
     try {
-      const html = await request.get(`${api}/${req.params.id}`);
+      const html = await proxy(`${api}/${req.params.id}`, {}, cloudscraper);
       const user = scrapeIt.scrapeHTML(html, {
         background: {
           selector: '.profile-background-container.js-background-image-container img',

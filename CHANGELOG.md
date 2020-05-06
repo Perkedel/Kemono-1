@@ -2,7 +2,7 @@
 - Update Fanbox-related scripts for new domain (fanbox.cc)
 - More fail-resistance in importer
 - All API requests can now use [node-unblocker](https://github.com/nfriedly/node-unblocker) proxies
-- Tidied up expander/lazy load code.
+- Tidied up expander/lazy load code
 - Fixed promise rejections
 
 ### v1.2.2

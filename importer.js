@@ -91,7 +91,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         return new Promise((resolve, reject) => {
           request.get({ url: attr.post_file.url, encoding: null })
             .on('complete', () => resolve())
-            .on('error', () => reject())
+            .on('error', err => reject(err))
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`));
         });
       });
@@ -137,7 +137,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
               );
               resolve();
             })
-            .on('error', () => reject())
+            .on('error', err => reject(err))
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`));
         });
       });
@@ -161,7 +161,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         return new Promise((resolve, reject) => {
           request.get({ url: includedFile.attributes.download_url, encoding: null })
             .on('complete', () => resolve())
-            .on('error', () => reject())
+            .on('error', err => reject(err))
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`));
         });
       });

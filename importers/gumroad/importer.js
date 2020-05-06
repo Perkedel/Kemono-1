@@ -97,7 +97,7 @@ async function scraper (key) {
         return new Promise((resolve, reject) => {
           request.get({ url: downloadData.thumbnail, encoding: null })
             .on('complete', () => resolve())
-            .on('error', () => reject())
+            .on('error', err => reject(err))
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`));
         });
       });
@@ -127,7 +127,7 @@ async function scraper (key) {
               );
               resolve();
             })
-            .on('error', () => reject())
+            .on('error', err => reject(err))
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`));
         });
       });

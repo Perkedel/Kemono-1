@@ -4,6 +4,7 @@
 - All API requests can now use [node-unblocker](https://github.com/nfriedly/node-unblocker) proxies
 - Tidied up expander/lazy load code
 - Fixed promise rejections
+- Fanbox importer now uses `p-retry`
 
 ### v1.2.2
 - Queried fields are now properly indexed

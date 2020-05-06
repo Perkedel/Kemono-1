@@ -8,7 +8,7 @@ const { unraw } = require('unraw');
 const nl2br = require('nl2br');
 const Promise = require('bluebird');
 const crypto = require('crypto');
-const retry = require('retry');
+const retry = require('p-retry');
 const proxy = require('../../proxy');
 const requestOptions = (key) => {
   return {
@@ -65,46 +65,43 @@ async function processFanbox (url, key) {
     if (post.body.images) {
       await Promise.mapSeries(post.body.images, async (image, index) => {
         if (index === 0 && !postModel.post_file.name) {
-          const operation = retry.operation({
-            retries: 10,
-            factor: 1,
-            minTimeout: 1000
-          });
-          operation.attempt(async () => {
-            const randomKey = crypto.randomBytes(20).toString('hex');
-            await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(proxyaddr + unraw(image.originalUrl), fileRequestOptions(key))
-              .on('complete', () => {
-                fs.rename(
-                  `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
-                  `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`
-                );
-              })
-              .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
-          });
+          const randomKey = crypto.randomBytes(20).toString('hex');
+          await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
+          await retry(() => {
+            return new Promise((resolve, reject) => {
+              request2.get(proxyaddr + unraw(image.originalUrl), fileRequestOptions(key))
+                .on('complete', () => {
+                  fs.rename(
+                    `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
+                    `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`
+                  );
+                  resolve();
+                })
+                .on('error', err => reject(err))
+                .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+            })
+          })
 
           postModel.post_file.name = `${image.id}.${image.extension}`;
           postModel.post_file.path = `${filesLocation}/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`;
         } else {
-          const operation = retry.operation({
-            retries: 10,
-            factor: 1,
-            minTimeout: 1000
-          });
-          operation.attempt(async () => {
-            const randomKey = crypto.randomBytes(20).toString('hex');
-            await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(proxyaddr + unraw(image.originalUrl), fileRequestOptions(key))
-              .on('complete', () => {
-                fs.rename(
-                  `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
-                  `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`
-                );
-              })
-              .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
-          });
+          const randomKey = crypto.randomBytes(20).toString('hex');
+          await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
+          await retry(() => {
+            return new Promise((resolve, reject) => {
+              request2.get(proxyaddr + unraw(image.originalUrl), fileRequestOptions(key))
+                .on('complete', () => {
+                  fs.rename(
+                    `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
+                    `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${slugify(image.id, { lowercase: false })}.${image.extension}`
+                  );
+                  resolve();
+                })
+                .on('error', err => reject(err))
+                .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+            })
+          })
+
           postModel.attachments.push({
             id: image.id,
             name: `${image.id}.${image.extension}`,
@@ -117,45 +114,43 @@ async function processFanbox (url, key) {
     if (post.body.files) {
       await Promise.mapSeries(post.body.files, async (file, index) => {
         if (index === 0 && !postModel.post_file.name) {
-          const operation = retry.operation({
-            retries: 10,
-            factor: 1,
-            minTimeout: 1000
-          });
-          operation.attempt(async () => {
-            const randomKey = crypto.randomBytes(20).toString('hex');
-            await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(proxyaddr + unraw(file.url), fileRequestOptions(key))
-              .on('complete', () => {
-                fs.rename(
-                  `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
-                  `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`
-                );
-              })
-              .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
-          });
+          const randomKey = crypto.randomBytes(20).toString('hex');
+          await fs.ensureFile(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
+          await retry(() => {
+            return new Promise((resolve, reject) => {
+              request2.get(proxyaddr + unraw(file.url), fileRequestOptions(key))
+                .on('complete', () => {
+                  fs.rename(
+                    `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
+                    `${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`
+                  );
+                  resolve();
+                })
+                .on('error', err => reject(err))
+                .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+            })
+          })
+
           postModel.post_file.name = `${file.name}.${file.extension}`;
           postModel.post_file.path = `${filesLocation}/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`;
         } else {
-          const operation = retry.operation({
-            retries: 10,
-            factor: 1,
-            minTimeout: 1000
-          });
-          operation.attempt(async () => {
-            const randomKey = crypto.randomBytes(20).toString('hex');
-            await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
-            request2.get(proxyaddr + unraw(file.url), fileRequestOptions(key))
-              .on('complete', () => {
-                fs.rename(
-                  `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
-                  `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`
-                );
-              })
-              .on('error', err => operation.retry(err))
-              .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
-          });
+          const randomKey = crypto.randomBytes(20).toString('hex');
+          await fs.ensureFile(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`);
+          await retry(() => {
+            return new Promise((resolve, reject) => {
+              request2.get(proxyaddr + unraw(file.url), fileRequestOptions(key))
+                .on('complete', () => {
+                  fs.rename(
+                    `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`,
+                    `${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${slugify(file.name, { lowercase: false })}.${file.extension}`
+                  );
+                  resolve();
+                })
+                .on('error', err => reject(err))
+                .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/fanbox/${post.user.userId}/${post.id}/${randomKey}`));
+            })
+          })
+
           postModel.attachments.push({
             id: file.id,
             name: `${file.name}.${file.extension}`,
@@ -179,24 +174,22 @@ async function concatenateArticle (body, key) {
   await Promise.mapSeries(body.blocks, async (block) => {
     if (block.type === 'image') {
       const imageInfo = body.imageMap[block.imageId];
-      const operation = retry.operation({
-        retries: 10,
-        factor: 1,
-        minTimeout: 1000
-      });
-      operation.attempt(async () => {
-        const randomKey = crypto.randomBytes(20).toString('hex');
-        await fs.ensureFile(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`);
-        request2.get(proxyaddr + unraw(imageInfo.originalUrl), fileRequestOptions(key))
-          .on('complete', () => {
-            fs.rename(
-              `${process.env.DB_ROOT}/inline/fanbox/${randomKey}`,
-              `${process.env.DB_ROOT}/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}`
-            );
-          })
-          .on('error', err => operation.retry(err))
-          .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`));
-      });
+      const randomKey = crypto.randomBytes(20).toString('hex');
+      await fs.ensureFile(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`);
+      await retry(() => {
+        return new Promise((resolve, reject) => {
+          request2.get(proxyaddr + unraw(imageInfo.originalUrl), fileRequestOptions(key))
+            .on('complete', () => {
+              fs.rename(
+                `${process.env.DB_ROOT}/inline/fanbox/${randomKey}`,
+                `${process.env.DB_ROOT}/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}`
+              );
+              resolve();
+            })
+            .on('error', err => reject(err))
+            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/fanbox/${randomKey}`));
+        })
+      })
       concatenatedString += `<img src="/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}"><br>`;
     } else if (block.type === 'p') {
       concatenatedString += `${unraw(block.text)}<br>`;

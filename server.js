@@ -211,7 +211,7 @@ express()
   })
   .get('/proxy/fanbox/user/:id', async (req, res) => {
     const api = 'https://api.fanbox.cc/creator.get?userId';
-    proxy(`${api}/${req.params.id}`, {
+    proxy(`${api}=${req.params.id}`, {
       json: true,
       headers: {
         origin: 'https://fanbox.cc',

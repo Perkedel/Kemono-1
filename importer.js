@@ -36,7 +36,7 @@ const sanitizePostContent = async (content) => {
             .on('error', () => resolve())
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/${filename}`));
         });
-      })
+      });
     }
   });
   return content;
@@ -49,8 +49,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       headers: {
         cookie: `session_id=${key}`
       }
-    })
-  })
+    });
+  });
   Promise.map(patreon.body.data, async (post) => {
     const attr = post.attributes;
     const rel = post.relationships;
@@ -94,8 +94,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             .on('complete', () => resolve())
             .on('error', () => reject())
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`));
-        })
-      })
+        });
+      });
       postDb.post_file.name = attr.post_file.name;
       postDb.post_file.path = `/${fileKey}/${filename}.${ext}`;
     }
@@ -121,7 +121,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             cookie: `session_id=${key}`
           }
         });
-      })
+      });
       await retry(() => {
         return new Promise((resolve, reject) => {
           request.get({ url: res.headers.location, encoding: null })
@@ -143,8 +143,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             })
             .on('error', () => reject())
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`));
-        })
-      })
+        });
+      });
     });
 
     const postData = await retry(() => {
@@ -155,7 +155,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
           cookie: `session_id=${key}`
         }
       });
-    })
+    });
 
     await Promise.map(postData.body.included, async (includedFile, i) => {
       if (i === 0 && JSON.stringify(postDb.post_file) !== '{}') return;
@@ -169,8 +169,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             .on('complete', () => resolve())
             .on('error', () => reject())
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`));
-        })
-      })
+        });
+      });
       postDb.attachments.push({
         name: includedFile.attributes.file_name,
         path: `/${attachmentsKey}/${filename}.${ext}`

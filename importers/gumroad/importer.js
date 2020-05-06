@@ -98,9 +98,9 @@ async function scraper (key) {
             .on('complete', () => resolve())
             .on('error', () => reject())
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/files/gumroad/${userId}/${product.id}/${filename}`));
-        })
-      })
-      
+        });
+      });
+
       model.post_file.name = filename;
       model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
     }
@@ -129,7 +129,7 @@ async function scraper (key) {
             .on('error', () => reject())
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`));
         });
-      })
+      });
     });
 
     posts.insertOne(model);

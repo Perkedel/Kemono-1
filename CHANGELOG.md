@@ -1,3 +1,5 @@
+Kemono uses [semantic versioning](https://semver.org/).
+
 ### v1.3
 - Added SubscribeStar support
 - Update Fanbox-related scripts for new domain (fanbox.cc)

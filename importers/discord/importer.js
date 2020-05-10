@@ -16,10 +16,10 @@ const cloudscraperWithRateLimits = (url, opts) => {
         .catch(async (err) => {
           if (err.statusCode === 429) await sleep(err.error.retry_after);
           return reject(err);
-        })
-    })
-  })
-}
+        });
+    });
+  });
+};
 async function scraper (key, channels) {
   const channelArray = channels.split(',');
   Promise.mapSeries(channelArray, async (channel) => {
@@ -66,16 +66,16 @@ async function scraper (key, channels) {
     }
 
     processChannel(channelData.body.id, serverData.body.id, key);
-  })
+  });
 }
 
-async function processChannel(id, server, key, before) {
+async function processChannel (id, server, key, before) {
   const messages = await cloudscraperWithRateLimits(`https://discord.com/api/v6/channels/${id}/messages?limit=50${before ? '&before=' + before : ''}`, {
     json: true,
     headers: {
       authorization: key
     }
-  })
+  });
   let lastMessageId = '';
   await Promise.mapSeries(messages, async (msg, i, len) => {
     if (i === len - 1) lastMessageId = msg.id;
@@ -108,7 +108,7 @@ async function processChannel(id, server, key, before) {
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${attachment.filename}`));
         });
-      })
+      });
       model.attachments.push({
         isImage: isImage(attachment.filename),
         name: attachment.filename,
@@ -121,7 +121,7 @@ async function processChannel(id, server, key, before) {
 
   if (messages.length === 50) {
     await sleep(random(500, 1250));
-    processChannel(id, server, key, lastMessageId)
+    processChannel(id, server, key, lastMessageId);
   }
 }
 

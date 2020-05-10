@@ -11,7 +11,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Fixed small limiting issue with Discord service query
 - Discord importer now uses messages/scroll API for faster and more efficient imports
 - Discord importer no longer requires server ID
-- Fixed skip amount of Discord "load more" button
+- Fixed skip amount of all "load more" buttons
 
 ### v1.2.2
 - Queried fields are now properly indexed

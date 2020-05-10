@@ -54,7 +54,7 @@ async function loadMorePosts (skip) {
     `;
   });
   marthaView.innerHTML += `
-    <button onClick="loadMorePosts(${skip + 26})" id="load-more-button" class="load-more-button">Load More</a>
+    <button onClick="loadMorePosts(${skip + 25})" id="load-more-button" class="load-more-button">Load More</a>
   `;
   lazyload();
 }
@@ -82,7 +82,7 @@ async function main () {
     </div>
   `;
   marthaView.innerHTML += `
-    <button onClick="loadMorePosts(26)" id="load-more-button" class="load-more-button">Load More</a>
+    <button onClick="loadMorePosts(25)" id="load-more-button" class="load-more-button">Load More</a>
   `;
   loadMorePosts(0);
 }

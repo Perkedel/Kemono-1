@@ -102,7 +102,7 @@ async function renderSubscribestarQuery (query = '', limit = 50) {
   const subscribestarSearchData = await fetch(`/api/subscribestar/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
   const subscribestarResults = await subscribestarSearchData.json();
   subscribestarResults.map(async (userId) => {
-    const userData = await fetch(`/proxy/subscribestar/server/${userId}`);
+    const userData = await fetch(`/proxy/subscribestar/user/${userId}`);
     const user = await userData.json();
     marthaView.innerHTML += rowHTML({
       href: '/subscribestar/user/' + userId,

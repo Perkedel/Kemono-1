@@ -10,6 +10,7 @@ const ellipsize = require('ellipsize');
 const striptags = require('striptags');
 const indexer = require('../../indexer');
 const { slugify } = require('transliteration');
+const { unraw } = require('unraw');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
   const subscribestar = await cloudscraper.get(uri, {
@@ -18,7 +19,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       cookie: `auth_token=${key}`
     }
   });
-  const data = await scrapeIt.scrapeHTML(subscribestar.html, {
+  const data = await scrapeIt.scrapeHTML(unraw(subscribestar.html), {
     posts: {
       listItem: '.post',
       data: {

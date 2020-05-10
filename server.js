@@ -218,11 +218,9 @@ express()
   })
   .post('/api/discord/import', async (req, res) => {
     if (!req.body.session_key) return res.sendStatus(401);
-    if (!req.body.server_id) return res.sendStatus(400);
     if (!req.body.channel_ids) return res.sendStatus(400);
     require('./importers/discord/importer.js')({
       key: req.body.session_key,
-      server: req.body.server_id,
       channels: req.body.channel_ids
     });
     res.redirect('/importer/ok');

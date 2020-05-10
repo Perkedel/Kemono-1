@@ -51,7 +51,7 @@ const loadMessages = async (channelId, skip = 0) => {
   });
   messages.innerHTML = `
     <div class="message" id="load-more-button">
-      <button onClick="loadMessages('${channelId}', ${skip + 50})" class="load-more-button">
+      <button onClick="loadMessages('${channelId}', ${skip + 10})" class="load-more-button">
         Load More
       </button>
     </div>

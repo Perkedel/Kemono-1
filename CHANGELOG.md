@@ -6,6 +6,7 @@
 - Tidied up expander/lazy load code
 - Fixed promise rejections
 - Fanbox importer now uses `p-retry`
+- Fixed small limiting issue with Discord service query
 
 ### v1.2.2
 - Queried fields are now properly indexed

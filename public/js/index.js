@@ -83,7 +83,7 @@ async function renderFanboxQuery (query = '', limit = 50) {
 
 async function renderDiscordQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const discordSearchData = await fetch(`/api/discord/lookup?q=${encodeURIComponent(query)}`);
+  const discordSearchData = await fetch(`/api/discord/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
   const discordResults = await discordSearchData.json();
   discordResults.map(async (userId) => {
     const userData = await fetch(`/proxy/discord/server/${userId}`);

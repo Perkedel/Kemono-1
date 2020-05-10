@@ -3,7 +3,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 ### v1.3
 - Added SubscribeStar support
 - Update Fanbox-related scripts for new domain (fanbox.cc)
-- More fail-resistance in importer
+- More fail-resistance in Patreon importer
 - All API requests can now use [node-unblocker](https://github.com/nfriedly/node-unblocker) proxies
 - Tidied up expander/lazy load code
 - Fixed promise rejections

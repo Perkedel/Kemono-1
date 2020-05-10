@@ -57,12 +57,10 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     }
   });
 
-  Promise.map(data.posts, async (post) => {
+  await Promise.mapSeries(data.posts, async (post) => {
     const postExists = await posts.findOne({ id: post.id, service: 'subscribestar' });
     if (postExists) return;
 
-    const date = post.published_at.split(' ');
-    [date[0], date[1]] = [date[1], date[0]];
     const model = {
       version: 2,
       service: 'subscribestar',
@@ -72,7 +70,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       user: post.user,
       post_type: 'text_only',
       added_at: new Date().getTime(),
-      published_at: date.join(' '),
+      published_at: post.published_at,
       post_file: {},
       attachments: []
     };
@@ -110,7 +108,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       });
     });
 
-    await posts.insertOne(model);
+    posts.insertOne(model);
   });
 
   if (data.next_url) {

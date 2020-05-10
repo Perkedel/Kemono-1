@@ -182,7 +182,7 @@ express()
   })
   .get('/api/subscribestar/user/:id', async (req, res) => {
     const userPosts = await posts.find({ user: req.params.id, service: 'subscribestar' })
-      .sort({ published_at: -1 })
+      .sort({ added_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) < 50 ? Number(req.query.limit) : 25)
       .toArray();

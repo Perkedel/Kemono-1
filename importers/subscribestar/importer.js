@@ -58,6 +58,9 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
   });
 
   Promise.map(data.posts, async (post) => {
+    const postExists = await posts.findOne({ id: post.id, service: 'subscribestar' });
+    if (postExists) return;
+
     let date = post.published_at.split(' ');
     [date[0], date[1]] = [date[1], date[0]];
     const model = {

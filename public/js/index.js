@@ -97,6 +97,22 @@ async function renderDiscordQuery (query = '', limit = 50) {
   });
 }
 
+async function renderSubscribestarQuery (query = '', limit = 50) {
+  const marthaView = document.getElementById('recent-view');
+  const subscribestarSearchData = await fetch(`/api/subscribestar/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
+  const subscribestarResults = await subscribestarSearchData.json();
+  subscribestarResults.map(async (userId) => {
+    const userData = await fetch(`/proxy/subscribestar/server/${userId}`);
+    const user = await userData.json();
+    marthaView.innerHTML += rowHTML({
+      href: '/subscribestar/user/' + userId,
+      avatar: user.avatar,
+      title: user.name,
+      subtitle: 'SubscribeStar'
+    });
+  });
+}
+
 async function serviceUpdate () {
   const marthaView = document.getElementById('recent-view');
   marthaView.innerHTML = '';
@@ -118,6 +134,10 @@ async function serviceUpdate () {
       renderDiscordQuery('', 150);
       break;
     }
+    case 'subscribestar': {
+      renderSubscribestarQuery('', 150);
+      break;
+    }
   }
 }
 
@@ -129,6 +149,7 @@ async function queryUpdate () {
   renderFanboxQuery(query);
   renderGumroadQuery(query);
   renderDiscordQuery(query);
+  renderSubscribestarQuery(query);
 }
 
 async function main () {
@@ -160,6 +181,18 @@ async function main () {
         const marthaView = document.getElementById('recent-view');
         marthaView.innerHTML += rowHTML({
           href: '/gumroad/user/' + post.user,
+          avatar: user.avatar,
+          title: post.title,
+          subtitle: user.name
+        });
+        break;
+      }
+      case 'subscribestar': {
+        const userData = await fetch(`/proxy/subscribestar/user/${post.user}`);
+        const user = await userData.json();
+        const marthaView = document.getElementById('recent-view');
+        marthaView.innerHTML += rowHTML({
+          href: '/subscribestar/user/' + post.user,
           avatar: user.avatar,
           title: post.title,
           subtitle: user.name

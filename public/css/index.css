@@ -198,6 +198,15 @@ h1, h2, h3, p {
   background-size: 25px;
 }
 
+.user-header-info-subscribestar {
+  background-image: url(/subscribestar.png);
+  margin-top: 15px;
+  margin-left: 10px;
+  width: 30px;
+  height: 30px;
+  background-size: 30px;
+}
+
 .user-post-view {
   margin-top: 5px;
   min-height:0;

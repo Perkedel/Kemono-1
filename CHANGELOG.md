@@ -1,4 +1,5 @@
-### v1.2.3
+### v1.3
+- Added SubscribeStar support
 - Update Fanbox-related scripts for new domain (fanbox.cc)
 - More fail-resistance in importer
 - All API requests can now use [node-unblocker](https://github.com/nfriedly/node-unblocker) proxies

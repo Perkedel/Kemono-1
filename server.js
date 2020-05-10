@@ -53,6 +53,10 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.sendFile(path.join(__dirname, '/www/discord/server.html'));
   })
+  .get('/subscribestar/user/:id', (req, res) => {
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.sendFile(path.join(__dirname, '/www/subscribestar/user.html'));
+  })
   .get('/random', async (req, res) => {
     const lookupCount = await lookup.count({ service: 'patreon' });
     const random = await lookup
@@ -94,6 +98,19 @@ express()
     const index = await lookup
       .find({
         service: 'gumroad',
+        name: { $regex: '^' + esc(req.query.q) }
+      })
+      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
+      .map(user => user.id)
+      .toArray();
+    res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
+    res.json(index);
+  })
+  .get('/api/subscribestar/lookup', async (req, res) => {
+    if (req.query.q.length > 35) return res.sendStatus(400);
+    const index = await lookup
+      .find({
+        service: 'subscribestar',
         name: { $regex: '^' + esc(req.query.q) }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
@@ -163,6 +180,15 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
+  .get('/api/subscribestar/user/:id', async (req, res) => {
+    const userPosts = await posts.find({ user: req.params.id, service: 'subscribestar' })
+      .sort({ published_at: -1 })
+      .skip(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) < 50 ? Number(req.query.limit) : 25)
+      .toArray();
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.json(userPosts);
+  })
   .get('/api/recent', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
@@ -183,6 +209,9 @@ express()
         break;
       case 'gumroad':
         require('./importers/gumroad/importer.js')(req.body.session_key);
+        break;
+      case 'subscribestar':
+        require('./importers/subscribestar/importer.js')(req.body.session_key);
         break;
     }
     res.redirect('/importer/ok');
@@ -245,6 +274,28 @@ express()
           }
         },
         name: 'h2.creator-profile-card__name.js-creator-name'
+      });
+
+      res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
+      res.json(user);
+    } catch (err) {
+      res.sendStatus(404);
+    }
+  })
+  .get('/proxy/subscribestar/user/:id', async (req, res) => {
+    const api = 'https://subscribestar.adult';
+    try {
+      const html = await proxy(`${api}/${req.params.id}`, {}, cloudscraper);
+      const user = scrapeIt.scrapeHTML(html, {
+        background: {
+          selector: '.profile_main_info-cover',
+          attr: 'src'
+        },
+        avatar: {
+          selector: '.profile_main_info-userpic img',
+          attr: 'src'
+        },
+        name: '.profile_main_info-name'
       });
 
       res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');

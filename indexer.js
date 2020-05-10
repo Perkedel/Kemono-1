@@ -53,6 +53,17 @@ async function indexer () {
         });
         break;
       }
+      case 'subscribestar': {
+        const api = `${process.env.ORIGIN}/proxy/subscribestar/user`;
+        const user = await proxy(`${api}/${post.user}`, { json: true }, cloudscraper);
+        await lookup.insertOne({
+          version: post.version,
+          service: 'subscribestar',
+          id: post.user,
+          name: user.name
+        });
+        break;
+      }
       default: {
         const api = 'https://www.patreon.com/api/user';
         const user = await proxy(`${api}/${post.user}`, { json: true }, cloudscraper);

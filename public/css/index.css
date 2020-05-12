@@ -170,6 +170,10 @@ h1 {
   color: #fff;
 }
 
+.user-header-info p {
+  margin-top: 0;
+}
+
 .user-header-info-top {
   display: flex;
 }

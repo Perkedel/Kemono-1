@@ -147,7 +147,7 @@ async function main () {
           avatar = user.data.attributes.image_url;
         }
         if (!post.post_file.path) break;
-        marthaView.innerHTML += `
+        marthaView.innerHTML = marthaView.innerHTML + `
           <div class="recent-row">
             <img 
               class="user-post-image" 
@@ -204,6 +204,11 @@ async function main () {
     //   }
     }
   });
+  // document.getElementById('recent-view').innerHTML += `
+  //   <span class="item break"></span>
+  //   <span class="item break"></span>
+  //   <span class="item break"></span>
+  // `
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
   document.getElementById('service-input').addEventListener('change', () => serviceUpdate());
 }

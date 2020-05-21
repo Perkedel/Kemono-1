@@ -77,9 +77,9 @@ async function scraper (key) {
         attr: 'src'
       },
       files: {
-        listItem: '.file-row',
+        listItem: '.js-file-row',
         data: {
-          filename: '.file-row-left span',
+          filename: '.file-row-content-component__info h4',
           link: {
             selector: '.js-download-trigger',
             attr: 'data-url',

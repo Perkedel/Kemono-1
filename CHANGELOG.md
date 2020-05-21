@@ -3,6 +3,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 ### v1.3.1
 - Made small style changes to user header
 - Better handling of Fanbox users without header images in client
+- Fixed Gumroad importer for UI changes
 
 ### v1.3
 - Added SubscribeStar support

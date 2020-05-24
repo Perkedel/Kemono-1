@@ -1,14 +1,14 @@
 require('dotenv').config();
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
+const getUrls = require('get-urls');
 const { posts, lookup } = require('./db');
 const cloudscraper = require('cloudscraper');
 const bodyParser = require('body-parser');
 const express = require('express');
+const esc = require('escape-string-regexp');
 const compression = require('compression');
 const path = require('path');
-const esc = require('escape-string-regexp');
-const getUrls = require('get-urls');
 const proxy = require('./proxy');
 posts.createIndex({ user: 1, service: 1 });
 posts.createIndex({ service: 1 });

@@ -38,7 +38,7 @@ async function scraper (key) {
 }
 
 async function processFanbox (url, key) {
-  const proxyaddr = process.env.PROXY ? process.env.PROXY.split(',')[0] : '';
+  const proxyaddr = process.env.PROXY ? process.env.PROXY : '';
   const data = await proxy(unraw(url), requestOptions(key), request);
   await Promise.mapSeries(data.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
@@ -177,7 +177,7 @@ async function processFanbox (url, key) {
 
 async function concatenateArticle (body, key) {
   let concatenatedString = '<p>';
-  const proxyaddr = process.env.PROXY ? process.env.PROXY.split(',')[0] : '';
+  const proxyaddr = process.env.PROXY ? process.env.PROXY : '';
   await Promise.mapSeries(body.blocks, async (block) => {
     if (block.type === 'image') {
       const imageInfo = body.imageMap[block.imageId];

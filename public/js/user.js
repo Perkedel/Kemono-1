@@ -70,39 +70,39 @@ async function loadMorePosts (skip) {
 }
 
 async function main () {
-  const pathname = window.location.pathname.split('/');
-  const userData = await fetch(`/proxy/user/${pathname[2]}`);
-  const user = await userData.json();
-  document.title = `${user.data.attributes.vanity || user.data.attributes.full_name} | kemono`;
+  // const pathname = window.location.pathname.split('/');
+  // const userData = await fetch(`/proxy/user/${pathname[2]}`);
+  // const user = await userData.json();
+  // document.title = `${user.data.attributes.vanity || user.data.attributes.full_name} | kemono`;
   const marthaView = document.getElementById('martha-view');
-  let avatar;
-  let cover;
-  let subtitle = '';
-  if (user.included) {
-    avatar = user.included[0].attributes.avatar_photo_url;
-    cover = user.included[0].attributes.cover_photo_url;
-    subtitle = user.included[0].attributes.creation_name;
-  } else {
-    avatar = user.data.attributes.image_url;
-    cover = user.data.attributes.image_url;
-  }
-  marthaView.innerHTML += `
-    <div 
-      class="user-header-view" 
-      style="background: url('${cover}'); background-size: 100% auto; background-position: center;"
-    >
-      <div class="user-header-avatar" style="background-image: url('${avatar}');"></div>
-      <div class="user-header-info">
-        <div class="user-header-info-top">
-          <h1>${user.data.attributes.vanity || user.data.attributes.full_name}</h1>
-          <a href="https://www.patreon.com/user?u=${user.data.id}" target="_blank" rel="noreferrer">
-            <div class="user-header-info-patreon"></div>
-          </a>
-        </div>
-        <p>${subtitle}</p>
-      </div>
-    </div>
-  `;
+  // let avatar;
+  // let cover;
+  // let subtitle = '';
+  // if (user.included) {
+  //   avatar = user.included[0].attributes.avatar_photo_url;
+  //   cover = user.included[0].attributes.cover_photo_url;
+  //   subtitle = user.included[0].attributes.creation_name;
+  // } else {
+  //   avatar = user.data.attributes.image_url;
+  //   cover = user.data.attributes.image_url;
+  // }
+  // marthaView.innerHTML += `
+  //   <div 
+  //     class="user-header-view" 
+  //     style="background: url('${cover}'); background-size: 100% auto; background-position: center;"
+  //   >
+  //     <div class="user-header-avatar" style="background-image: url('${avatar}');"></div>
+  //     <div class="user-header-info">
+  //       <div class="user-header-info-top">
+  //         <h1>${user.data.attributes.vanity || user.data.attributes.full_name}</h1>
+  //         <a href="https://www.patreon.com/user?u=${user.data.id}" target="_blank" rel="noreferrer">
+  //           <div class="user-header-info-patreon"></div>
+  //         </a>
+  //       </div>
+  //       <p>${subtitle}</p>
+  //     </div>
+  //   </div>
+  // `;
   marthaView.innerHTML += `
     <button onClick="loadMorePosts(25)" id="load-more-button" class="load-more-button">Load More</a>
   `;

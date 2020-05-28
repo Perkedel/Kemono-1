@@ -32,7 +32,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
           convert: x => x.replace('/', '')
         },
         content: {
-          selector: '.trix-content div',
+          selector: '.post-content',
           how: 'html',
           convert: x => entities.decodeHTML(x)
         },

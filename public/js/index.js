@@ -161,12 +161,7 @@ async function main () {
         const userData = await fetch(`/proxy/user/${post.user}`);
         const user = await userData.json();
         const marthaView = document.getElementById('recent-view');
-        let avatar;
-        if (user.included) {
-          avatar = user.included[0].attributes.avatar_photo_url;
-        } else {
-          avatar = user.data.attributes.image_url;
-        }
+        let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
         marthaView.innerHTML += rowHTML({
           href: '/user/' + user.data.id,
           avatar: avatar,
@@ -219,12 +214,7 @@ async function main () {
         const userData = await fetch(`/proxy/user/${post.user}`);
         const user = await userData.json();
         const marthaView = document.getElementById('recent-view');
-        let avatar;
-        if (user.included) {
-          avatar = user.included[0].attributes.avatar_photo_url;
-        } else {
-          avatar = user.data.attributes.image_url;
-        }
+        let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
         marthaView.innerHTML += rowHTML({
           href: '/user/' + user.data.id,
           avatar: avatar,

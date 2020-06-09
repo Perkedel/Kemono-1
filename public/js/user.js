@@ -75,17 +75,9 @@ async function main () {
   const user = await userData.json();
   document.title = `${user.data.attributes.vanity || user.data.attributes.full_name} | kemono`;
   const marthaView = document.getElementById('martha-view');
-  let avatar;
-  let cover;
-  let subtitle = '';
-  if (user.included) {
-    avatar = user.included[0].attributes.avatar_photo_url;
-    cover = user.included[0].attributes.cover_photo_url;
-    subtitle = user.included[0].attributes.creation_name;
-  } else {
-    avatar = user.data.attributes.image_url;
-    cover = user.data.attributes.image_url;
-  }
+  let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
+  let cover = user.included ? user.included[0].attributes.cover_photo_url : user.data.attributes.image_url;
+  let subtitle = user.included ? user.included[0].attributes.creation_name : '';
   marthaView.innerHTML += `
     <div 
       class="user-header-view" 

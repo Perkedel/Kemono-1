@@ -1,5 +1,8 @@
-async function loadMorePosts (skip) {
-  document.getElementById('load-more-button').outerHTML = '';
+async function loadMorePosts (skip, after = () => {}) {
+  const load = document.getElementById('load-more-button');
+  if (load) {
+    load.outerHTML = '';
+  }
   const pathname = window.location.pathname.split('/');
   const marthaView = document.getElementById('martha-view');
   const userPostsData = await fetch(`/api/fanbox/user/${pathname[3]}?skip=${skip}`);
@@ -67,16 +70,17 @@ async function loadMorePosts (skip) {
     <button onClick="loadMorePosts(${skip + 25})" id="load-more-button" class="load-more-button">Load More</a>
   `;
   lazyload();
+  after();
 }
 
-async function main () {
+async function loadHeader () {
   const pathname = window.location.pathname.split('/');
   const userData = await fetch(`/proxy/fanbox/user/${pathname[3]}`);
   const user = await userData.json();
   require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
     document.title = `${unraw.unraw(user.body.user.name)} | kemono`;
     const marthaView = document.getElementById('martha-view');
-    marthaView.innerHTML += `
+    marthaView.innerHTML = `
       <div 
         class="user-header-view" 
         style="background: url('${unraw.unraw(user.body.coverImageUrl || user.body.user.iconUrl)}'); background-size: 100% auto; background-position: center;"
@@ -91,11 +95,10 @@ async function main () {
           </div>
         </div>
       </div>
-    `;
-    marthaView.innerHTML += `
-      <button onClick="loadMorePosts(25)" id="load-more-button" class="load-more-button">Load More</a>
-    `;
-    loadMorePosts(0);
+    ` + marthaView.innerHTML;
   });
 }
-main();
+
+window.onload = () => {
+  loadMorePosts(0, () => loadHeader());
+}

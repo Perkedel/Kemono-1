@@ -1,5 +1,8 @@
-async function loadMorePosts (skip) {
-  document.getElementById('load-more-button').outerHTML = '';
+async function loadMorePosts (skip, after = () => {}) {
+  const load = document.getElementById('load-more-button');
+  if (load) {
+    load.outerHTML = '';
+  }
   const pathname = window.location.pathname.split('/');
   const marthaView = document.getElementById('martha-view');
   const userPostsData = await fetch(`/api/user/${pathname[2]}?skip=${skip}`);
@@ -67,9 +70,10 @@ async function loadMorePosts (skip) {
     <button onClick="loadMorePosts(${skip + 25})" id="load-more-button" class="load-more-button">Load More</a>
   `;
   lazyload();
+  after();
 }
 
-async function main () {
+async function loadHeader () {
   const pathname = window.location.pathname.split('/');
   const userData = await fetch(`/proxy/user/${pathname[2]}`);
   const user = await userData.json();
@@ -78,7 +82,7 @@ async function main () {
   let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
   let cover = user.included ? user.included[0].attributes.cover_photo_url : user.data.attributes.image_url;
   let subtitle = user.included ? user.included[0].attributes.creation_name : '';
-  marthaView.innerHTML += `
+  marthaView.innerHTML = `
     <div 
       class="user-header-view" 
       style="background: url('${cover}'); background-size: 100% auto; background-position: center;"
@@ -94,10 +98,9 @@ async function main () {
         <p>${subtitle}</p>
       </div>
     </div>
-  `;
-  marthaView.innerHTML += `
-    <button onClick="loadMorePosts(25)" id="load-more-button" class="load-more-button">Load More</a>
-  `;
-  loadMorePosts(0);
+  ` + marthaView.innerHTML;
 }
-main();
+
+window.onload = () => {
+  loadMorePosts(0, () => loadHeader());
+}

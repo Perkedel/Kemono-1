@@ -5,6 +5,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Fixed SubscribeStar HTML scraper
 - Fixed Gumroad HTML scraper
 - Added proper fallback for missing Fanbox banner
+- Lazy-load user headers on pages
 
 ### v1.3
 - Added SubscribeStar support

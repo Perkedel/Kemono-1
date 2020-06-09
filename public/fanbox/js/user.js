@@ -79,7 +79,7 @@ async function main () {
     marthaView.innerHTML += `
       <div 
         class="user-header-view" 
-        style="background: url('${unraw.unraw(user.body.coverImageUrl || user.body.user.iconUrl)}'); background-size: 100% auto; background-position: center;"
+        style="background: url('${unraw.unraw(user.body.coverImageUrl)}'); background-size: 100% auto; background-position: center;"
       >
         <div class="user-header-avatar" style="background-image: url('${unraw.unraw(user.body.user.iconUrl)}');"></div>
         <div class="user-header-info">

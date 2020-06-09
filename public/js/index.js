@@ -33,7 +33,7 @@ const rowHTML = data => `
 
 async function renderPatreonQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
+  const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=patreon&limit=${limit}`);
   const results = await searchData.json();
   results.map(async (userId) => {
     const userData = await fetch(`/proxy/user/${userId}`);
@@ -49,7 +49,7 @@ async function renderPatreonQuery (query = '', limit = 50) {
 
 async function renderGumroadQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const gumroadSearchData = await fetch(`/api/gumroad/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
+  const gumroadSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=gumroad&limit=${limit}`);
   const gumroadResults = await gumroadSearchData.json();
   gumroadResults.map(async (userId) => {
     const userData = await fetch(`/proxy/gumroad/user/${userId}`);
@@ -65,7 +65,7 @@ async function renderGumroadQuery (query = '', limit = 50) {
 
 async function renderFanboxQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const fanboxSearchData = await fetch(`/api/fanbox/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
+  const fanboxSearchData = await fetch(`/api/fanbox/lookup?q=${encodeURIComponent(query)}&service=fanbox&limit=${limit}`);
   const fanboxResults = await fanboxSearchData.json();
   require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
     fanboxResults.map(async (userId) => {
@@ -83,7 +83,7 @@ async function renderFanboxQuery (query = '', limit = 50) {
 
 async function renderDiscordQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const discordSearchData = await fetch(`/api/discord/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
+  const discordSearchData = await fetch(`/api/discord/lookup?q=${encodeURIComponent(query)}&service=discord&limit=${limit}`);
   const discordResults = await discordSearchData.json();
   discordResults.map(async (userId) => {
     const userData = await fetch(`/proxy/discord/server/${userId}`);
@@ -99,7 +99,7 @@ async function renderDiscordQuery (query = '', limit = 50) {
 
 async function renderSubscribestarQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
-  const subscribestarSearchData = await fetch(`/api/subscribestar/lookup?q=${encodeURIComponent(query)}&limit=${limit}`);
+  const subscribestarSearchData = await fetch(`/api/subscribestar/lookup?q=${encodeURIComponent(query)}&service=subscribestar&limit=${limit}`);
   const subscribestarResults = await subscribestarSearchData.json();
   subscribestarResults.map(async (userId) => {
     const userData = await fetch(`/proxy/subscribestar/user/${userId}`);

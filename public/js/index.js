@@ -141,7 +141,7 @@ async function renderSubscribestarQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
   const subscribestarSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=subscribestar&limit=${limit}`);
   const subscribestarResults = await subscribestarSearchData.json();
-  subscribestarResults.map(async (userId) => {
+  subscribestarResults.map(userId => {
     fetch(`/api/lookup/cache/${userId}?service=subscribestar`)
       .then(res => res.text())
       .then(cache => {

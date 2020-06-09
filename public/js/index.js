@@ -35,7 +35,7 @@ async function renderPatreonQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
   const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=patreon&limit=${limit}`);
   const results = await searchData.json();
-  results.map(userId => {
+  results.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=patreon`)
       .then(res => res.text())
       .then(cache => {
@@ -61,7 +61,7 @@ async function renderGumroadQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
   const gumroadSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=gumroad&limit=${limit}`);
   const gumroadResults = await gumroadSearchData.json();
-  gumroadResults.map(userId => {
+  gumroadResults.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=gumroad`)
       .then(res => res.text())
       .then(cache => {
@@ -88,7 +88,7 @@ async function renderFanboxQuery (query = '', limit = 50) {
   const fanboxSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=fanbox&limit=${limit}`);
   const fanboxResults = await fanboxSearchData.json();
   require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
-    fanboxResults.map(userId => {
+    fanboxResults.forEach(userId => {
       fetch(`/api/lookup/cache/${userId}?service=fanbox`)
         .then(res => res.text())
         .then(cache => {
@@ -115,7 +115,7 @@ async function renderDiscordQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
   const discordSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=discord&limit=${limit}`);
   const discordResults = await discordSearchData.json();
-  discordResults.map(userId => {
+  discordResults.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=discord`)
       .then(res => res.text())
       .then(cache => {
@@ -141,7 +141,7 @@ async function renderSubscribestarQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
   const subscribestarSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=subscribestar&limit=${limit}`);
   const subscribestarResults = await subscribestarSearchData.json();
-  subscribestarResults.map(userId => {
+  subscribestarResults.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=subscribestar`)
       .then(res => res.text())
       .then(cache => {

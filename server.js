@@ -80,6 +80,11 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
+  .get('/api/lookup/cache/:id', async (req, res) => {
+    const index = await lookup.findOne({ id: req.params.id, service: req.query.service });
+    res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
+    res.send(index.name);
+  })
   .get('/api/user/:id', async (req, res) => {
     const userPosts = await posts.find({ user: req.params.id })
       .sort({ published_at: -1 })

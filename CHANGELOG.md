@@ -6,6 +6,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Fixed Gumroad HTML scraper
 - Added proper fallback for missing Fanbox banner
 - Lazy-load user headers on pages
+- Lazy-load avatars and fresh names on home page
 - Lookups now use a single endpoint
 
 ### v1.3

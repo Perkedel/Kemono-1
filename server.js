@@ -80,6 +80,18 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.json(index);
   })
+  .get('/api/discord/channels/lookup', async (req, res) => {
+    if (req.query.q.length > 35) return res.sendStatus(400);
+    const index = await lookup
+      .find({
+        service: 'discord-channel',
+        server: req.query.q
+      })
+      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
+      .toArray();
+    res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
+    res.json(index);
+  })
   .get('/api/lookup/cache/:id', async (req, res) => {
     const cache = await lookup.findOne({ id: req.params.id, service: req.query.service });
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');

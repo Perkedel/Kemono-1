@@ -60,7 +60,7 @@ const loadMessages = async (channelId, skip = 0) => {
 
 const load = async () => {
   const pathname = window.location.pathname.split('/');
-  const serverData = await fetch(`/api/lookup?q=${pathname[3]}&service=discord-channel`);
+  const serverData = await fetch(`/api/discord/channels/lookup?q=${pathname[3]}`);
   const server = await serverData.json();
   const channels = document.getElementById('channels');
   server.map(ch => {

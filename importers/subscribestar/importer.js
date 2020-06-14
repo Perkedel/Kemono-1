@@ -74,7 +74,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       post_file: {},
       attachments: []
     };
-
+    if (model.title === 'Extend Subscription') return;
     await Promise.mapSeries(post.attachments, async (attachment) => {
       await retry(() => {
         return new Promise((resolve, reject) => {

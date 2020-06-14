@@ -8,6 +8,8 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Lazy-load user headers on pages
 - Lazy-load avatars and fresh names on home page
 - Lookups now use a single endpoint
+- New endpoint for name cache
+- SubscribeStar importer now "Extend Subscription" message
 
 ### v1.3
 - Added SubscribeStar support

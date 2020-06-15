@@ -1,5 +1,16 @@
 Kemono uses [semantic versioning](https://semver.org/).
 
+### v1.3.1
+- Replaced Cloudscraper module
+- Fixed SubscribeStar HTML scraper
+- Fixed Gumroad HTML scraper
+- Added proper fallback for missing Fanbox banner
+- Lazy-load user headers on pages
+- Lazy-load avatars and fresh names on home page
+- Lookups now use a single endpoint
+- New endpoint for name cache
+- SubscribeStar importer now "Extend Subscription" message
+
 ### v1.3
 - Added SubscribeStar support
 - Update Fanbox-related scripts for new domain (fanbox.cc)

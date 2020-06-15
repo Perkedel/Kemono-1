@@ -101,4 +101,4 @@ async function loadHeader () {
 
 window.onload = () => {
   loadMorePosts(0, () => loadHeader());
-}
+};

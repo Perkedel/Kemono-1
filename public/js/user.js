@@ -79,9 +79,9 @@ async function loadHeader () {
   const user = await userData.json();
   document.title = `${user.data.attributes.vanity || user.data.attributes.full_name} | kemono`;
   const marthaView = document.getElementById('martha-view');
-  let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
-  let cover = user.included ? user.included[0].attributes.cover_photo_url : user.data.attributes.image_url;
-  let subtitle = user.included ? user.included[0].attributes.creation_name : '';
+  const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
+  const cover = user.included ? user.included[0].attributes.cover_photo_url : user.data.attributes.image_url;
+  const subtitle = user.included ? user.included[0].attributes.creation_name : '';
   marthaView.innerHTML = `
     <div 
       class="user-header-view" 
@@ -103,4 +103,4 @@ async function loadHeader () {
 
 window.onload = () => {
   loadMorePosts(0, () => loadHeader());
-}
+};

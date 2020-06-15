@@ -50,10 +50,10 @@ async function renderPatreonQuery (query = '', limit = 50) {
       .then(() => fetch(`/proxy/user/${userId}`))
       .then(res => res.json())
       .then(user => {
-        let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
+        const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
         document.getElementById(`patreon-user-${userId}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-        document.getElementById(`patreon-user-${userId}-title`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name
-      })
+        document.getElementById(`patreon-user-${userId}-title`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name;
+      });
   });
 }
 
@@ -76,10 +76,10 @@ async function renderGumroadQuery (query = '', limit = 50) {
       .then(() => fetch(`/proxy/gumroad/user/${userId}`))
       .then(res => res.json())
       .then(user => {
-        let avatar = user.avatar;
+        const avatar = user.avatar;
         document.getElementById(`gumroad-user-${userId}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-        document.getElementById(`gumroad-user-${userId}-title`).innerHTML = user.name
-      })
+        document.getElementById(`gumroad-user-${userId}-title`).innerHTML = user.name;
+      });
   });
 }
 
@@ -103,10 +103,10 @@ async function renderFanboxQuery (query = '', limit = 50) {
         .then(() => fetch(`/proxy/fanbox/user/${userId}`))
         .then(res => res.json())
         .then(user => {
-          let avatar = unraw.unraw(user.body.user.iconUrl);
+          const avatar = unraw.unraw(user.body.user.iconUrl);
           document.getElementById(`fanbox-user-${userId}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-          document.getElementById(`fanbox-user-${userId}-title`).innerHTML = unraw.unraw(user.body.user.name)
-        })
+          document.getElementById(`fanbox-user-${userId}-title`).innerHTML = unraw.unraw(user.body.user.name);
+        });
     });
   });
 }
@@ -130,10 +130,10 @@ async function renderDiscordQuery (query = '', limit = 50) {
       .then(() => fetch(`/proxy/discord/server/${userId}`))
       .then(res => res.json())
       .then(user => {
-        let avatar = `https://cdn.discordapp.com/icons/${userId}/${user[0].icon}?size=256`;
+        const avatar = `https://cdn.discordapp.com/icons/${userId}/${user[0].icon}?size=256`;
         document.getElementById(`discord-server-${userId}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
         document.getElementById(`discord-server-${userId}-title`).innerHTML = user[0].name;
-      })
+      });
   });
 }
 
@@ -156,10 +156,10 @@ async function renderSubscribestarQuery (query = '', limit = 50) {
       .then(() => fetch(`/proxy/subscribestar/user/${userId}`))
       .then(res => res.json())
       .then(user => {
-        let avatar = user.avatar;
+        const avatar = user.avatar;
         document.getElementById(`subscribestar-user-${userId}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
         document.getElementById(`subscribestar-user-${userId}-title`).innerHTML = user.name;
-      })
+      });
   });
 }
 
@@ -223,10 +223,10 @@ async function main () {
           .then(() => fetch(`/proxy/user/${post.user}`))
           .then(res => res.json())
           .then(user => {
-            let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
+            const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
             document.getElementById(`patreon-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-            document.getElementById(`patreon-post-${post.id}-subtitle`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name
-          })
+            document.getElementById(`patreon-post-${post.id}-subtitle`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name;
+          });
         break;
       }
       case 'gumroad': {
@@ -244,10 +244,10 @@ async function main () {
           .then(() => fetch(`/proxy/gumroad/user/${post.user}`))
           .then(res => res.json())
           .then(user => {
-            let avatar = user.avatar;
+            const avatar = user.avatar;
             document.getElementById(`gumroad-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
             document.getElementById(`gumroad-post-${post.id}-subtitle`).innerHTML = user.name;
-          })
+          });
         break;
       }
       case 'subscribestar': {
@@ -265,10 +265,10 @@ async function main () {
           .then(() => fetch(`/proxy/subscribestar/user/${post.user}`))
           .then(res => res.json())
           .then(user => {
-            let avatar = user.avatar;
+            const avatar = user.avatar;
             document.getElementById(`subscribestar-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
             document.getElementById(`subscribestar-post-${post.id}-subtitle`).innerHTML = user.name;
-          })
+          });
         break;
       }
       case 'fanbox': {
@@ -287,11 +287,11 @@ async function main () {
             .then(() => fetch(`/proxy/fanbox/user/${post.user}`))
             .then(res => res.json())
             .then(user => {
-              let avatar = unraw.unraw(user.body.user.iconUrl);
+              const avatar = unraw.unraw(user.body.user.iconUrl);
               document.getElementById(`fanbox-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
               document.getElementById(`fanbox-post-${post.id}-subtitle`).innerHTML = unraw.unraw(user.body.user.name);
-            })
-        })
+            });
+        });
         break;
       }
       default: {
@@ -309,10 +309,10 @@ async function main () {
           .then(() => fetch(`/proxy/user/${post.user}`))
           .then(res => res.json())
           .then(user => {
-            let avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
+            const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
             document.getElementById(`patreon-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-            document.getElementById(`patreon-post-${post.id}-subtitle`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name
-          })
+            document.getElementById(`patreon-post-${post.id}-subtitle`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name;
+          });
       }
     }
   });

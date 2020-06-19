@@ -103,15 +103,15 @@ express()
     res.send(cache.name);
   })
   .get('/api/:service?/:entity/:id', async (req, res) => {
-    let query = {};
+    const query = {};
     query[req.params.entity] = req.params.id;
     if (!req.params.service) {
-      query['$or'] = [
+      query.$or = [
         { service: 'patreon' },
         { service: { $exists: false } }
       ];
     } else {
-      query['service'] = req.params.service;
+      query.service = req.params.service;
     }
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })

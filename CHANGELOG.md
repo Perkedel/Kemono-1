@@ -1,5 +1,8 @@
 Kemono uses [semantic versioning](https://semver.org/).
 
+### v1.3.2
+- Fixed issue causing error when ID is not in the lookup database
+
 ### v1.3.1
 - Replaced Cloudscraper module
 - Fixed SubscribeStar HTML scraper

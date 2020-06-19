@@ -1,62 +1,32 @@
 require('dotenv').config();
-const request = require('request-promise');
-const scrapeIt = require('scrape-it');
-const getUrls = require('get-urls');
-const { posts, lookup } = require('./db');
 const cloudscraper = require('cloudscraper');
+const request = require('request-promise');
+const { posts, lookup } = require('./db');
 const bodyParser = require('body-parser');
+const scrapeIt = require('scrape-it');
 const express = require('express');
-const esc = require('escape-string-regexp');
-const compression = require('compression');
 const path = require('path');
+const esc = require('escape-string-regexp');
+const indexer = require('./indexer');
+const getUrls = require('get-urls');
 const proxy = require('./proxy');
-posts.createIndex({ user: 1, service: 1 });
-posts.createIndex({ service: 1 });
-posts.createIndex({ added_at: -1 });
-posts.createIndex({ published_at: -1 });
-lookup.createIndex({ service: 1, name: 1 });
-lookup.createIndex({ id: 1, service: 1 });
-require('./indexer')();
+indexer();
+
+const staticOpts = {
+  dotfiles: 'allow',
+  setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600')
+};
+
 express()
-  .use(compression())
   .use(bodyParser.urlencoded({ extended: false }))
   .use(bodyParser.json())
   .use(express.static('public', {
     extensions: ['html', 'htm'],
     setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
   }))
-  .use('/files', express.static(`${process.env.DB_ROOT}/files`, {
-    dotfiles: 'allow',
-    setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600')
-  }))
-  .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, {
-    dotfiles: 'allow',
-    setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600')
-  }))
-  .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, {
-    dotfiles: 'allow',
-    setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600')
-  }))
-  .get('/user/:id', (req, res) => {
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/user.html'));
-  })
-  .get('/fanbox/user/:id', (req, res) => {
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/fanbox/user.html'));
-  })
-  .get('/gumroad/user/:id', (req, res) => {
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/gumroad/user.html'));
-  })
-  .get('/discord/server/:id', (req, res) => {
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/discord/server.html'));
-  })
-  .get('/subscribestar/user/:id', (req, res) => {
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/subscribestar/user.html'));
-  })
+  .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
+  .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
+  .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
   .get('/random', async (req, res) => {
     const lookupCount = await lookup.count({ service: 'patreon' });
     const random = await lookup
@@ -66,6 +36,41 @@ express()
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.redirect('/user/' + random[0].id);
+  })
+  .get('/api/recent', async (req, res) => {
+    const recentPosts = await posts.find({ service: { $ne: 'discord' } })
+      .sort({ added_at: -1 })
+      .skip(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
+      .toArray();
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.json(recentPosts);
+  })
+
+  .post('/api/import', async (req, res) => {
+    if (!req.body.session_key) return res.sendStatus(401);
+    switch (req.body.service) {
+      case 'patreon':
+        require('./importer.js')(req.body.session_key);
+        break;
+      case 'fanbox':
+        require('./importers/fanbox/importer.js')(req.body.session_key);
+        break;
+      case 'gumroad':
+        require('./importers/gumroad/importer.js')(req.body.session_key);
+        break;
+      case 'subscribestar':
+        require('./importers/subscribestar/importer.js')(req.body.session_key);
+        break;
+      case 'discord':
+        if (!req.body.channel_ids) return res.sendStatus(400);
+        require('./importers/discord/importer.js')({
+          key: req.body.session_key,
+          channels: req.body.channel_ids
+        });
+        break;
+    }
+    res.redirect('/importer/ok');
   })
   .get('/api/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);
@@ -97,86 +102,24 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.send(cache.name);
   })
-  .get('/api/user/:id', async (req, res) => {
-    const userPosts = await posts.find({ user: req.params.id })
-      .sort({ published_at: -1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
-      .toArray();
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.json(userPosts);
-  })
-  .get('/api/fanbox/user/:id', async (req, res) => {
-    const userPosts = await posts.find({ user: req.params.id, service: 'fanbox' })
-      .sort({ published_at: -1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
-      .toArray();
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.json(userPosts);
-  })
-  .get('/api/gumroad/user/:id', async (req, res) => {
-    const userPosts = await posts.find({ user: req.params.id, service: 'gumroad' })
-      .sort({ published_at: -1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
-      .toArray();
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.json(userPosts);
-  })
-  .get('/api/discord/channel/:id', async (req, res) => {
-    const userPosts = await posts.find({ channel: req.params.id, service: 'discord' })
-      .sort({ published_at: -1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) < 50 ? Number(req.query.limit) : 10)
-      .toArray();
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.json(userPosts);
-  })
-  .get('/api/subscribestar/user/:id', async (req, res) => {
-    const userPosts = await posts.find({ user: req.params.id, service: 'subscribestar' })
-      .sort({ added_at: 1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) < 50 ? Number(req.query.limit) : 25)
-      .toArray();
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.json(userPosts);
-  })
-  .get('/api/recent', async (req, res) => {
-    const recentPosts = await posts.find({ service: { $ne: 'discord' } })
-      .sort({ added_at: -1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
-      .toArray();
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.json(recentPosts);
-  })
-  .post('/api/import', async (req, res) => {
-    if (!req.body.session_key) return res.sendStatus(401);
-    switch (req.body.service) {
-      case 'patreon':
-        require('./importer.js')(req.body.session_key);
-        break;
-      case 'fanbox':
-        require('./importers/fanbox/importer.js')(req.body.session_key);
-        break;
-      case 'gumroad':
-        require('./importers/gumroad/importer.js')(req.body.session_key);
-        break;
-      case 'subscribestar':
-        require('./importers/subscribestar/importer.js')(req.body.session_key);
-        break;
+  .get('/api/:service?/:entity/:id', async (req, res) => {
+    let query = {};
+    query[req.params.entity] = req.params.id;
+    if (!req.params.service) {
+      query['$or'] = [
+        { service: 'patreon' },
+        { service: { $exists: false } }
+      ];
+    } else {
+      query['service'] = req.params.service;
     }
-    res.redirect('/importer/ok');
-  })
-  .post('/api/discord/import', async (req, res) => {
-    if (!req.body.session_key) return res.sendStatus(401);
-    if (!req.body.channel_ids) return res.sendStatus(400);
-    require('./importers/discord/importer.js')({
-      key: req.body.session_key,
-      channels: req.body.channel_ids
-    });
-    res.redirect('/importer/ok');
+    const userPosts = await posts.find(query)
+      .sort({ published_at: -1 })
+      .skip(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .toArray();
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.json(userPosts);
   })
   .get('/proxy/user/:id', async (req, res) => {
     const api = 'https://www.patreon.com/api/user';
@@ -262,5 +205,9 @@ express()
       .toArray();
     res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
     res.json(index);
+  })
+  .get('/:service?/:type/:id', (req, res) => {
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `${req.params.type}.html`));
   })
   .listen(process.env.PORT || 8000);

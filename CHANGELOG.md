@@ -1,5 +1,9 @@
 Kemono uses [semantic versioning](https://semver.org/).
 
+### v1.4
+- New "Semibooru" UI
+- General code rewrites and cleanup
+
 ### v1.3.1
 - Replaced Cloudscraper module
 - Fixed SubscribeStar HTML scraper

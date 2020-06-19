@@ -39,6 +39,7 @@
             <option value="fanbox">Pixiv Fanbox</option>
             <option value="gumroad">Gumroad</option>
             <option value="subscribestar">SubscribeStar</option>
+            <option value="discord">Discord</option>
           </select>
           <input 
             type="text"
@@ -50,33 +51,11 @@
             autocapitalize="off" 
             spellcheck="false"
           >
-          <input type="submit" style="visibility: hidden; position: absolute;" />
-        </form>
-        <br>
-        <div class="discord-banner">
-          <div class="discord-logo"></div>
-        </div>
-        <form 
-          class="importer-form"
-          action="/api/discord/import"
-          enctype="application/x-www-form-urlencoded"
-          method="post"
-        >
-          <input 
-            type="text"
-            class="importer-input"
-            name="session_key"
-            placeholder="auth token"
-            autocomplete="off" 
-            autocorrect="off" 
-            autocapitalize="off" 
-            spellcheck="false"
-          >
           <input 
             type="text"
             class="importer-input"
             name="channel_ids"
-            placeholder="channel ids (comma separated, no spaces)"
+            placeholder="discord channel ids (comma separated, no spaces)"
             autocomplete="off" 
             autocorrect="off" 
             autocapitalize="off" 

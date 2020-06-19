@@ -229,15 +229,15 @@ async function main () {
             contentView.innerHTML += thumbHTML({
               src: post.post_type === 'image_file' ? post.post_file.path : undefined,
               class: 'thumb-child'
-            })
+            });
           }
-        })
+        });
         contentView.innerHTML += thumbHTML({
           src: post.post_type === 'image_file' ? post.post_file.path : undefined,
           title: post.title,
-          content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ""),
+          content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
           class: parent ? 'thumb-parent' : undefined
-        })
+        });
         break;
       }
     //   case 'gumroad': {

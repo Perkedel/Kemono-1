@@ -11,25 +11,17 @@
   </head>
   <body>
     <div class="main">
-      <div class="header">
-        <a href="/" class="link-reset header-item">[Home]</a>
-        <a href="/importer" class="link-reset header-item">[Importer]</a>
-        <a href="/random" class="link-reset header-item">[Random]</a>
-        <a 
-          href="https://t.me/kemonoparty" 
-          class="link-reset header-item"
-        >
-          [Telegram]
-        </a>
-        <a 
-          href="https://liberapay.com/kemono.party/" 
-          target="_blank"
-          class="link-reset header-item"
-        >
-          [Donate]
-        </a>
-      </div>
-      <div class="martha-view">
+      <ul class="header">
+        <li>Kemono</li>
+        <li class="current-page"><a href="/">Posts</a></li>
+        <li><a href="/help">Help</a></li>
+      </ul>
+      <ul class="subheader">
+        <li><a href="/">List</a></li>
+        <li><a href="/importer">Import</a></li>
+        <li><a href="/random">Random</a></li>
+      </ul>
+      <div class=sidebar>
         <select class="importer-select" id="service-input">
           <option value="" selected disabled>List users for a service...</option>
           <option value="patreon">Patreon</option>
@@ -48,23 +40,9 @@
           autocapitalize="off"
           spellcheck="false"
         >
-        <div class="recent-view" id="recent-view">
-          <noscript>
-            <h3>Please enable Javascript</h3>
-            <p>JavaScript on this page is used to render recent posts and search results.</p>
-          </noscript>
-        </div>
       </div>
-      <div class="footer">
-        <p>Running
-          <a 
-            href="https://github.com/OpenYiff/Kemono"
-            target="_blank"
-            class="link-reset header-item"
-          >
-            Kemono
-          </a>
-        </p>
+      <div class="content" id="content">
+
       </div>
     </div>
   </body>

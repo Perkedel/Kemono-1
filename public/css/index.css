@@ -2,73 +2,71 @@ html {
   background: #1d1f21
 }
 
-noscript {
   text-align: center;
+* {
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-h1, h2, h3, p {
-  font-family: Helvetica;
-  line-height: 14px;
-}
-
-.user-post-view img {
-  max-width: 100%;
-  border-radius: 10px;
-}
-
-.warning {
-  color: rgb(255, 255, 102);
-}
-
-.user-post-view h1, 
-.user-post-view h2, 
-.user-post-view h3, 
-.user-post-view p {
-  line-height: normal;
-}
-
-.main {
-  justify-content: center;
-}
-
-.link-reset {
-  text-decoration: none;
-  color: #fff;
-}
-
-.tiny-link-reset {
-  text-decoration: underline;
-  color: #fff;
-}
-
-.tiny-link-reset-warning {
-  text-decoration: underline;
-  color: rgb(255, 255, 102);
-}
-
-.header {
+.content {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  font-size: 14px;
-  min-height: 19px;
-  font-family: Helvetica;
-  font-weight: bold;
+  flex-wrap: wrap;  
 }
 
-.header-item {
-  padding-left: 5px;
-  padding-right: 5px;
+.content * {
+  max-width: 200px;
+  max-height: 200px;
 }
 
-.importer-form {
-  width: 100%;
+a:visited {
+  text-decoration: none;
+}
+
+a:link {
+  text-decoration: none;
+}
+
+/* thumbnails */
+
+.thumb-standard { border: 1px solid #000 }
+.thumb-child { border: 1px solid #cc0 }
+.thumb-parent { border: 1px solid #0F0 }
+
+.thumb {
+  width: 200px;
+  height: 200px;
+  margin: 2px;
+  overflow-y: scroll;
+}
+
+.thumb-with-image {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.search-input {
-  margin-bottom: 5px;
+.thumb-with-text * {
+  padding: 2px;
+}
+
+.thumb * {
+  margin: auto;
+}
+
+.thumb h3, .thumb p {
+  color: #fff;
+}
+
+/* sidebar */
+
+.sidebar {
+  float: left;
+  margin-right: 5px;
+  margin-left: 5px;
+  overflow: visible;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
 }
 
 .importer-select {
@@ -78,23 +76,16 @@ h1, h2, h3, p {
   color: white;
   border-color: #111;
   border-radius: 5px;
-  font-family: Helvetica;
-  min-height: 32px;
+  min-height: 24px;
   text-align-last: center;
-}
-
-.importer-select:focus {
-  outline: none;
 }
 
 .importer-input {
   border-radius: 5px;
-  min-height: 32px;
+  min-height: 24px;
   background-color: #282a2e;
   text-align: center;
   color: #fff;
-  font-family: Helvetica;
-  font-size: 24px;
   border: 0;
 }
 
@@ -102,183 +93,42 @@ h1, h2, h3, p {
   outline: none;
 }
 
-.footer {
-  font-size: 10px;
-  margin: 0 auto;
-  text-align: center;
-  font-family: Helvetica;
-  font-weight: bold;
+/* headers */
+
+.subheader {
+  background-color: #282a2e;
+  padding: 5px 20px 5px 15px;
+  margin: 0 0 0.5em 0;
+}
+
+.subheader li {
+  display: inline;
+  list-style-type: none;
+  margin: 0 1em 0 0;
+}
+
+.subheader li a:visited, .subheader li a:link {
   color: #fff;
 }
 
-.footer p {
+.header {
+  padding: 5px 20px 5px 15px;
   margin: 0;
 }
 
-.discord-banner {
-  border-radius: 5px;
-  min-height: 32px;
-  background-color: #7289DA;
+.header li {
+  color: #fff;
+  display: inline;
+  list-style-type: none;
+  margin: 0 1em 0 0;
 }
 
-.discord-logo {
-  min-height: 32px;
-  background-size: contain;
-  background-position: center;
-  background-image: url('https://discordapp.com/assets/e7a3b51fdac2aa5ec71975d257d5c405.png');
-  background-repeat: no-repeat;
-}
-
-.embed-view {
-  border-radius: 10px;
-  border: 1px solid #111;
-  margin-top: 5px;
-  padding: 5px;
-}
-
-.martha-view {
-  max-width: 590px;
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto;
-}
-
-.user-header-view {
-  border-radius: 10px;
-  padding: 10px;
-  display: flex;
-}
-
-.user-header-avatar {
-  border-radius: 10px;
-  background-size: cover;
-  background-position: center;
-  height: 100px; 
-  width: 100px;
-}
-
-.user-header-info {
-  margin-left: 10px;
-  border-radius: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-  background-color: rgba(0,0,0,.7);
+.header li a:visited, .header li a:link {
   color: #fff;
 }
 
-.user-header-info-top {
-  display: flex;
-}
-
-.user-header-info-patreon {
-  background-image: url(/patreon.svg);
-  margin-top: 15px;
-  margin-left: 10px;
-  width: 25px;
-  height: 25px;
-  background-size: 25px;
-}
-
-.user-header-info-fanbox {
-  background-image: url(/fanbox.svg);
-  margin-top: 15px;
-  margin-left: 10px;
-  width: 50px;
-  height: 35px;
-  background-size: 50px;
-  background-repeat: no-repeat;
-}
-
-.user-header-info-gumroad {
-  background-image: url(/gumroad.svg);
-  margin-top: 15px;
-  margin-left: 10px;
-  width: 25px;
-  height: 26px;
-  background-size: 25px;
-}
-
-.user-header-info-subscribestar {
-  background-image: url(/subscribestar.png);
-  margin-top: 15px;
-  margin-left: 10px;
-  width: 30px;
-  height: 30px;
-  background-size: 30px;
-}
-
-.user-post-view {
-  margin-top: 5px;
-  min-height:0;
-  padding: 5px;
+.current-page {
   background-color: #282a2e;
-  border: 1px solid #111;
-  border-radius: 10px;
-  justify-content: center;
-  color: #fff;
-  font-family: Helvetica;
-  word-break: break-word;
-}
-
-.load-more-button {
-  padding: 10px;
-  margin-top: 3px;
-  background-color: #282a2e;
-  border: 1px solid #111;
-  border-radius: 10px;
-  color: #fff;
-  font-family: Helvetica;
-}
-
-.user-post-view p {
-  line-height: 20px;
-  word-break: break-word;
-}
-
-.user-post-view a {
-  text-decoration: underline;
-  color: #81A2BE;
-}
-
-.user-post-image {
-  max-width: 100%;
-  border-radius: 10px;
-}
-
-.recent-view {
-  min-height:0;
-  padding-left: 0;
-  padding-right: 0;
-  background-color: #282a2e;
-  border: 1px solid #111;
-  justify-content: center;
-  color: #fff;
-}
-
-.recent-row-container {
-  display: flex;
-}
-
-.recent-row p {
-  margin: 0;
-  margin-top: 2.5px;
-  margin-left: 6px;
-  font-size: 16px;
-}
-
-.recent-row {
-  align-items: center;
-  border-bottom: 1px solid #111; 
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-top: 5px;
-  min-height: 0.5px;
-}
-
-.avatar {
-  border-radius: 4px;
-  background-size: cover;
-  background-position: center;
-  height: 32px; 
-  width: 32px;
+  padding: 6px 10px 6px;
+  font-weight: 700;
 }

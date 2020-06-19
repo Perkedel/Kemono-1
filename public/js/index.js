@@ -31,6 +31,19 @@ const rowHTML = data => `
   </div>
 `;
 
+const thumbHTML = data => `
+  ${data.src ? `
+    <div class="thumb thumb-with-image ${data.class || 'thumb-standard'}">
+      <img src="${data.src}">
+    </div>
+  ` : `
+    <div class="thumb thumb-with-text ${data.class || 'thumb-standard'}">
+      <h3>${data.title}</h3>
+      <p>${data.content}</p>
+    </div>
+  `}
+`;
+
 async function renderPatreonQuery (query = '', limit = 50) {
   const marthaView = document.getElementById('recent-view');
   const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=patreon&limit=${limit}`);
@@ -203,121 +216,119 @@ async function queryUpdate () {
 }
 
 async function main () {
-  const marthaView = document.getElementById('recent-view');
+  const contentView = document.getElementById('content');
   const recentData = await fetch('/api/recent');
   const recent = await recentData.json();
   recent.forEach(post => {
     switch (post.service) {
       case 'patreon': {
-        fetch(`/api/lookup/cache/${post.user}?service=patreon`)
-          .then(res => res.text())
-          .then(cache => {
-            marthaView.innerHTML += rowHTML({
-              id: `patreon-post-${post.id}`,
-              href: '/user/' + post.user,
-              avatar: '',
-              title: post.title,
-              subtitle: cache
-            });
-          })
-          .then(() => fetch(`/proxy/user/${post.user}`))
-          .then(res => res.json())
-          .then(user => {
-            const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
-            document.getElementById(`patreon-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-            document.getElementById(`patreon-post-${post.id}-subtitle`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name;
-          });
-        break;
-      }
-      case 'gumroad': {
-        fetch(`/api/lookup/cache/${post.user}?service=gumroad`)
-          .then(res => res.text())
-          .then(cache => {
-            marthaView.innerHTML += rowHTML({
-              id: `gumroad-post-${post.id}`,
-              href: '/gumroad/user/' + post.user,
-              avatar: '',
-              title: post.title,
-              subtitle: cache
-            });
-          })
-          .then(() => fetch(`/proxy/gumroad/user/${post.user}`))
-          .then(res => res.json())
-          .then(user => {
-            const avatar = user.avatar;
-            document.getElementById(`gumroad-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-            document.getElementById(`gumroad-post-${post.id}-subtitle`).innerHTML = user.name;
-          });
-        break;
-      }
-      case 'subscribestar': {
-        fetch(`/api/lookup/cache/${post.user}?service=subscribestar`)
-          .then(res => res.text())
-          .then(cache => {
-            marthaView.innerHTML += rowHTML({
-              id: `subscribestar-post-${post.id}`,
-              href: '/subscribestar/user/' + post.user,
-              avatar: '',
-              title: post.title,
-              subtitle: cache
-            });
-          })
-          .then(() => fetch(`/proxy/subscribestar/user/${post.user}`))
-          .then(res => res.json())
-          .then(user => {
-            const avatar = user.avatar;
-            document.getElementById(`subscribestar-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-            document.getElementById(`subscribestar-post-${post.id}-subtitle`).innerHTML = user.name;
-          });
-        break;
-      }
-      case 'fanbox': {
-        require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
-          fetch(`/api/lookup/cache/${post.user}?service=fanbox`)
-            .then(res => res.text())
-            .then(cache => {
-              marthaView.innerHTML += rowHTML({
-                id: `fanbox-post-${post.id}`,
-                href: '/fanbox/user/' + post.user,
-                avatar: '',
-                title: post.title,
-                subtitle: cache
-              });
+        let parent = false;
+        post.attachments.map(attachment => {
+          if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
+            parent = true;
+            contentView.innerHTML += thumbHTML({
+              src: post.post_type === 'image_file' ? post.post_file.path : undefined,
+              class: 'thumb-child'
             })
-            .then(() => fetch(`/proxy/fanbox/user/${post.user}`))
-            .then(res => res.json())
-            .then(user => {
-              const avatar = unraw.unraw(user.body.user.iconUrl);
-              document.getElementById(`fanbox-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-              document.getElementById(`fanbox-post-${post.id}-subtitle`).innerHTML = unraw.unraw(user.body.user.name);
-            });
-        });
+          }
+        })
+        contentView.innerHTML += thumbHTML({
+          src: post.post_type === 'image_file' ? post.post_file.path : undefined,
+          title: post.title,
+          content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ""),
+          class: parent ? 'thumb-parent' : undefined
+        })
         break;
       }
-      default: {
-        fetch(`/api/lookup/cache/${post.user}?service=patreon`)
-          .then(res => res.text())
-          .then(cache => {
-            marthaView.innerHTML += rowHTML({
-              id: `patreon-post-${post.id}`,
-              href: '/user/' + post.user,
-              avatar: '',
-              title: post.title,
-              subtitle: cache
-            });
-          })
-          .then(() => fetch(`/proxy/user/${post.user}`))
-          .then(res => res.json())
-          .then(user => {
-            const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
-            document.getElementById(`patreon-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
-            document.getElementById(`patreon-post-${post.id}-subtitle`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name;
-          });
-      }
+    //   case 'gumroad': {
+    //     fetch(`/api/lookup/cache/${post.user}?service=gumroad`)
+    //       .then(res => res.text())
+    //       .then(cache => {
+    //         marthaView.innerHTML += rowHTML({
+    //           id: `gumroad-post-${post.id}`,
+    //           href: '/gumroad/user/' + post.user,
+    //           avatar: '',
+    //           title: post.title,
+    //           subtitle: cache
+    //         });
+    //       })
+    //       .then(() => fetch(`/proxy/gumroad/user/${post.user}`))
+    //       .then(res => res.json())
+    //       .then(user => {
+    //         const avatar = user.avatar;
+    //         document.getElementById(`gumroad-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
+    //         document.getElementById(`gumroad-post-${post.id}-subtitle`).innerHTML = user.name;
+    //       });
+    //     break;
+    //   }
+    //   case 'subscribestar': {
+    //     fetch(`/api/lookup/cache/${post.user}?service=subscribestar`)
+    //       .then(res => res.text())
+    //       .then(cache => {
+    //         marthaView.innerHTML += rowHTML({
+    //           id: `subscribestar-post-${post.id}`,
+    //           href: '/subscribestar/user/' + post.user,
+    //           avatar: '',
+    //           title: post.title,
+    //           subtitle: cache
+    //         });
+    //       })
+    //       .then(() => fetch(`/proxy/subscribestar/user/${post.user}`))
+    //       .then(res => res.json())
+    //       .then(user => {
+    //         const avatar = user.avatar;
+    //         document.getElementById(`subscribestar-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
+    //         document.getElementById(`subscribestar-post-${post.id}-subtitle`).innerHTML = user.name;
+    //       });
+    //     break;
+    //   }
+    //   case 'fanbox': {
+    //     require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
+    //       fetch(`/api/lookup/cache/${post.user}?service=fanbox`)
+    //         .then(res => res.text())
+    //         .then(cache => {
+    //           marthaView.innerHTML += rowHTML({
+    //             id: `fanbox-post-${post.id}`,
+    //             href: '/fanbox/user/' + post.user,
+    //             avatar: '',
+    //             title: post.title,
+    //             subtitle: cache
+    //           });
+    //         })
+    //         .then(() => fetch(`/proxy/fanbox/user/${post.user}`))
+    //         .then(res => res.json())
+    //         .then(user => {
+    //           const avatar = unraw.unraw(user.body.user.iconUrl);
+    //           document.getElementById(`fanbox-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
+    //           document.getElementById(`fanbox-post-${post.id}-subtitle`).innerHTML = unraw.unraw(user.body.user.name);
+    //         });
+    //     });
+    //     break;
+    //   }
+    //   default: {
+    //     fetch(`/api/lookup/cache/${post.user}?service=patreon`)
+    //       .then(res => res.text())
+    //       .then(cache => {
+    //         marthaView.innerHTML += rowHTML({
+    //           id: `patreon-post-${post.id}`,
+    //           href: '/user/' + post.user,
+    //           avatar: '',
+    //           title: post.title,
+    //           subtitle: cache
+    //         });
+    //       })
+    //       .then(() => fetch(`/proxy/user/${post.user}`))
+    //       .then(res => res.json())
+    //       .then(user => {
+    //         const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;
+    //         document.getElementById(`patreon-post-${post.id}-avatar`).setAttribute('style', `background-image: url('${avatar}');`);
+    //         document.getElementById(`patreon-post-${post.id}-subtitle`).innerHTML = user.data.attributes.vanity || user.data.attributes.full_name;
+    //       });
+    //   }
     }
   });
-  document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
-  document.getElementById('service-input').addEventListener('change', () => serviceUpdate());
+  // document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
+  // document.getElementById('service-input').addEventListener('change', () => serviceUpdate());
 }
 
 window.onload = () => main();

@@ -223,11 +223,21 @@ async function main () {
     switch (post.service) {
       case 'patreon': {
         let parent = false;
+        let inline = post.content.match(/\bhttps?:\/\/\S+/gi) || []
+        inline.map(url => {
+          if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
+            parent = true;
+            contentView.innerHTML += thumbHTML({
+              src: url,
+              class: 'thumb-child'
+            });
+          }
+        })
         post.attachments.map(attachment => {
           if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
             parent = true;
             contentView.innerHTML += thumbHTML({
-              src: post.post_type === 'image_file' ? post.post_file.path : undefined,
+              src: attachment.path,
               class: 'thumb-child'
             });
           }

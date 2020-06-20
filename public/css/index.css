@@ -6,6 +6,10 @@ html {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.subtitle {
+  color: #737373;
+}
+
 .content {
   display: flex;
   flex-wrap: wrap;  
@@ -35,6 +39,17 @@ a:link {
   height: 200px;
   margin: 2px;
   overflow-y: scroll;
+}
+
+@media only screen and (max-width : 600px) {
+  .thumb {
+    width: 150px;
+    height: 150px;
+  }
+  .content * {
+    max-width: 150px;
+    max-height: 150px;
+  }
 }
 
 .thumb-with-image {
@@ -130,4 +145,18 @@ a:link {
   background-color: #282a2e;
   padding: 6px 10px 6px;
   font-weight: 700;
+}
+
+/* search */
+
+.results li {
+  display: block;
+  list-style-type: none;
+  line-height: 1.8em;
+}
+
+.results li a {
+  text-decoration: none;
+  line-height: 1.4em;
+  color: #87CEFA;
 }

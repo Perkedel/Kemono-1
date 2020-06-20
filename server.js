@@ -46,7 +46,6 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
-
   .post('/api/import', async (req, res) => {
     if (!req.body.session_key) return res.sendStatus(401);
     switch (req.body.service) {
@@ -77,7 +76,10 @@ express()
     const index = await lookup
       .find({
         service: req.query.service,
-        name: { $regex: '^' + esc(req.query.q) }
+        name: {
+          $regex: esc(req.query.q),
+          $options: 'i'
+        }
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)

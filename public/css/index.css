@@ -97,13 +97,15 @@ a:link {
 .importer-input {
   border-radius: 5px;
   min-height: 24px;
-  background-color: #282a2e;
+  background-image: linear-gradient(#282a2e, #111111);
+  /* background-color: #282a2e; */
   text-align: center;
   color: #fff;
   border: 0;
 }
 
 .importer-input:focus {
+  background-image: linear-gradient(#111111, #282a2e);
   outline: none;
 }
 
@@ -142,7 +144,7 @@ a:link {
 }
 
 .current-page {
-  background-color: #282a2e;
+  background-image: linear-gradient(#444649, #282a2e);
   padding: 6px 10px 6px;
   font-weight: 700;
 }

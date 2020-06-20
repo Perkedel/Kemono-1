@@ -28,14 +28,19 @@ express()
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
   .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
   .get('/random', async (req, res) => {
-    const lookupCount = await lookup.count({ service: 'patreon' });
-    const random = await lookup
-      .find({ service: 'patreon' })
-      .skip(Math.random() * lookupCount)
+    const postsCount = await posts.count({ service: 'patreon' });
+    const random = await posts
+      .find({ service: { $ne: 'discord' } })
+      .skip(Math.random() * postsCount)
       .limit(1)
       .toArray();
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.redirect('/user/' + random[0].id);
+    res.redirect(path.join(
+      '/',
+      random[0].service === 'patreon' ? '' : `${random[0].service}`, 
+      'user', random[0].user,
+      'post', random[0].id
+    ));
   })
   .get('/api/recent', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })

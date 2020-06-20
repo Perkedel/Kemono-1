@@ -3,7 +3,7 @@ html {
 }
 
 * {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Verdana, sans-serif;;
 }
 
 .subtitle {
@@ -98,7 +98,6 @@ a:link {
   border-radius: 5px;
   min-height: 24px;
   background-image: linear-gradient(#282a2e, #111111);
-  /* background-color: #282a2e; */
   text-align: center;
   color: #fff;
   border: 0;

@@ -49,16 +49,23 @@ a:link {
   text-decoration: none;
 }
 
+.views {
+  display: flex;
+}
+
 /* thumbnails */
 
 .thumb-standard { border: 1px solid #000 }
 .thumb-child { border: 1px solid #cc0 }
 .thumb-parent { border: 1px solid #0f0 }
 
+.thumb-link {
+  margin: 2px;
+}
+
 .thumb {
   width: 200px;
   height: 200px;
-  margin: 2px;
   overflow-y: scroll;
 }
 
@@ -182,4 +189,8 @@ a:link {
   text-decoration: none;
   line-height: 1.4em;
   color: #87CEFA;
+}
+
+.page img {
+  max-width: 100%;
 }

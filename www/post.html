@@ -6,38 +6,36 @@
     <title>Kemono</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
     <link rel="stylesheet" type="text/css" href="/css/index.css">
+    <meta name="service" content="patreon"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    <script src="/js/expander.js"></script>
+    <script src="/js/lazyload.js"></script>
+    <script src="/js/post.js"></script>
   </head>
   <body>
     <div class="main">
       <ul class="header">
         <li><a href="/">Kemono</a></li>
-        <li><a href="/">Posts</a></li>
-        <li class="current-page"><a href=".">Help</a></li>
+        <li class="current-page"><a href="/">Posts</a></li>
+        <li><a href="/help">Help</a></li>
         <li><a href="https://liberapay.com/kemono.party" target="_blank">Donate</a></li>
       </ul>
       <ul class="subheader">
-        <li><a href=".">List</a></li>
+        <li><a href="/">List</a></li>
+        <li><a href="/importer">Import</a></li>
+        <li><a href="/random">Random</a></li>
+        <li><a href="/help/posts">Help</a></li>
       </ul>
       <div class="views">
-        <div class="sidebar" style="margin-right: 10px;">
-          <h1>Help Index</h1>
+        <div class="sidebar" style="margin-right: 20px;">
+          <span class="subtitle">Click on the thumbnails to reveal the original resolution image.</span>
+          <h1>Information</h1>
           <div class="results" id="results">
-            <li>
-              <a href="./about">» About</a>
-            </li>
-            <li>
-              <a href="./posts">» Posts</a>
-            </li>
-            <li>
-              <a href="./rules">» Rules</a>
-            </li>
-            <li>
-              <a href="./license">» Open Source</a>
-            </li>
+            
           </div>
         </div>
         <div class="page" id="page">
-          
+  
         </div>
       </div>
     </div>

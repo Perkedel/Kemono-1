@@ -123,6 +123,21 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
+  .get('/api/:service?/:entity/:id/post/:post', async (req, res) => {
+    const query = { id: req.params.post };
+    query[req.params.entity] = req.params.id;
+    if (!req.params.service) {
+      query.$or = [
+        { service: 'patreon' },
+        { service: { $exists: false } }
+      ];
+    } else {
+      query.service = req.params.service;
+    }
+    const userPosts = await posts.findOne(query);
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.json(userPosts);
+  })
   .get('/proxy/user/:id', async (req, res) => {
     const api = 'https://www.patreon.com/api/user';
     const options = cloudscraper.defaultParams;
@@ -211,5 +226,9 @@ express()
   .get('/:service?/:type/:id', (req, res) => {
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `${req.params.type}.html`));
+  })
+  .get('/:service?/:type/:id/post/:post', (req, res) => {
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `post.html`));
   })
   .listen(process.env.PORT || 8000);

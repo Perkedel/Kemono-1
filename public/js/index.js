@@ -22,16 +22,18 @@ const rowHTML = data => `
 `;
 
 const thumbHTML = data => `
-  ${data.src ? `
-    <div class="thumb thumb-with-image ${data.class || 'thumb-standard'}">
-      <img src="${data.src}">
-    </div>
-  ` : `
-    <div class="thumb thumb-with-text ${data.class || 'thumb-standard'}">
-      <h3>${data.title}</h3>
-      <p>${data.content}</p>
-    </div>
-  `}
+  <a href="${data.href}" class="thumb-link">
+    ${data.src ? `
+      <div class="thumb thumb-with-image ${data.class || 'thumb-standard'}">
+        <img src="${data.src}">
+      </div>
+    ` : `
+      <div class="thumb thumb-with-text ${data.class || 'thumb-standard'}">
+        <h3>${data.title}</h3>
+        <p>${data.content}</p>
+      </div>
+    `}
+  </a>
 `;
 
 async function renderPatreonQuery (query = '', limit = 50) {
@@ -174,11 +176,13 @@ async function main () {
   recent.forEach(post => {
     let parent = false;
     const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];
+    const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`
     inline.map(url => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
         parent = true;
         contentView.innerHTML += thumbHTML({
           src: url,
+          href: href,
           class: 'thumb-child'
         });
       }
@@ -188,6 +192,7 @@ async function main () {
         parent = true;
         contentView.innerHTML += thumbHTML({
           src: attachment.path,
+          href: href,
           class: 'thumb-child'
         });
       }
@@ -196,7 +201,8 @@ async function main () {
       src: post.post_type === 'image_file' ? post.post_file.path : undefined,
       title: post.title,
       content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
-      class: parent ? 'thumb-parent' : undefined
+      class: parent ? 'thumb-parent' : undefined,
+      href: href
     });
   });
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));

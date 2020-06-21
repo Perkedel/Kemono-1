@@ -1,7 +1,7 @@
 Kemono uses [semantic versioning](https://semver.org/).
 
 ### v1.4
-- New "Semibooru" UI
+- New UI
 - General code rewrites and cleanup
 
 ### v1.3.1

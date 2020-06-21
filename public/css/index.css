@@ -196,6 +196,7 @@ input[type="text"]:focus {
 }
 
 /* pagination */
+
 .paginator {
   display: block;
   text-align: center;
@@ -208,4 +209,24 @@ menu li {
   list-style-type: none;
   display: inline;
   font-weight: 900;
+}
+
+/* importer */
+
+.importer-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+}
+
+.importer-form * {
+  display: block;
+}
+
+input[type="submit"] {
+  border-radius: 5px;
+  min-height: 24px;
+  background-image: linear-gradient(#282a2e, #111111);
+  text-align: center;
+  border: 0;
 }

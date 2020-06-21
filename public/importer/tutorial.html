@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kemono</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
+    <link rel="stylesheet" type="text/css" href="/css/index.css">
+  </head>
+  <body>
+    <div class="main">
+      <ul class="header">
+        <li><a href="/">Kemono</a></li>
+        <li class="current-page"><a href="/">Posts</a></li>
+        <li><a href=".">Help</a></li>
+        <li><a href="https://liberapay.com/kemono.party" target="_blank">Donate</a></li>
+      </ul>
+      <ul class="subheader">
+        <li><a href="/">List</a></li>
+        <li><a href="/importer">Import</a></li>
+        <li><a href="/random">Random</a></li>
+        <li><a href="/help/posts">Help</a></li>
+      </ul>
+      <div class="views">
+        <div class="sidebar" style="margin-right: 10px;">
+          <h1>Import Index</h1>
+          <div class="results" id="results">
+            <li>
+              <a href="./">» Import</a>
+            </li>
+            <li>
+              <a href="./tutorial.html">» How to get your session key</a>
+            </li>
+          </div>
+        </div>
+        <div class="page" id="page">
+          <h1>How to get your session key</h1>
+          <h2>Patreon, Fanbox, Gumroad, SubscribeStar</h2>
+          <p>Kemono needs your session key in order to access posts from the artists/creators you are subscribed to. This document details ways to get this key, which vary from browser to browser.</p>
+          <p>After going to the paysite you want to import, (<a href="https://patreon.com">Patreon</a>/<a href="https://www.pixiv.net/fanbox">Fanbox</a>/<a href="https://gumroad.com/">Gumroad</a>/<a href="https://subscribestar.adult/">SubscribeStar</a>) you need to find where cookies are located in your browser.</p>
+          <h3 id="chrome">Chrome</h3>
+          <ul>
+            <li>Click the padlock button in the address bar.</li>
+            <img src="/padlock.png" alt="Padlock Button"></li>
+            <li>Go to Cookies &gt; [site] &gt; Cookies</li>
+            <li>Click the cookie for your service and copy the key next to &quot;Content&quot;</li>
+          </ul>
+          <h3 id="safari">Safari</h3>
+          <ul>
+            <li>Ensure &quot;Show Develop Menu&quot; is enabled in Preferences (<code>⌘,</code>)</li>
+            <li>Open Web Inspector (<code>⌘⌥I</code>)</li>
+            <li>Go to Storage &gt; Cookies</li>
+            <li>Right-click the cookie for your service and click &quot;Copy&quot;</li>
+          </ul>
+          <h3 id="firefox">Firefox</h3>
+          <ul>
+            <li>Open DevTools by pressing F12 and open the Storage tab</li>
+            <li>Go to Cookies &gt; [site]</li>
+            <li>Go to Storage &gt; Cookies</li>
+            <li>Right-click the cookie for your service and click &quot;Copy&quot;</li>
+          </ul>
+          <p>For other browsers, please consult browser documentation on how to access stored cookies.</p>
+          <p>Below are the respective cookies for the supported paysites.</p>
+          <ul>
+            <li>For <em>Patreon,</em> your session key is under <code>session_key</code>.</li>
+            <li>For <em>Fanbox,</em> your session key is under <code>FANBOXSESSID</code>.</li>
+            <li>For <em>Gumroad,</em> your session key is under <code>_gumroad_session</code>.</li>
+            <li>For <em>SubscribeStar,</em> your session key is under <code>auth_token</code>.</li>
+          </ul>
+          <h2>Discord</h2>
+          <h3>Getting your token</h3>
+          <p><em>(Credit to <a href="https://cancel.fm/">Cancel/Tumult</a> for the infographic.)</em></p>
+          <img src="/dicksword.png"></li>
+          <p>
+            Instructions on how to get the channel IDs can be found
+            <a href="https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-">
+              here.
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

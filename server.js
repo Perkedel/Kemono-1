@@ -28,7 +28,7 @@ express()
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
   .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
   .get('/random', async (req, res) => {
-    const postsCount = await posts.count({ service: 'patreon' });
+    const postsCount = await posts.countDocuments({ service: 'patreon' });
     const random = await posts
       .find({ service: { $ne: 'discord' } })
       .skip(Math.random() * postsCount)

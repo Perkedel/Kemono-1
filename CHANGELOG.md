@@ -3,6 +3,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 ### v1.4
 - New UI
 - General code rewrites and cleanup
+- Fixed issue causing error when ID is not in the lookup database
 
 ### v1.3.1
 - Replaced Cloudscraper module

@@ -112,7 +112,7 @@ a:link {
   flex-direction: column;
 }
 
-.importer-select {
+select {
   -webkit-appearance: none;
   -moz-appearance: none;
   background-color: rgba(0, 0, 0, 0);

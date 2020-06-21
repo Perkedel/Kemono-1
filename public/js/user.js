@@ -71,7 +71,7 @@ async function loadUserInfo () {
       document.title = `${cache} | Kemono`
       resultsView.innerHTML += `
         <li>
-          Service: <a href="${href}">${service}</a>
+          Service: <a href="${href}" target="_blank" rel="noreferrer">${service}</a>
         </li>
         <li>
           User: ${cache}

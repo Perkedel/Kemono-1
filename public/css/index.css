@@ -194,3 +194,18 @@ input[type="text"]:focus {
 .page img {
   max-width: 100%;
 }
+
+/* pagination */
+.paginator {
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+}
+
+menu li {
+  margin: 0;
+  padding: 0 .2em;
+  list-style-type: none;
+  display: inline;
+  font-weight: 900;
+}

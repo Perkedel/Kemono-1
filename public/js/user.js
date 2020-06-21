@@ -74,7 +74,7 @@ async function loadUserInfo () {
           Service: <a href="${href}" target="_blank" rel="noreferrer">${service}</a>
         </li>
         <li>
-          User: ${cache}
+          User: <a href="${window.location.href.split('?')[0]}">${cache}</a>
         </li>
       `
     })
@@ -95,9 +95,20 @@ async function loadUserInfo () {
 }
 
 async function main () {
-  const skip = Number(getParameterByName('skip')) || 0;
+  const paginator = document.getElementById('paginator');
+  const skip = Number(getParameterByName('o')) || 0;
+  paginator.innerHTML += `
+    <menu>
+      ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}">«</a></li>` : '<li class="subtitle">«</li>'}
+      ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}">‹</a></li>` : '<li class="subtitle">‹</li>'}
+      <li>offset: ${skip}</li>
+      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}">›</a></li>
+      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}">»</a></li>
+    </menu>
+  `
   const pathname = window.location.pathname.split('/');
   const contentView = document.getElementById('content');
+  const mainView = document.getElementById('main');
   let api;
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
@@ -115,6 +126,12 @@ async function main () {
   }
   const userPostsData = await fetch(api);
   const userPosts = await userPostsData.json();
+  if (userPosts.length === 0) {
+    mainView.innerHTML += `
+      <h1 class="subtitle">There are no posts.</h1>
+      <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
+    `
+  }
   userPosts.forEach(post => {
     let parent = false;
     const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];

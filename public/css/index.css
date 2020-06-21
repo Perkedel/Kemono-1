@@ -123,7 +123,7 @@ a:link {
   text-align-last: center;
 }
 
-.importer-input {
+input[type="text"] {
   border-radius: 5px;
   min-height: 24px;
   background-image: linear-gradient(#282a2e, #111111);
@@ -132,7 +132,7 @@ a:link {
   border: 0;
 }
 
-.importer-input:focus {
+input[type="text"]:focus {
   background-image: linear-gradient(#111111, #282a2e);
   outline: none;
 }

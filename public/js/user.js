@@ -39,28 +39,29 @@ const thumbHTML = data => `
 `;
 
 async function loadUserInfo () {
-  let api, proxy, href;
+  let service, api, proxy, href;
   const resultsView = document.getElementById('results');
   const pathname = window.location.pathname.split('/');
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
+      service = 'Patreon';
       api = `/api/lookup/cache/${pathname[2]}?service=patreon`
       proxy = `/proxy/user/${pathname[2]}`
       href = `https://www.patreon.com/user?u=${pathname[2]}`
       break;
     case 'fanbox':
+      service = 'Fanbox';
       api = `/api/lookup/cache/${pathname[3]}?service=fanbox`
-      proxy = `/proxy/fanbox/user/${pathname[3]}`
       href = `https://www.pixiv.net/fanbox/creator/${pathname[3]}`
       break;
     case 'gumroad':
+      service = 'Gumroad';
       api = `/api/lookup/cache/${pathname[3]}?service=gumroad`
-      proxy = `/proxy/gumroad/user/${pathname[3]}`
       href = `https://gumroad.com/${pathname[3]}`
       break;
     case 'subscribestar':
+      service = 'SubscribeStar';
       api = `/api/lookup/cache/${pathname[3]}?service=subscribestar`
-      proxy = `/proxy/subscribestar/user/${pathname[3]}`
       href = `https://subscribestar.adult/${pathname[3]}`
       break;
   }
@@ -70,7 +71,10 @@ async function loadUserInfo () {
       document.title = `${cache} | Kemono`
       resultsView.innerHTML += `
         <li>
-          User: <a href="${href}">${cache}</a>
+          Service: <a href="${href}">${service}</a>
+        </li>
+        <li>
+          User: ${cache}
         </li>
       `
     })

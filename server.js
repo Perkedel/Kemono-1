@@ -107,7 +107,7 @@ express()
   .get('/api/lookup/cache/:id', async (req, res) => {
     const cache = await lookup.findOne({ id: req.params.id, service: req.query.service });
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
-    res.send(cache.name);
+    res.send(cache ? cache.name : '');
   })
   .get('/api/:service?/:entity/:id', async (req, res) => {
     const query = {};

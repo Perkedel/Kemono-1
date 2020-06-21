@@ -1,89 +1,100 @@
-const headerHTML = data => `
-  <div 
-    class="user-header-view" 
-    style="background: url('${data.bg}'); background-size: 100% auto; background-position: center;"
-  >
-    <div class="user-header-avatar" style="background-image: url('${data.icon}');"></div>
-    <div class="user-header-info">
-      <div class="user-header-info-top">
-        <h1>${data.title}</h1>
-        <a href="${data.href}" target="_blank" rel="noreferrer">
-          <div class="user-header-info-${data.service}"></div>
-        </a>
+function getParameterByName(name, url) {
+  if (!url) url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function debounce (func, wait, immediate) {
+  var timeout;
+  return function () {
+    var context = this; var args = arguments;
+    var later = function () {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+
+const thumbHTML = data => `
+  <a href="${data.href}" class="thumb-link">
+    ${data.src ? `
+      <div class="thumb thumb-with-image ${data.class || 'thumb-standard'}">
+        <img src="${data.src}">
       </div>
-    </div>
-  </div>
+    ` : `
+      <div class="thumb thumb-with-text ${data.class || 'thumb-standard'}">
+        <h3>${data.title}</h3>
+        <p>${data.content}</p>
+      </div>
+    `}
+  </a>
 `;
 
-async function loadHeader () {
-  const marthaView = document.getElementById('martha-view');
+async function loadUserInfo () {
+  let api, proxy, href;
+  const resultsView = document.getElementById('results');
   const pathname = window.location.pathname.split('/');
   switch (document.getElementsByName('service')[0].content) {
-    case 'patreon': {
-      const userData = await fetch(`/proxy/user/${pathname[2]}`);
-      const user = await userData.json();
-      document.title = `${user.data.attributes.vanity || user.data.attributes.full_name} | Kemono`;
-      marthaView.innerHTML = headerHTML({
-        bg: user.included ? user.included[0].attributes.cover_photo_url : user.data.attributes.image_url,
-        icon: user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url,
-        title: user.data.attributes.vanity || user.data.attributes.full_name,
-        href: `https://www.patreon.com/user?u=${user.data.id}`,
-        service: 'patreon'
-      }) + marthaView.innerHTML;
+    case 'patreon':
+      api = `/api/lookup/cache/${pathname[2]}?service=patreon`
+      proxy = `/proxy/user/${pathname[2]}`
+      href = `https://www.patreon.com/user?u=${pathname[2]}`
       break;
-    }
-    case 'fanbox': {
-      const userData = await fetch(`/proxy/fanbox/user/${pathname[3]}`);
-      const user = await userData.json();
-      require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], unraw => {
-        document.title = `${unraw.unraw(user.body.user.name)} | Kemono`;
-        const marthaView = document.getElementById('martha-view');
-        marthaView.innerHTML = headerHTML({
-          bg: unraw.unraw(user.body.coverImageUrl || user.body.user.iconUrl),
-          icon: unraw.unraw(user.body.user.iconUrl),
-          title: unraw.unraw(user.body.user.name),
-          href: `https://www.pixiv.net/fanbox/creator/${user.body.user.userId}`,
-          service: 'fanbox'
-        }) + marthaView.innerHTML;
-      });
+    case 'fanbox':
+      api = `/api/lookup/cache/${pathname[3]}?service=fanbox`
+      proxy = `/proxy/fanbox/user/${pathname[3]}`
+      href = `https://www.pixiv.net/fanbox/creator/${pathname[3]}`
       break;
-    }
-    case 'gumroad': {
-      const userData = await fetch(`/proxy/gumroad/user/${pathname[3]}`);
-      const user = await userData.json();
-      document.title = `${user.name} | Kemono`;
-      marthaView.innerHTML = headerHTML({
-        bg: user.background || user.avatar,
-        icon: user.avatar,
-        title: user.name,
-        href: `https://gumroad.com/${pathname[3]}`,
-        service: 'gumroad'
-      }) + marthaView.innerHTML;
+    case 'gumroad':
+      api = `/api/lookup/cache/${pathname[3]}?service=gumroad`
+      proxy = `/proxy/gumroad/user/${pathname[3]}`
+      href = `https://gumroad.com/${pathname[3]}`
       break;
-    }
-    case 'subscribestar': {
-      const userData = await fetch(`/proxy/subscribestar/user/${pathname[3]}`);
-      const user = await userData.json();
-      document.title = `${user.name} | Kemono`;
-      marthaView.innerHTML = headerHTML({
-        bg: user.background || user.avatar,
-        icon: user.avatar,
-        title: user.name,
-        href: `https://gumroad.com/${pathname[3]}`,
-        service: 'subscribestar'
-      }) + marthaView.innerHTML;
-    }
+    case 'subscribestar':
+      api = `/api/lookup/cache/${pathname[3]}?service=subscribestar`
+      proxy = `/proxy/subscribestar/user/${pathname[3]}`
+      href = `https://subscribestar.adult/${pathname[3]}`
+      break;
+  }
+  fetch(api)
+    .then(res => res.text())
+    .then(cache => {
+      document.title = `${cache} | Kemono`
+      resultsView.innerHTML += `
+        <li>
+          User: <a href="${href}">${cache}</a>
+        </li>
+      `
+    })
+  if (document.getElementsByName('service')[0].content === 'patreon') {
+    fetch(proxy)
+      .then(res => res.json())
+      .then(user => {
+        resultsView.innerHTML += `
+          <li>
+            Tagline: ${user.included[0].attributes.creation_name}
+          </li>
+          <li>
+            CUF Enabled: ${user.included[0].attributes.is_charge_upfront ? 'Yes' : '<span style="color: #0f0">No</span>' }
+          </li>
+        `
+      })
   }
 }
 
-async function loadMorePosts (skip, after = () => {}) {
-  const load = document.getElementById('load-more-button');
-  if (load) {
-    load.outerHTML = '';
-  }
+async function main () {
+  const skip = Number(getParameterByName('skip')) || 0;
   const pathname = window.location.pathname.split('/');
-  const marthaView = document.getElementById('martha-view');
-  let api = '';
+  const contentView = document.getElementById('content');
+  let api;
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
       api = `/api/user/${pathname[2]}?skip=${skip}`;
@@ -100,72 +111,39 @@ async function loadMorePosts (skip, after = () => {}) {
   }
   const userPostsData = await fetch(api);
   const userPosts = await userPostsData.json();
-  userPosts.map(post => {
-    let image = '';
-    let imageDl = '';
-    let attachmentDl = '';
-    let embed = '';
-    post.attachments.map(attachment => {
-      attachmentDl += `
-        <a 
-          class="user-post-attachment-link" 
-          href="${attachment.path}" 
-          target="_blank"
-        >
-          <p>Download ${attachment.name}</p>
-        </a>
-      `;
+  userPosts.forEach(post => {
+    let parent = false;
+    const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];
+    const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`
+    inline.map(url => {
+      if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
+        parent = true;
+        contentView.innerHTML += thumbHTML({
+          src: url,
+          href: href,
+          class: 'thumb-child'
+        });
+      }
     });
-
-    if (post.post_type === 'image_file') {
-      image = `
-        <a class="fileThumb" href="${post.post_file.path}">
-          <img 
-            class="user-post-image" 
-            data-src="${post.post_file.path}"
-          >
-        </a>
-      `;
-      imageDl = `
-        <a 
-          class="user-post-attachment-link" 
-          href="${post.post_file.path}" 
-          target="_blank"
-        >
-          <p>Download ${post.post_file.name}</p>
-        </a>
-      `;
-    }
-
-    if (Object.keys(post.embed).length !== 0 && document.getElementsByName('service')[0].content !== 'fanbox') {
-      embed = `
-        <a href="${post.embed.url}" target="_blank">
-          <div class="embed-view">
-            <h3>${post.embed.subject}</h3>
-            <p>${post.embed.description || ''}</p>
-          </div>
-        </a>
-      `;
-    }
-    marthaView.innerHTML += `
-      <div class="user-post-view" id=${post.id}>
-        ${image}
-        ${embed}
-        <h2>${post.title}</h2>
-        ${post.content}
-        ${imageDl}
-        ${attachmentDl}
-        <p style="color: #757575;">${post.published_at}</p>
-      </div>
-    `;
+    post.attachments.map(attachment => {
+      if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
+        parent = true;
+        contentView.innerHTML += thumbHTML({
+          src: attachment.path,
+          href: href,
+          class: 'thumb-child'
+        });
+      }
+    });
+    contentView.innerHTML += thumbHTML({
+      src: post.post_type === 'image_file' ? post.post_file.path : undefined,
+      title: post.title,
+      content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
+      class: parent ? 'thumb-parent' : undefined,
+      href: href
+    });
   });
-  marthaView.innerHTML += `
-    <button onClick="loadMorePosts(${skip + 25})" id="load-more-button" class="load-more-button">Load More</a>
-  `;
-  lazyload();
-  after();
+  loadUserInfo();
 }
 
-window.onload = () => {
-  loadMorePosts(0, () => loadHeader());
-};
+window.onload = () => main();

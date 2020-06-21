@@ -3,36 +3,34 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>...</title>
+    <title>Kemono</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
     <link rel="stylesheet" type="text/css" href="/css/index.css">
     <meta name="service" content="gumroad"/>
-    <script src="/js/expander.js"></script>
-    <script src="/js/lazyload.js"></script>
     <script src="/js/user.js"></script>
   </head>
   <body>
     <div class="main">
-      <noscript>You need JavaScript to render user posts.</noscript>
-      <div class="header">
-        <a href="/" class="link-reset header-item">[Home]</a>
-        <a href="/importer" class="link-reset header-item">[Importer]</a>
-        <a href="/random" class="link-reset header-item">[Random]</a>
-        <a 
-          href="https://t.me/kemonoparty" 
-          class="link-reset header-item"
-        >
-          [Telegram]
-        </a>
-        <a 
-          href="https://liberapay.com/kemono.party/" 
-          target="_blank"
-          class="link-reset header-item"
-        >
-          [Donate]
-        </a>
+      <ul class="header">
+        <li><a href="/">Kemono</a></li>
+        <li class="current-page"><a href="/">Posts</a></li>
+        <li><a href="/help">Help</a></li>
+        <li><a href="https://liberapay.com/kemono.party" target="_blank">Donate</a></li>
+      </ul>
+      <ul class="subheader">
+        <li><a href="/">List</a></li>
+        <li><a href="/importer">Import</a></li>
+        <li><a href="/random">Random</a></li>
+        <li><a href="/help/posts">Help</a></li>
+      </ul>
+      <div class="sidebar">
+        <h1>Information</h1>
+        <div class="results" id="results">
+            
+        </div>
       </div>
-      <div class="martha-view" id="martha-view">
+      <div class="content" id="content">
+
       </div>
     </div>
   </body>

@@ -10,12 +10,6 @@ async function main () {
       cache = await cacheData.text();
       break;
     }
-    default: {
-      const postData = await fetch(`/api/fanbox/user/${pathname[3]}/post/${pathname[5]}`);
-      post = await postData.json();
-      const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=fanbox`);
-      cache = await cacheData.text();
-    }
     case 'gumroad': {
       const postData = await fetch(`/api/gumroad/user/${pathname[3]}/post/${pathname[5]}`);
       post = await postData.json();
@@ -27,6 +21,13 @@ async function main () {
       const postData = await fetch(`/api/subscribestar/user/${pathname[3]}/post/${pathname[5]}`);
       post = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=subscribestar`);
+      cache = await cacheData.text();
+      break;
+    }
+    default: {
+      const postData = await fetch(`/api/fanbox/user/${pathname[3]}/post/${pathname[5]}`);
+      post = await postData.json();
+      const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=fanbox`);
       cache = await cacheData.text();
     }
   }

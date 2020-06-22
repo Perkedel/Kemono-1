@@ -11,7 +11,6 @@ const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 const getUrls = require('get-urls');
 const proxy = require('./proxy');
-const util = require('util');
 const sharp = require('sharp');
 sharp.cache(false);
 indexer();

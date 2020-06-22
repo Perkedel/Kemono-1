@@ -2,6 +2,8 @@ Kemono uses [semantic versioning](https://semver.org/).
 
 ### v1.4
 - New UI
+- Search posts
+- Pagination
 - Implemented thumbnail generation
 - General code rewrites and cleanup
 - Fixed issue causing error when ID is not in the lookup database

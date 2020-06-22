@@ -57,8 +57,7 @@ async function main () {
   if (post.post_type === imageTypes[post.service]) {
     previews += `
       <a class="fileThumb" href="${post.post_file.path}">
-        <img 
-          class="user-post-image" 
+        <img
           data-src="/thumbnail${post.post_file.path.replace('https://kemono.party/', '')}"
           src="/thumbnail${post.post_file.path.replace('https://kemono.party/', '')}"
         >
@@ -67,11 +66,22 @@ async function main () {
     `;
   }
 
+  if (Object.keys(post.embed).length !== 0) {
+    previews += `
+      <a href="${post.embed.url}" target="_blank">
+        <div class="embed-view">
+          ${post.embed.subject ? `<h3>${post.embed.subject}</h3>` : ''}
+          ${post.embed.description ? `<p>${post.embed.description}</p>` : ''}
+        </div>
+      </a>
+      <br>
+    `;
+  }
+
   post.attachments.map(attachment => {
     previews += (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? `
       <a class="fileThumb" href="${attachment.path}">
-        <img 
-          class="user-post-image" 
+        <img
           data-src="/thumbnail${attachment.path.replace('https://kemono.party/', '')}"
           src="/thumbnail${attachment.path.replace('https://kemono.party/', '')}"
         >

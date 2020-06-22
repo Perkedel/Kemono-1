@@ -230,3 +230,11 @@ input[type="submit"] {
   text-align: center;
   border: 0;
 }
+
+/* posts */
+
+.embed-view {
+  border: 1px solid #111;
+  padding: 2px;
+  max-width: 300px;
+}

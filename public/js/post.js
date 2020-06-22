@@ -58,8 +58,8 @@ async function main () {
       <a class="fileThumb" href="${post.post_file.path}">
         <img 
           class="user-post-image" 
-          data-src="${post.post_file.path}"
-          src="${post.post_file.path}"
+          data-src="/thumbnail${post.post_file.path.replace('https://kemono.party/', '')}"
+          src="/thumbnail${post.post_file.path.replace('https://kemono.party/', '')}"
         >
       </a>
       <br>
@@ -71,8 +71,8 @@ async function main () {
       <a class="fileThumb" href="${attachment.path}">
         <img 
           class="user-post-image" 
-          data-src="${attachment.path}"
-          src="${attachment.path}"
+          data-src="/thumbnail${attachment.path.replace('https://kemono.party/', '')}"
+          src="/thumbnail${attachment.path.replace('https://kemono.party/', '')}"
         >
       </a>
       <br>

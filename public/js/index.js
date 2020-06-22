@@ -1,3 +1,13 @@
+function getParameterByName (name, url) {
+  if (!url) url = window.location.href;
+  name = name.replace(/[[]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  var results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
 function debounce (func, wait, immediate) {
   var timeout;
   return function () {
@@ -170,8 +180,19 @@ async function queryUpdate (num) {
 }
 
 async function main () {
+  const paginator = document.getElementById('paginator');
+  const skip = Number(getParameterByName('o')) || 0;
+  paginator.innerHTML += `
+    <menu>
+      ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}">«</a></li>` : '<li class="subtitle">«</li>'}
+      ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}">‹</a></li>` : '<li class="subtitle">‹</li>'}
+      <li>offset: ${skip}</li>
+      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}">›</a></li>
+      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}">»</a></li>
+    </menu>
+  `;
   const contentView = document.getElementById('content');
-  const recentData = await fetch('/api/recent');
+  const recentData = await fetch(`/api/recent?skip=${skip}`);
   const recent = await recentData.json();
   recent.forEach(post => {
     let parent = false;

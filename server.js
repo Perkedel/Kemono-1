@@ -137,6 +137,37 @@ express()
     res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=2592000');
     res.send(cache ? cache.name : '');
   })
+  .get('/api/:service?/:entity/:id/lookup', async (req, res) => {
+    if (req.query.q.length > 35) return res.sendStatus(400);
+    const query = { 
+      $and: [
+        {
+          $or: [
+            { title: { $regex: esc(req.query.q), $options: 'i' } },
+            { content: { $regex: esc(req.query.q), $options: 'i' } }
+          ]
+        }
+      ]
+    };
+    query[req.params.entity] = req.params.id;
+    if (!req.params.service) {
+      query.$and.push({
+        $or: [
+          { service: 'patreon' },
+          { service: { $exists: false } }
+        ]
+      });
+    } else {
+      query.service = req.params.service;
+    }
+    const userPosts = await posts.find(query)
+      .sort({ published_at: -1 })
+      .skip(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .toArray();
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
+    res.json(userPosts);
+  })
   .get('/api/:service?/:entity/:id', async (req, res) => {
     const query = {};
     query[req.params.entity] = req.params.id;

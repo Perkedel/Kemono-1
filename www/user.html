@@ -24,9 +24,19 @@
         <li><a href="/help/posts">Help</a></li>
       </ul>
       <div class="sidebar">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="search for posts..."
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        >
         <h1>Information</h1>
         <div class="results" id="results">
-            
+          <div id="info-block"></div>
+          <div id="extra-info-block"></div>
         </div>
       </div>
       <div class="paginator" id="paginator">

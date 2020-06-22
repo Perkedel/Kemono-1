@@ -1,4 +1,5 @@
 let currentChannel;
+/* eslint-disable no-unused-vars */
 const loadMessages = async (channelId, skip = 0) => {
   const messages = document.getElementById('messages');
   const loadButton = document.getElementById('load-more-button');
@@ -57,6 +58,7 @@ const loadMessages = async (channelId, skip = 0) => {
     </div>
   ` + messages.innerHTML;
 };
+/* eslint-enable no-unused-vars */
 
 const load = async () => {
   const pathname = window.location.pathname.split('/');

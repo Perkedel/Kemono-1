@@ -146,7 +146,7 @@ express()
       query.$or = [
         { service: 'patreon' },
         { service: { $exists: false } }
-      ]
+      ];
     } else {
       query.service = req.params.service;
     }

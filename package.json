@@ -46,7 +46,9 @@
     "globals": [
       "fetch",
       "lazyload",
-      "IntersectionObserver"
+      "getParameterByName",
+      "renderPosts",
+      "debounce"
     ]
   }
 }

@@ -12,6 +12,7 @@ const indexer = require('./indexer');
 const getUrls = require('get-urls');
 const proxy = require('./proxy');
 const sharp = require('sharp');
+posts.createIndex({ title: 'text', content: 'text' });
 sharp.cache(false);
 indexer();
 
@@ -139,24 +140,13 @@ express()
   })
   .get('/api/:service?/:entity/:id/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);
-    const query = { 
-      $and: [
-        {
-          $or: [
-            { title: { $regex: esc(req.query.q), $options: 'i' } },
-            { content: { $regex: esc(req.query.q), $options: 'i' } }
-          ]
-        }
-      ]
-    };
+    const query = { $text: { $search: req.query.q } };
     query[req.params.entity] = req.params.id;
     if (!req.params.service) {
-      query.$and.push({
-        $or: [
-          { service: 'patreon' },
-          { service: { $exists: false } }
-        ]
-      });
+      query.$or = [
+        { service: 'patreon' },
+        { service: { $exists: false } }
+      ]
     } else {
       query.service = req.params.service;
     }

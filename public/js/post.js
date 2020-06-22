@@ -44,9 +44,9 @@ async function main () {
     <li>
       Added at: ${new Date(post.added_at).toISOString()}
     </li>
-  `
+  `;
 
-  let imageTypes = {
+  const imageTypes = {
     patreon: 'image_file',
     fanbox: 'image',
     gumroad: 'image',
@@ -83,13 +83,13 @@ async function main () {
       <br>
     `;
   });
-  
+
   const pageView = document.getElementById('page');
   pageView.innerHTML += `
     ${previews}
     <h1>${post.title}</h1>
     <p>${post.content}</p>
-  `
+  `;
 }
 
 window.onload = () => main();

@@ -1,8 +1,8 @@
-function getParameterByName(name, url) {
+function getParameterByName (name, url) {
   if (!url) url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
-  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-      results = regex.exec(url);
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  var results = regex.exec(url);
   if (!results) return null;
   if (!results[2]) return '';
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
@@ -45,30 +45,30 @@ async function loadUserInfo () {
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
       service = 'Patreon';
-      api = `/api/lookup/cache/${pathname[2]}?service=patreon`
-      proxy = `/proxy/user/${pathname[2]}`
-      href = `https://www.patreon.com/user?u=${pathname[2]}`
+      api = `/api/lookup/cache/${pathname[2]}?service=patreon`;
+      proxy = `/proxy/user/${pathname[2]}`;
+      href = `https://www.patreon.com/user?u=${pathname[2]}`;
       break;
     case 'fanbox':
       service = 'Fanbox';
-      api = `/api/lookup/cache/${pathname[3]}?service=fanbox`
-      href = `https://www.pixiv.net/fanbox/creator/${pathname[3]}`
+      api = `/api/lookup/cache/${pathname[3]}?service=fanbox`;
+      href = `https://www.pixiv.net/fanbox/creator/${pathname[3]}`;
       break;
     case 'gumroad':
       service = 'Gumroad';
-      api = `/api/lookup/cache/${pathname[3]}?service=gumroad`
-      href = `https://gumroad.com/${pathname[3]}`
+      api = `/api/lookup/cache/${pathname[3]}?service=gumroad`;
+      href = `https://gumroad.com/${pathname[3]}`;
       break;
     case 'subscribestar':
       service = 'SubscribeStar';
-      api = `/api/lookup/cache/${pathname[3]}?service=subscribestar`
-      href = `https://subscribestar.adult/${pathname[3]}`
+      api = `/api/lookup/cache/${pathname[3]}?service=subscribestar`;
+      href = `https://subscribestar.adult/${pathname[3]}`;
       break;
   }
   fetch(api)
     .then(res => res.text())
     .then(cache => {
-      document.title = `${cache} | Kemono`
+      document.title = `${cache} | Kemono`;
       resultsView.innerHTML += `
         <li>
           Service: <a href="${href}" target="_blank" rel="noreferrer">${service}</a>
@@ -76,8 +76,8 @@ async function loadUserInfo () {
         <li>
           User: <a href="${window.location.href.split('?')[0]}">${cache}</a>
         </li>
-      `
-    })
+      `;
+    });
   if (document.getElementsByName('service')[0].content === 'patreon') {
     fetch(proxy)
       .then(res => res.json())
@@ -87,10 +87,10 @@ async function loadUserInfo () {
             Tagline: ${user.included[0].attributes.creation_name}
           </li>
           <li>
-            CUF Enabled: ${user.included[0].attributes.is_charge_upfront ? 'Yes' : '<span style="color: #0f0">No</span>' }
+            CUF Enabled: ${user.included[0].attributes.is_charge_upfront ? 'Yes' : '<span style="color: #0f0">No</span>'}
           </li>
-        `
-      })
+        `;
+      });
   }
 }
 
@@ -105,7 +105,7 @@ async function main () {
       <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}">›</a></li>
       <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}">»</a></li>
     </menu>
-  `
+  `;
   const pathname = window.location.pathname.split('/');
   const contentView = document.getElementById('content');
   const mainView = document.getElementById('main');
@@ -130,12 +130,12 @@ async function main () {
     mainView.innerHTML += `
       <h1 class="subtitle">There are no posts.</h1>
       <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
-    `
+    `;
   }
   userPosts.forEach(post => {
     let parent = false;
     const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];
-    const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`
+    const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
     inline.map(url => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
         parent = true;

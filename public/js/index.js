@@ -51,7 +51,7 @@ async function renderPatreonQuery (query = '', limit = 50) {
           title: cache,
           subtitle: 'Patreon'
         });
-      })
+      });
   });
 }
 
@@ -70,7 +70,7 @@ async function renderGumroadQuery (query = '', limit = 50) {
           title: cache,
           subtitle: 'Gumroad'
         });
-      })
+      });
   });
 }
 
@@ -90,7 +90,7 @@ async function renderFanboxQuery (query = '', limit = 50) {
             title: cache,
             subtitle: 'Pixiv Fanbox'
           });
-        })
+        });
     });
   });
 }
@@ -129,7 +129,7 @@ async function renderSubscribestarQuery (query = '', limit = 50) {
           title: cache,
           subtitle: 'SubscribeStar'
         });
-      })
+      });
   });
 }
 
@@ -176,7 +176,7 @@ async function main () {
   recent.forEach(post => {
     let parent = false;
     const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];
-    const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`
+    const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
     inline.map(url => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
         parent = true;

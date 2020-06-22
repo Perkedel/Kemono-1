@@ -11,7 +11,7 @@ const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 const getUrls = require('get-urls');
 const proxy = require('./proxy');
-const util = require('util')
+const util = require('util');
 const sharp = require('sharp');
 sharp.cache(false);
 indexer();
@@ -28,9 +28,9 @@ express()
     extensions: ['html', 'htm'],
     setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
   }))
-  .get('/thumbnail/*', async(req, res) => {
-    let file = `${process.env.DB_ROOT}/${req.params[0]}`
-    let resizer = sharp({ failOnError: false, sequentialRead: true })
+  .get('/thumbnail/*', async (req, res) => {
+    const file = `${process.env.DB_ROOT}/${req.params[0]}`;
+    const resizer = sharp({ failOnError: false, sequentialRead: true })
       .jpeg()
       .resize({ width: Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
       .on('error', err => {
@@ -38,20 +38,20 @@ express()
           case 'Input buffer contains unsupported image format': {
             // stream down the original image if cannot be resized
             fs.createReadStream(file)
-              .pipe(res)
+              .pipe(res);
             break;
           }
           default: {
-            console.error(`${err.stack}: ${file}`)
+            console.error(`${err.stack}: ${file}`);
           }
         }
-      })
-    let fileExists = await fs.pathExists(file);
+      });
+    const fileExists = await fs.pathExists(file);
     if (!fileExists || !(/\.(gif|jpe?g|png|webp)$/i).test(file)) return res.sendStatus(404);
     res.setHeader('Cache-Control', 'max-age=31557600, public');
     fs.createReadStream(file)
       .pipe(resizer)
-      .pipe(res)
+      .pipe(res);
   })
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
@@ -66,7 +66,7 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.redirect(path.join(
       '/',
-      random[0].service === 'patreon' ? '' : `${random[0].service}`, 
+      random[0].service === 'patreon' ? '' : `${random[0].service}`,
       'user', random[0].user,
       'post', random[0].id
     ));
@@ -263,6 +263,6 @@ express()
   })
   .get('/:service?/:type/:id/post/:post', (req, res) => {
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `post.html`));
+    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', 'post.html'));
   })
   .listen(process.env.PORT || 8000);

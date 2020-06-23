@@ -44,8 +44,13 @@ async function renderPosts (posts) {
   const contentView = document.getElementById('content');
   posts.forEach(post => {
     let parent = false;
+    let edit = false;
     const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];
     const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
+    if (post.edited_at && post.published_at !== post.edited_at) {
+      edit = true;
+      href += `?edit=${post.edited_at}`
+    }
     inline.map(url => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
         parent = true;
@@ -70,7 +75,7 @@ async function renderPosts (posts) {
       src: post.post_type === 'image_file' || post.post_type === 'image' ? post.post_file.path : undefined,
       title: post.title,
       content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
-      class: parent ? 'thumb-parent' : undefined,
+      class: edit ? 'thumb-edit' : (parent ? 'thumb-parent' : undefined),
       href: href
     });
   });

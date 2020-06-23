@@ -188,7 +188,11 @@ express()
     } else {
       query.service = req.params.service;
     }
-    const userPosts = await posts.findOne(query);
+    const userPosts = await posts.find(query)
+      .sort({ published_at: -1 })
+      .skip(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .toArray();;
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.json(userPosts);
   })

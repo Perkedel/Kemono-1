@@ -67,7 +67,7 @@ async function renderPosts (posts) {
       }
     });
     contentView.innerHTML += thumbHTML({
-      src: post.post_type === 'image_file' ? post.post_file.path : undefined,
+      src: post.post_type === 'image_file' || post.post_type === 'image' ? post.post_file.path : undefined,
       title: post.title,
       content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
       class: parent ? 'thumb-parent' : undefined,

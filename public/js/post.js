@@ -47,14 +47,8 @@ async function main () {
     </li>
   `;
 
-  const imageTypes = {
-    patreon: 'image_file',
-    fanbox: 'image',
-    gumroad: 'image',
-    subscribestar: 'image'
-  };
   let previews = '';
-  if (post.post_type === imageTypes[post.service]) {
+  if (post.post_type === 'image_file' || post.post_type === 'image') {
     previews += `
       <a class="fileThumb" href="${post.post_file.path}">
         <img

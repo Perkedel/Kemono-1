@@ -37,13 +37,13 @@ async function main () {
       User: <a href="../">${cache}</a>
     </li>
     <li>
-      ID: <a href="">${post.id}</a>
+      ID: <a href="">${posts[0].id}</a>
     </li>
     <li>
-      Published at: ${post.published_at}
+      Published at: ${posts[0].published_at}
     </li>
     <li>
-      Added at: ${new Date(post.added_at).toISOString()}
+      Added at: ${new Date(posts[0].added_at).toISOString()}
     </li>
   `;
 

@@ -66,7 +66,7 @@ express()
     res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
     res.redirect(path.join(
       '/',
-      random[0].service === 'patreon' ? '' : `${random[0].service}`,
+      random[0].service === 'patreon' || !random[0].service ? '' : random[0].service,
       'user', random[0].user,
       'post', random[0].id
     ));

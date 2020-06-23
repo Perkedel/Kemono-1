@@ -58,8 +58,8 @@ async function main () {
     previews += `
       <a class="fileThumb" href="${post.post_file.path}">
         <img
-          data-src="/thumbnail${post.post_file.path.replace('https://kemono.party/', '')}"
-          src="/thumbnail${post.post_file.path.replace('https://kemono.party/', '')}"
+          data-src="/thumbnail${post.post_file.path.replace('https://kemono.party', '')}"
+          src="/thumbnail${post.post_file.path.replace('https://kemono.party', '')}"
         >
       </a>
       <br>
@@ -82,8 +82,8 @@ async function main () {
     previews += (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? `
       <a class="fileThumb" href="${attachment.path}">
         <img
-          data-src="/thumbnail${attachment.path.replace('https://kemono.party/', '')}"
-          src="/thumbnail${attachment.path.replace('https://kemono.party/', '')}"
+          data-src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
+          src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
         >
       </a>
       <br>

@@ -6,13 +6,14 @@
     <title>Kemono</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
     <link rel="stylesheet" type="text/css" href="/css/index.css">
+    <script src="/js/importer.js"></script>
   </head>
   <body>
     <div class="main">
       <ul class="header">
         <li><a href="/">Kemono</a></li>
         <li class="current-page"><a href="/">Posts</a></li>
-        <li><a href=".">Help</a></li>
+        <li><a href="/help">Help</a></li>
         <li><a href="https://liberapay.com/kemono.party" target="_blank">Donate</a></li>
       </ul>
       <ul class="subheader">
@@ -35,13 +36,13 @@
         </div>
         <div class="page" id="page">
           <h1>Import</h1>
-          <form 
+          <form
             class="importer-form"
             action="/api/import"
             enctype="application/x-www-form-urlencoded"
             method="post"
           >
-            <select name="service">
+            <select id="service" name="service">
               <option value="patreon" selected>Patreon</option>
               <option value="fanbox">Pixiv Fanbox</option>
               <option value="gumroad">Gumroad</option>
@@ -59,6 +60,7 @@
             >
             <input 
               type="text"
+              id="channel_ids"
               name="channel_ids"
               placeholder="discord channel ids (comma separated, no spaces)"
               autocomplete="off" 

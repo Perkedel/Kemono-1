@@ -47,7 +47,7 @@ express()
         }
       });
     const fileExists = await fs.pathExists(file);
-    if (!fileExists || !(/\.(gif|jpe?g|png|webp)$/i).test(file)) return res.sendStatus(404);
+    if (!fileExists || !(/\.(gif|jpe?g|png|webp|Untitled)$/i).test(file)) return res.sendStatus(404);
     res.setHeader('Cache-Control', 'max-age=31557600, public');
     fs.createReadStream(file)
       .pipe(resizer)

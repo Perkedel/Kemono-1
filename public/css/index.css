@@ -87,7 +87,7 @@ a:link {
 }
 
 .thumb-with-text {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .thumb-with-text * {

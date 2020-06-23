@@ -46,10 +46,10 @@ async function renderPosts (posts) {
     let parent = false;
     let edit = false;
     const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];
-    const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
+    let href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
     if (post.edited_at && post.published_at !== post.edited_at) {
       edit = true;
-      href += `?edit=${post.edited_at}`
+      href += `?edit=${post.edited_at}`;
     }
     inline.map(url => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {

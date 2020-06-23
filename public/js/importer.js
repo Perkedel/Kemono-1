@@ -8,5 +8,5 @@ window.onload = () => {
       default:
         document.getElementById('channel_ids').style.display = 'none';
     }
-  });
-};
+  })
+}

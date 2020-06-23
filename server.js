@@ -179,7 +179,6 @@ express()
   })
   .get('/api/:service?/:entity/:id/post/:post', async (req, res) => {
     const query = { id: req.params.post };
-    if (req.query.edit) query.edited_at = req.query.edit;
     query[req.params.entity] = req.params.id;
     if (!req.params.service) {
       query.$or = [

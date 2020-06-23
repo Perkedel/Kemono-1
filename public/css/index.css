@@ -66,11 +66,7 @@ a:link {
 .thumb {
   width: 200px;
   height: 200px;
-  scrollbar-width: none;
-}
-
-.thumb::-webkit-scrollbar {
-  display: none;
+  overflow-y: scroll;
 }
 
 @media only screen and (max-width : 600px) {
@@ -89,10 +85,6 @@ a:link {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.thumb-with-text {
-  overflow-y: scroll;
 }
 
 .thumb-with-text * {

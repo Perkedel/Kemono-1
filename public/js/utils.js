@@ -45,8 +45,9 @@ async function renderPosts (posts) {
   posts.forEach(post => {
     let parent = false;
     const inline = post.content.match(/(?:(?:(?:[a-z]+:)?\/\/)|www\.)(?:\S+(?::\S*)?@)?(?:kemono.party)(?::\d{2,5})?(?:[/?#][^\s"]*)?/ig) || [];
+    inline.reverse();
     const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
-    inline.map(url => {
+    inline.forEach(url => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
         parent = true;
         contentView.innerHTML += thumbHTML({
@@ -56,7 +57,7 @@ async function renderPosts (posts) {
         });
       }
     });
-    post.attachments.map(attachment => {
+    post.attachments.forEach(attachment => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
         parent = true;
         contentView.innerHTML += thumbHTML({

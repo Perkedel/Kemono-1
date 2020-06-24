@@ -48,7 +48,7 @@ async function main () {
   `;
 
   let multipost = posts.length > 1;
-  posts.map(post => {
+  posts.forEach(post => {
     let previews = '';
     if (post.post_type === 'image_file' || post.post_type === 'image') {
       previews += `
@@ -74,7 +74,7 @@ async function main () {
       `;
     }
 
-    post.attachments.map(attachment => {
+    post.attachments.forEach(attachment => {
       previews += (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? `
         <a class="fileThumb" href="${attachment.path}">
           <img

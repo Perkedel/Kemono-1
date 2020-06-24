@@ -37,7 +37,7 @@ express()
   .get('/thumbnail/*', async (req, res) => {
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
     const resizer = sharp({ failOnError: false, sequentialRead: true })
-      .jpeg()
+      .jpeg({ quality: 60 })
       .resize({ width: Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
       .on('error', err => {
         switch (err.message) {

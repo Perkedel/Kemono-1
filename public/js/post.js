@@ -62,7 +62,7 @@ async function main () {
       `;
     }
 
-    if (Object.keys(post.embed).length !== 0) {
+    if (post.embed && Object.keys(post.embed).length !== 0) {
       previews += `
         <a href="${post.embed.url}" target="_blank">
           <div class="embed-view">

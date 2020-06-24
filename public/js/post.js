@@ -7,34 +7,34 @@ async function main () {
       const postData = await fetch(`/api/user/${pathname[2]}/post/${pathname[4]}`);
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[2]}?service=patreon`);
-      cache = await cacheData.text();
+      cache = await cacheData.json();
       break;
     }
     case 'gumroad': {
       const postData = await fetch(`/api/gumroad/user/${pathname[3]}/post/${pathname[5]}`);
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=gumroad`);
-      cache = await cacheData.text();
+      cache = await cacheData.json();
       break;
     }
     case 'subscribestar': {
       const postData = await fetch(`/api/subscribestar/user/${pathname[3]}/post/${pathname[5]}`);
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=subscribestar`);
-      cache = await cacheData.text();
+      cache = await cacheData.json();
       break;
     }
     default: {
       const postData = await fetch(`/api/fanbox/user/${pathname[3]}/post/${pathname[5]}`);
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=fanbox`);
-      cache = await cacheData.text();
+      cache = await cacheData.json();
     }
   }
 
   resultsView.innerHTML += `
     <li>
-      User: <a href="../">${cache}</a>
+      User: <a href="../">${cache.name}</a>
     </li>
     <li>
       ID: <a href="">${posts[0].id}</a>

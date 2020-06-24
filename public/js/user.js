@@ -52,15 +52,15 @@ async function loadUserInfo () {
       break;
   }
   fetch(api)
-    .then(res => res.text())
+    .then(res => res.json())
     .then(cache => {
-      document.title = `${cache} | Kemono`;
+      document.title = `${cache.name} | Kemono`;
       infoView.innerHTML += `
         <li>
           Service: <a href="${href}" target="_blank" rel="noreferrer">${service}</a>
         </li>
         <li>
-          User: <a href="${window.location.href.split('?')[0]}">${cache}</a>
+          User: <a href="${window.location.href.split('?')[0]}">${cache.name}</a>
         </li>
       `;
     });

@@ -12,13 +12,13 @@ async function renderPatreonQuery (query = '', limit = 10) {
   const results = await searchData.json();
   results.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=patreon`)
-      .then(res => res.text())
+      .then(res => res.json())
       .then(cache => {
         resultsView.innerHTML += rowHTML({
           id: `patreon-user-${userId}`,
           href: '/user/' + userId,
           avatar: '',
-          title: cache,
+          title: cache.name,
           subtitle: 'Patreon'
         });
       });
@@ -31,13 +31,13 @@ async function renderGumroadQuery (query = '', limit = 10) {
   const gumroadResults = await gumroadSearchData.json();
   gumroadResults.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=gumroad`)
-      .then(res => res.text())
+      .then(res => res.json())
       .then(cache => {
         resultsView.innerHTML += rowHTML({
           id: `gumroad-user-${userId}`,
           href: '/gumroad/user/' + userId,
           avatar: '',
-          title: cache,
+          title: cache.name,
           subtitle: 'Gumroad'
         });
       });
@@ -51,13 +51,13 @@ async function renderFanboxQuery (query = '', limit = 10) {
   require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
     fanboxResults.forEach(userId => {
       fetch(`/api/lookup/cache/${userId}?service=fanbox`)
-        .then(res => res.text())
+        .then(res => res.json())
         .then(cache => {
           resultsView.innerHTML += rowHTML({
             id: `fanbox-user-${userId}`,
             href: '/fanbox/user/' + userId,
             avatar: '',
-            title: cache,
+            title: cache.name,
             subtitle: 'Pixiv Fanbox'
           });
         });
@@ -71,13 +71,13 @@ async function renderDiscordQuery (query = '', limit = 10) {
   const discordResults = await discordSearchData.json();
   discordResults.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=discord`)
-      .then(res => res.text())
+      .then(res => res.json())
       .then(cache => {
         resultsView.innerHTML += rowHTML({
           id: `discord-server-${userId}`,
           href: '/discord/server/' + userId,
           avatar: '',
-          title: cache,
+          title: cache.name,
           subtitle: 'Discord'
         });
       });
@@ -90,13 +90,13 @@ async function renderSubscribestarQuery (query = '', limit = 10) {
   const subscribestarResults = await subscribestarSearchData.json();
   subscribestarResults.forEach(userId => {
     fetch(`/api/lookup/cache/${userId}?service=subscribestar`)
-      .then(res => res.text())
+      .then(res => res.json())
       .then(cache => {
         resultsView.innerHTML += rowHTML({
           id: `subscribestar-user-${userId}`,
           href: '/subscribestar/user/' + userId,
           avatar: '',
-          title: cache,
+          title: cache.name,
           subtitle: 'SubscribeStar'
         });
       });

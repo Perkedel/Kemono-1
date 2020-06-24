@@ -74,7 +74,7 @@ express()
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'maxage=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
   .post('/api/import', async (req, res) => {

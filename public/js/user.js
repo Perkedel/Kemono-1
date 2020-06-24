@@ -85,11 +85,11 @@ async function main () {
   const skip = Number(getParameterByName('o')) || 0;
   paginator.innerHTML += `
     <menu>
-      ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}">«</a></li>` : '<li class="subtitle">«</li>'}
-      ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}">‹</a></li>` : '<li class="subtitle">‹</li>'}
+      ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}" title="-50">«</a></li>` : '<li class="subtitle">«</li>'}
+      ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}" title="-25">‹</a></li>` : '<li class="subtitle">‹</li>'}
       <li>offset: ${skip}</li>
-      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}">›</a></li>
-      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}">»</a></li>
+      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}" title="+25">›</a></li>
+      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}" title="+50">»</a></li>
     </menu>
   `;
   const pathname = window.location.pathname.split('/');

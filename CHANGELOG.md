@@ -8,6 +8,8 @@ Kemono uses [semantic versioning](https://semver.org/).
 - General code rewrites and cleanup
 - Fixed issue causing error when ID is not in the lookup database
 - Slightly longer API cache times
+- Discord importer form rolled into the main one
+- "Channel IDs" field now autohides if the selected service isn't Discord
 
 ### v1.3.1
 - Replaced Cloudscraper module

@@ -6,7 +6,7 @@ const rowHTML = data => `
   </li>
 `;
 
-async function renderPatreonQuery (query = '', limit = 15) {
+async function renderPatreonQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=patreon&limit=${limit}`);
   const results = await searchData.json();
@@ -25,7 +25,7 @@ async function renderPatreonQuery (query = '', limit = 15) {
   });
 }
 
-async function renderGumroadQuery (query = '', limit = 15) {
+async function renderGumroadQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   const gumroadSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=gumroad&limit=${limit}`);
   const gumroadResults = await gumroadSearchData.json();
@@ -44,7 +44,7 @@ async function renderGumroadQuery (query = '', limit = 15) {
   });
 }
 
-async function renderFanboxQuery (query = '', limit = 15) {
+async function renderFanboxQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   const fanboxSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=fanbox&limit=${limit}`);
   const fanboxResults = await fanboxSearchData.json();
@@ -65,7 +65,7 @@ async function renderFanboxQuery (query = '', limit = 15) {
   });
 }
 
-async function renderDiscordQuery (query = '', limit = 15) {
+async function renderDiscordQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   const discordSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=discord&limit=${limit}`);
   const discordResults = await discordSearchData.json();
@@ -84,7 +84,7 @@ async function renderDiscordQuery (query = '', limit = 15) {
   });
 }
 
-async function renderSubscribestarQuery (query = '', limit = 15) {
+async function renderSubscribestarQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   const subscribestarSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=subscribestar&limit=${limit}`);
   const subscribestarResults = await subscribestarSearchData.json();

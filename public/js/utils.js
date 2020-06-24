@@ -45,7 +45,7 @@ async function renderPosts (posts) {
   posts.forEach(post => {
     let parent = false;
     // if you couldn't tell, i'm very bad at regex
-    const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-\.\/?%&+#=]*))/ig) || [];
+    const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
     inline.reverse();
     const href = post.service === 'patreon' || !post.service ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
     inline.forEach(url => {

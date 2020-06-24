@@ -198,7 +198,7 @@ express()
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
-      .toArray();;
+      .toArray();
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
     res.json(userPosts);
   })

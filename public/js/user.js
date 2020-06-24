@@ -119,7 +119,7 @@ async function main () {
         `;
       }
       renderPosts(userPosts);
-    })
+    });
   loadUserInfo();
   document.getElementById('search-input').addEventListener('keyup', debounce(() => loadQuery(), 350));
 }

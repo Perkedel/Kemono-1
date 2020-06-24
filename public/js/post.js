@@ -47,7 +47,7 @@ async function main () {
     </li>
   `;
 
-  let multipost = posts.length > 1;
+  const multipost = posts.length > 1;
   posts.forEach(post => {
     let previews = '';
     if (post.post_type === 'image_file' || post.post_type === 'image') {
@@ -96,9 +96,9 @@ async function main () {
       ${previews}
       <h1>${post.title}</h1>
       <p>${post.content}</p>
-      ${ multipost ? '<hr>' : '' }
+      ${multipost ? '<hr>' : ''}
     `;
-  })
+  });
 }
 
 window.onload = () => main();

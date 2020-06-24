@@ -44,11 +44,12 @@ async function renderPosts (posts) {
   const contentView = document.getElementById('content');
   posts.forEach(post => {
     let parent = false;
-    const inline = post.content.match(/(?:(?:(?:[a-z]+:)?\/\/)|www\.)(?:\S+(?::\S*)?@)?(?:kemono.party)(?::\d{2,5})?(?:[/?#][^\s"]*)?/ig) || [];
+    // if you couldn't tell, i'm very bad at regex
+    const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-\.\/?%&+#=]*))/ig) || [];
     inline.reverse();
     const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
     inline.forEach(url => {
-      if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {
+      if ((/\.(gif|jpe?g|png|webp)$/i).test(url) && (/\/inline\//i).test(url)) {
         parent = true;
         contentView.innerHTML += thumbHTML({
           src: url,

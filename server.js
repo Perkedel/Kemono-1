@@ -39,18 +39,9 @@ express()
     const resizer = sharp({ failOnError: false, sequentialRead: true })
       .jpeg({ quality: 60 })
       .resize({ width: Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
-      .on('error', err => {
-        switch (err.message) {
-          case 'Input buffer contains unsupported image format': {
-            // stream down the original image if cannot be resized
-            fs.createReadStream(file)
-              .pipe(res);
-            break;
-          }
-          default: {
-            console.error(`${err.stack}: ${file}`);
-          }
-        }
+      .on('error', () => {
+        fs.createReadStream(file)
+          .pipe(res);
       });
     const fileExists = await fs.pathExists(file);
     if (!fileExists || !(/\.(gif|jpe?g|png|webp|Untitled)$/i).test(file)) return res.sendStatus(404);

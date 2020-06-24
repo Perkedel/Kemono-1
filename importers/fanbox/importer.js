@@ -46,7 +46,7 @@ async function processFanbox (url, key) {
       version: 2,
       service: 'fanbox',
       title: unraw(post.title),
-      content: nl2br(unraw(post.body.text || await concatenateArticle(post.body, key))),
+      content: nl2br(unraw(post.body.text || await concatenateArticle(post.body, key), true)),
       id: post.id,
       user: post.user.userId,
       post_type: post.type, // image, article, embed (undocumented) or file

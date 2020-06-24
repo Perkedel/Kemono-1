@@ -151,9 +151,9 @@ async function main () {
       <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}" title="+50">»</a></li>
     </menu>
   `;
-  const recentData = await fetch(`/api/recent?skip=${skip}`);
-  const recent = await recentData.json();
-  renderPosts(recent);
+  fetch(`/api/recent?skip=${skip}`)
+    .then(data => data.json())
+    .then(recent => renderPosts(recent));
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
   document.getElementById('service-input').addEventListener('change', () => queryUpdate(150));
   queryUpdate();

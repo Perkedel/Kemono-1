@@ -109,15 +109,17 @@ async function main () {
       api = `/api/subscribestar/user/${pathname[3]}?skip=${skip}`;
       break;
   }
-  const userPostsData = await fetch(api);
-  const userPosts = await userPostsData.json();
-  if (userPosts.length === 0) {
-    mainView.innerHTML += `
-      <h1 class="subtitle">There are no posts.</h1>
-      <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
-    `;
-  }
-  renderPosts(userPosts);
+  fetch(api)
+    .then(data => data.json())
+    .then(userPosts => {
+      if (userPosts.length === 0) {
+        mainView.innerHTML += `
+          <h1 class="subtitle">There are no posts.</h1>
+          <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
+        `;
+      }
+      renderPosts(userPosts);
+    })
   loadUserInfo();
   document.getElementById('search-input').addEventListener('keyup', debounce(() => loadQuery(), 350));
 }

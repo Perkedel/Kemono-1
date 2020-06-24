@@ -44,7 +44,7 @@ async function renderPosts (posts) {
   const contentView = document.getElementById('content');
   posts.forEach(post => {
     let parent = false;
-    const inline = post.content.match(/\bhttps?:\/\/\S+/gi) || [];
+    const inline = post.content.match(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm) || [];
     const href = post.service === 'patreon' ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
     inline.map(url => {
       if ((/\.(gif|jpe?g|png|webp)$/i).test(url)) {

@@ -156,6 +156,7 @@ async function main () {
     .then(recent => renderPosts(recent));
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
   document.getElementById('service-input').addEventListener('change', () => queryUpdate(150));
+  queryUpdate();
 }
 
 window.onload = () => main();

@@ -7,6 +7,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Implemented thumbnail generation
 - General code rewrites and cleanup
 - Fixed issue causing error when ID is not in the lookup database
+- Slightly longer API cache times
 
 ### v1.3.1
 - Replaced Cloudscraper module

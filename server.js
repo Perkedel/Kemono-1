@@ -32,7 +32,7 @@ express()
   .use(bodyParser.json())
   .use(express.static('public', {
     extensions: ['html', 'htm'],
-    setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000')
+    setHeaders: (res) => res.setHeader('Cache-Control', 'maxage=60, public, stale-while-revalidate=2592000')
   }))
   .get('/thumbnail/*', async (req, res) => {
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;

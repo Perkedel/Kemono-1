@@ -62,8 +62,8 @@ async function main () {
       `;
     } else if (Object.keys(post.post_file).length !== 0) {
       previews += `
-        <a href="${attachment.path}" target="_blank">
-          Download ${attachment.name}
+        <a href="${post.post_file.path}" target="_blank">
+          Download ${post.post_file.name}
         </a>
         <br>
       `

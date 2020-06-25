@@ -81,9 +81,7 @@ async function main () {
       `;
     }
 
-    let attachments = post.attachments;
-    attachments.reverse();
-    attachments.forEach(attachment => {
+    post.attachments.forEach(attachment => {
       previews += (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? `
         <a class="fileThumb" href="${attachment.path}">
           <img

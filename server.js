@@ -133,7 +133,7 @@ express()
   .get('/api/lookup/cache/:id', async (req, res) => {
     const cache = await lookup.findOne({ id: req.params.id, service: req.query.service });
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
-    res.json({name: cache ? cache.name : ''});
+    res.json({ name: cache ? cache.name : '' });
   })
   .get('/api/:service?/:entity/:id/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);

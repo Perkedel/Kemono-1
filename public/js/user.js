@@ -1,6 +1,6 @@
 require.config({
   paths: {
-      oboe: 'https://unpkg.com/oboe@2.1.5/dist/oboe-browser.min'
+    oboe: 'https://unpkg.com/oboe@2.1.5/dist/oboe-browser.min'
   }
 });
 
@@ -24,9 +24,10 @@ async function loadQuery () {
       api = `/api/subscribestar/user/${pathname[3]}/lookup?q=${query}`;
       break;
   }
-  const userPostsData = await fetch(api);
-  const userPosts = await userPostsData.json();
-  renderPosts(userPosts);
+  require(['oboe'], oboe => {
+    oboe(api)
+      .node('!.*', post => renderPost(post));
+  });
 }
 
 async function loadUserInfo () {
@@ -126,8 +127,8 @@ async function main () {
             <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
           `;
         }
-      })
-  })
+      });
+  });
 
   loadUserInfo();
   document.getElementById('search-input').addEventListener('keyup', debounce(() => loadQuery(), 350));

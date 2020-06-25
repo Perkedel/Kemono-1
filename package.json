@@ -47,7 +47,7 @@
       "fetch",
       "lazyload",
       "getParameterByName",
-      "renderPosts",
+      "renderPost",
       "debounce"
     ]
   }

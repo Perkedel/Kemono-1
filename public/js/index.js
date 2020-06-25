@@ -157,8 +157,8 @@ async function main () {
   `;
   require(['oboe'], oboe => {
     oboe(`/api/recent?skip=${skip}`)
-      .node('!.*', post => renderPost(post))
-  })
+      .node('!.*', post => renderPost(post));
+  });
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
   document.getElementById('service-input').addEventListener('change', () => queryUpdate(150));
   queryUpdate();

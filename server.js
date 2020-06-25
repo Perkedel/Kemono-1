@@ -115,7 +115,7 @@ express()
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
       .toArray();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index);
   })
   .get('/api/discord/channels/lookup', async (req, res) => {
@@ -127,12 +127,12 @@ express()
       })
       .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .toArray();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index);
   })
   .get('/api/lookup/cache/:id', async (req, res) => {
     const cache = await lookup.findOne({ id: req.params.id, service: req.query.service });
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json({ name: cache ? cache.name : '' });
   })
   .get('/api/:service?/:entity/:id/lookup', async (req, res) => {
@@ -152,7 +152,7 @@ express()
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
   .get('/api/:service?/:entity/:id', async (req, res) => {
@@ -171,7 +171,7 @@ express()
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
   .get('/api/:service?/:entity/:id/post/:post', async (req, res) => {
@@ -190,7 +190,7 @@ express()
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
   .get('/proxy/user/:id', async (req, res) => {
@@ -279,11 +279,11 @@ express()
     res.json(index);
   })
   .get('/:service?/:type/:id', (req, res) => {
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `${req.params.type}.html`));
   })
   .get('/:service?/:type/:id/post/:post', (req, res) => {
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.sendFile(path.join(__dirname, '/www/', req.params.service || '', 'post.html'));
   })
   .listen(process.env.PORT || 8000);

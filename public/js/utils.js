@@ -40,41 +40,39 @@ const thumbHTML = data => `
   </a>
 `;
 
-async function renderPosts (posts) {
+function renderPost (post) {
   const contentView = document.getElementById('content');
-  posts.forEach(post => {
-    let parent = false;
-    // if you couldn't tell, i'm very bad at regex
-    const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
-    inline.reverse();
-    const href = post.service === 'patreon' || !post.service ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
-    inline.forEach(url => {
-      if ((/\.(gif|jpe?g|png|webp)$/i).test(url) && (/\/inline\//i).test(url)) {
-        parent = true;
-        contentView.innerHTML += thumbHTML({
-          src: url,
-          href: href,
-          class: 'thumb-child'
-        });
-      }
-    });
-    post.attachments.forEach(attachment => {
-      if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
-        parent = true;
-        contentView.innerHTML += thumbHTML({
-          src: attachment.path,
-          href: href,
-          class: 'thumb-child'
-        });
-      }
-    });
-    contentView.innerHTML += thumbHTML({
-      src: post.post_type === 'image_file' || post.post_type === 'image' ? post.post_file.path : undefined,
-      title: post.title,
-      content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
-      class: parent ? 'thumb-parent' : undefined,
-      href: href
-    });
+  let parent = false;
+  // if you couldn't tell, i'm very bad at regex
+  const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
+  inline.reverse();
+  const href = post.service === 'patreon' || !post.service ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
+  inline.forEach(url => {
+    if ((/\.(gif|jpe?g|png|webp)$/i).test(url) && (/\/inline\//i).test(url)) {
+      parent = true;
+      contentView.innerHTML += thumbHTML({
+        src: url,
+        href: href,
+        class: 'thumb-child'
+      });
+    }
+  });
+  post.attachments.forEach(attachment => {
+    if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
+      parent = true;
+      contentView.innerHTML += thumbHTML({
+        src: attachment.path,
+        href: href,
+        class: 'thumb-child'
+      });
+    }
+  });
+  contentView.innerHTML += thumbHTML({
+    src: post.post_type === 'image_file' || post.post_type === 'image' ? post.post_file.path : undefined,
+    title: post.title,
+    content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
+    class: parent ? 'thumb-parent' : undefined,
+    href: href
   });
 }
 

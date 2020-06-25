@@ -1,3 +1,9 @@
+require.config({
+  paths: {
+      oboe: 'https://unpkg.com/oboe@2.1.5/dist/oboe-browser.min'
+  }
+});
+
 async function loadQuery () {
   const query = document.getElementById('search-input').value;
   const pathname = window.location.pathname.split('/');
@@ -109,17 +115,20 @@ async function main () {
       api = `/api/subscribestar/user/${pathname[3]}?skip=${skip}`;
       break;
   }
-  fetch(api)
-    .then(data => data.json())
-    .then(userPosts => {
-      if (userPosts.length === 0) {
-        mainView.innerHTML += `
-          <h1 class="subtitle">There are no posts.</h1>
-          <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
-        `;
-      }
-      renderPosts(userPosts);
-    });
+
+  require(['oboe'], oboe => {
+    oboe(api)
+      .node('!.*', post => renderPost(post))
+      .done(posts => {
+        if (posts.length === 0) {
+          mainView.innerHTML += `
+            <h1 class="subtitle">There are no posts.</h1>
+            <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
+          `;
+        }
+      })
+  })
+
   loadUserInfo();
   document.getElementById('search-input').addEventListener('keyup', debounce(() => loadQuery(), 350));
 }

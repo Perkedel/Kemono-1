@@ -1,3 +1,9 @@
+require.config({
+  paths: {
+    oboe: 'https://unpkg.com/oboe@2.1.5/dist/oboe-browser.min'
+  }
+});
+
 const rowHTML = data => `
   <li>
     <a href="${data.href}">
@@ -48,20 +54,18 @@ async function renderFanboxQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   const fanboxSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=fanbox&limit=${limit}`);
   const fanboxResults = await fanboxSearchData.json();
-  require(['https://unpkg.com/unraw@1.2.5/dist/index.min.js'], function (unraw) {
-    fanboxResults.forEach(userId => {
-      fetch(`/api/lookup/cache/${userId}?service=fanbox`)
-        .then(res => res.json())
-        .then(cache => {
-          resultsView.innerHTML += rowHTML({
-            id: `fanbox-user-${userId}`,
-            href: '/fanbox/user/' + userId,
-            avatar: '',
-            title: cache.name,
-            subtitle: 'Pixiv Fanbox'
-          });
+  fanboxResults.forEach(userId => {
+    fetch(`/api/lookup/cache/${userId}?service=fanbox`)
+      .then(res => res.json())
+      .then(cache => {
+        resultsView.innerHTML += rowHTML({
+          id: `fanbox-user-${userId}`,
+          href: '/fanbox/user/' + userId,
+          avatar: '',
+          title: cache.name,
+          subtitle: 'Pixiv Fanbox'
         });
-    });
+      });
   });
 }
 
@@ -151,9 +155,10 @@ async function main () {
       <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}" title="+50">»</a></li>
     </menu>
   `;
-  fetch(`/api/recent?skip=${skip}`)
-    .then(data => data.json())
-    .then(recent => renderPosts(recent));
+  require(['oboe'], oboe => {
+    oboe(`/api/recent?skip=${skip}`)
+      .node('!.*', post => renderPost(post))
+  })
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
   document.getElementById('service-input').addEventListener('change', () => queryUpdate(150));
   queryUpdate();

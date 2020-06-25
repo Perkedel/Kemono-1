@@ -12,7 +12,7 @@ const rowHTML = data => `
   </li>
 `;
 
-async function renderPatreonQuery (query = '', limit = 10) {
+function renderPatreonQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   require(['oboe'], oboe => {
     oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=patreon&limit=${limit}`)
@@ -32,7 +32,7 @@ async function renderPatreonQuery (query = '', limit = 10) {
   })
 }
 
-async function renderGumroadQuery (query = '', limit = 10) {
+function renderGumroadQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   require(['oboe'], oboe => {
     oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=gumroad&limit=${limit}`)
@@ -52,7 +52,7 @@ async function renderGumroadQuery (query = '', limit = 10) {
   })
 }
 
-async function renderFanboxQuery (query = '', limit = 10) {
+function renderFanboxQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   require(['oboe'], oboe => {
     oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=fanbox&limit=${limit}`)
@@ -72,7 +72,7 @@ async function renderFanboxQuery (query = '', limit = 10) {
   })
 }
 
-async function renderDiscordQuery (query = '', limit = 10) {
+function renderDiscordQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   require(['oboe'], oboe => {
     oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=discord&limit=${limit}`)
@@ -92,7 +92,7 @@ async function renderDiscordQuery (query = '', limit = 10) {
   })
 }
 
-async function renderSubscribestarQuery (query = '', limit = 10) {
+function renderSubscribestarQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
   require(['oboe'], oboe => {
     oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=subscribestar&limit=${limit}`)
@@ -112,7 +112,7 @@ async function renderSubscribestarQuery (query = '', limit = 10) {
   })
 }
 
-async function queryUpdate (num) {
+function queryUpdate (num) {
   const resultsView = document.getElementById('results');
   resultsView.innerHTML = '';
   const service = document.getElementById('service-input').value;

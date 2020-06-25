@@ -4,7 +4,7 @@ require.config({
   }
 });
 
-async function loadQuery () {
+function loadQuery () {
   const query = document.getElementById('search-input').value;
   const pathname = window.location.pathname.split('/');
   const contentView = document.getElementById('content');
@@ -30,7 +30,7 @@ async function loadQuery () {
   });
 }
 
-async function loadUserInfo () {
+function loadUserInfo () {
   let service, api, proxy, href;
   const infoView = document.getElementById('info-block');
   const patreonView = document.getElementById('extra-info-block');

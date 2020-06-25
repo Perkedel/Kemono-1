@@ -9,6 +9,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Fixed issue causing error when ID is not in the lookup database
 - Slightly longer API cache times
 - Discord importer form is now combined with the main one
+- User and recent page now use Oboe.js to stream in posts
 
 ### v1.3.1
 - Replaced Cloudscraper module

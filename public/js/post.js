@@ -68,11 +68,7 @@ async function main () {
         <br>
       `
     }
-
-    if (Object.keys(post.post_file).length !== 0) {
-      
-    }
-
+    
     if (post.embed && Object.keys(post.embed).length !== 0) {
       previews += `
         <a href="${post.embed.url}" target="_blank">

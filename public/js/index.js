@@ -28,8 +28,8 @@ function renderPatreonQuery (query = '', limit = 10) {
               subtitle: 'Patreon'
             });
           });
-      })
-  })
+      });
+  });
 }
 
 function renderGumroadQuery (query = '', limit = 10) {
@@ -48,8 +48,8 @@ function renderGumroadQuery (query = '', limit = 10) {
               subtitle: 'Gumroad'
             });
           });
-      })
-  })
+      });
+  });
 }
 
 function renderFanboxQuery (query = '', limit = 10) {
@@ -68,8 +68,8 @@ function renderFanboxQuery (query = '', limit = 10) {
               subtitle: 'Pixiv Fanbox'
             });
           });
-      })
-  })
+      });
+  });
 }
 
 function renderDiscordQuery (query = '', limit = 10) {
@@ -88,8 +88,8 @@ function renderDiscordQuery (query = '', limit = 10) {
               subtitle: 'Discord'
             });
           });
-      })
-  })
+      });
+  });
 }
 
 function renderSubscribestarQuery (query = '', limit = 10) {
@@ -108,8 +108,8 @@ function renderSubscribestarQuery (query = '', limit = 10) {
               subtitle: 'SubscribeStar'
             });
           });
-      })
-  })
+      });
+  });
 }
 
 function queryUpdate (num) {

@@ -60,6 +60,17 @@ async function main () {
         </a>
         <br>
       `;
+    } else if (Object.keys(post.post_file).length !== 0) {
+      previews += `
+        <a href="${attachment.path}" target="_blank">
+          Download ${attachment.name}
+        </a>
+        <br>
+      `
+    }
+
+    if (Object.keys(post.post_file).length !== 0) {
+      
     }
 
     if (post.embed && Object.keys(post.embed).length !== 0) {

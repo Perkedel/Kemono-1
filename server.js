@@ -32,7 +32,7 @@ express()
   .use(bodyParser.json())
   .use(express.static('public', {
     extensions: ['html', 'htm'],
-    setHeaders: (res) => res.setHeader('Cache-Control', 'maxage=60, public, stale-while-revalidate=2592000')
+    setHeaders: (res) => res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
   }))
   .get('/thumbnail/*', async (req, res) => {
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
@@ -74,7 +74,7 @@ express()
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
-    res.setHeader('Cache-Control', 'maxage=60, public, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
   .post('/api/import', async (req, res) => {

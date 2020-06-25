@@ -14,97 +14,102 @@ const rowHTML = data => `
 
 async function renderPatreonQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
-  const searchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=patreon&limit=${limit}`);
-  const results = await searchData.json();
-  results.forEach(userId => {
-    fetch(`/api/lookup/cache/${userId}?service=patreon`)
-      .then(res => res.json())
-      .then(cache => {
-        resultsView.innerHTML += rowHTML({
-          id: `patreon-user-${userId}`,
-          href: '/user/' + userId,
-          avatar: '',
-          title: cache.name,
-          subtitle: 'Patreon'
-        });
-      });
-  });
+  require(['oboe'], oboe => {
+    oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=patreon&limit=${limit}`)
+      .node('!.*', userId => {
+        fetch(`/api/lookup/cache/${userId}?service=patreon`)
+          .then(res => res.json())
+          .then(cache => {
+            resultsView.innerHTML += rowHTML({
+              id: `patreon-user-${userId}`,
+              href: '/user/' + userId,
+              avatar: '',
+              title: cache.name,
+              subtitle: 'Patreon'
+            });
+          });
+      })
+  })
 }
 
 async function renderGumroadQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
-  const gumroadSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=gumroad&limit=${limit}`);
-  const gumroadResults = await gumroadSearchData.json();
-  gumroadResults.forEach(userId => {
-    fetch(`/api/lookup/cache/${userId}?service=gumroad`)
-      .then(res => res.json())
-      .then(cache => {
-        resultsView.innerHTML += rowHTML({
-          id: `gumroad-user-${userId}`,
-          href: '/gumroad/user/' + userId,
-          avatar: '',
-          title: cache.name,
-          subtitle: 'Gumroad'
-        });
-      });
-  });
+  require(['oboe'], oboe => {
+    oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=gumroad&limit=${limit}`)
+      .node('!.*', userId => {
+        fetch(`/api/lookup/cache/${userId}?service=gumroad`)
+          .then(res => res.json())
+          .then(cache => {
+            resultsView.innerHTML += rowHTML({
+              id: `gumroad-user-${userId}`,
+              href: '/gumroad/user/' + userId,
+              avatar: '',
+              title: cache.name,
+              subtitle: 'Gumroad'
+            });
+          });
+      })
+  })
 }
 
 async function renderFanboxQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
-  const fanboxSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=fanbox&limit=${limit}`);
-  const fanboxResults = await fanboxSearchData.json();
-  fanboxResults.forEach(userId => {
-    fetch(`/api/lookup/cache/${userId}?service=fanbox`)
-      .then(res => res.json())
-      .then(cache => {
-        resultsView.innerHTML += rowHTML({
-          id: `fanbox-user-${userId}`,
-          href: '/fanbox/user/' + userId,
-          avatar: '',
-          title: cache.name,
-          subtitle: 'Pixiv Fanbox'
-        });
-      });
-  });
+  require(['oboe'], oboe => {
+    oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=fanbox&limit=${limit}`)
+      .node('!.*', userId => {
+        fetch(`/api/lookup/cache/${userId}?service=fanbox`)
+          .then(res => res.json())
+          .then(cache => {
+            resultsView.innerHTML += rowHTML({
+              id: `fanbox-user-${userId}`,
+              href: '/fanbox/user/' + userId,
+              avatar: '',
+              title: cache.name,
+              subtitle: 'Pixiv Fanbox'
+            });
+          });
+      })
+  })
 }
 
 async function renderDiscordQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
-  const discordSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=discord&limit=${limit}`);
-  const discordResults = await discordSearchData.json();
-  discordResults.forEach(userId => {
-    fetch(`/api/lookup/cache/${userId}?service=discord`)
-      .then(res => res.json())
-      .then(cache => {
-        resultsView.innerHTML += rowHTML({
-          id: `discord-server-${userId}`,
-          href: '/discord/server/' + userId,
-          avatar: '',
-          title: cache.name,
-          subtitle: 'Discord'
-        });
-      });
-  });
+  require(['oboe'], oboe => {
+    oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=discord&limit=${limit}`)
+      .node('!.*', userId => {
+        fetch(`/api/lookup/cache/${userId}?service=discord`)
+          .then(res => res.json())
+          .then(cache => {
+            resultsView.innerHTML += rowHTML({
+              id: `discord-server-${userId}`,
+              href: '/discord/server/' + userId,
+              avatar: '',
+              title: cache.name,
+              subtitle: 'Discord'
+            });
+          });
+      })
+  })
 }
 
 async function renderSubscribestarQuery (query = '', limit = 10) {
   const resultsView = document.getElementById('results');
-  const subscribestarSearchData = await fetch(`/api/lookup?q=${encodeURIComponent(query)}&service=subscribestar&limit=${limit}`);
-  const subscribestarResults = await subscribestarSearchData.json();
-  subscribestarResults.forEach(userId => {
-    fetch(`/api/lookup/cache/${userId}?service=subscribestar`)
-      .then(res => res.json())
-      .then(cache => {
-        resultsView.innerHTML += rowHTML({
-          id: `subscribestar-user-${userId}`,
-          href: '/subscribestar/user/' + userId,
-          avatar: '',
-          title: cache.name,
-          subtitle: 'SubscribeStar'
-        });
-      });
-  });
+  require(['oboe'], oboe => {
+    oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=subscribestar&limit=${limit}`)
+      .node('!.*', userId => {
+        fetch(`/api/lookup/cache/${userId}?service=subscribestar`)
+          .then(res => res.json())
+          .then(cache => {
+            resultsView.innerHTML += rowHTML({
+              id: `subscribestar-user-${userId}`,
+              href: '/subscribestar/user/' + userId,
+              avatar: '',
+              title: cache.name,
+              subtitle: 'SubscribeStar'
+            });
+          });
+      })
+  })
 }
 
 async function queryUpdate (num) {

@@ -57,7 +57,9 @@ function renderPost (post) {
       });
     }
   });
-  post.attachments.forEach(attachment => {
+  let attachments = post.attachments;
+  attachments.reverse();
+  attachments.forEach(attachment => {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
       parent = true;
       contentView.innerHTML += thumbHTML({

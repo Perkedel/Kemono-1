@@ -35,8 +35,8 @@ express()
     setHeaders: (res) => res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
   }))
   .get('/thumbnail/*', async (req, res) => {
-    if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
+    if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
     const resizer = sharp({ failOnError: false, sequentialRead: true })
       .jpeg({ quality: 60 })
       .resize({ width: Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })

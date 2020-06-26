@@ -66,9 +66,9 @@ async function main () {
           Download ${post.post_file.name}
         </a>
         <br>
-      `
+      `;
     }
-    
+
     if (post.embed && Object.keys(post.embed).length !== 0) {
       previews += `
         <a href="${post.embed.url}" target="_blank">

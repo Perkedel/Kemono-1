@@ -57,7 +57,7 @@ function renderPost (post) {
       });
     }
   });
-  let attachments = post.attachments;
+  const attachments = post.attachments;
   attachments.reverse();
   attachments.forEach(attachment => {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {

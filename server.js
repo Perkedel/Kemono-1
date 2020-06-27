@@ -161,25 +161,6 @@ express()
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
-  .get('/api/:service?/:entity/:id', async (req, res) => {
-    const query = {};
-    query[req.params.entity] = req.params.id;
-    if (!req.params.service) {
-      query.$or = [
-        { service: 'patreon' },
-        { service: { $exists: false } }
-      ];
-    } else {
-      query.service = req.params.service;
-    }
-    const userPosts = await posts.find(query)
-      .sort({ published_at: -1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
-      .toArray();
-    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.json(userPosts);
-  })
   .get('/api/:service?/:entity/:id/purge', async (req, res) => {
     const banExists = await bans.findOne({ id: req.params.id, service: req.params.service || 'patreon'});
     if (!banExists) return res.sendStatus(403);
@@ -257,6 +238,25 @@ express()
     if (flagExists) return res.sendStatus(409); // flag already exists
     await flags.insertOne(flagQuery);
     res.end();
+  })
+  .get('/api/:service?/:entity/:id', async (req, res) => {
+    const query = {};
+    query[req.params.entity] = req.params.id;
+    if (!req.params.service) {
+      query.$or = [
+        { service: 'patreon' },
+        { service: { $exists: false } }
+      ];
+    } else {
+      query.service = req.params.service;
+    }
+    const userPosts = await posts.find(query)
+      .sort({ published_at: -1 })
+      .skip(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .toArray();
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
+    res.json(userPosts);
   })
   .get('/proxy/user/:id', async (req, res) => {
     const api = 'https://www.patreon.com/api/user';

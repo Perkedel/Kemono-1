@@ -180,6 +180,35 @@ express()
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
+  .get('/api/:service?/:entity/:id/purge', async (req, res) => {
+    const banExists = await bans.findOne({ id: req.params.id, service: req.params.service || 'patreon'});
+    if (!banExists) return res.sendStatus(403);
+
+    const query = {};
+    query[req.params.entity] = req.params.id;
+    if (!req.params.service) {
+      query.$or = [
+        { service: 'patreon' },
+        { service: { $exists: false } }
+      ];
+    } else {
+      query.service = req.params.service;
+    }
+    await posts.deleteMany(query);
+    await fs.remove(path.join(
+      process.env.DB_ROOT,
+      'files',
+      req.params.service === 'patreon' ? '' : req.params.service,
+      req.params.entityId
+    ));
+    await fs.remove(path.join(
+      process.env.DB_ROOT,
+      'attachments',
+      req.params.service === 'patreon' ? '' : req.params.service,
+      req.params.entityId
+    ));
+    res.send('Purged!'); // THOTFAGS BTFO
+  })
   .get('/api/:service?/:entity/:id/post/:post', async (req, res) => {
     const query = { id: req.params.post };
     query[req.params.entity] = req.params.id;

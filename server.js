@@ -215,11 +215,11 @@ express()
 
     const postExists = await posts.findOne(query);
     if (!postExists) return res.sendStatus(404);
-    
+
     const service = req.params.service ? req.params.service : 'patreon';
     const flagQuery = { id: req.params.post, service: service };
     flagQuery[req.params.entity] = req.params.id;
-    const flagExists = await flags.findOne(query)
+    const flagExists = await flags.findOne(query);
     if (flagExists) return res.sendStatus(409); // flag already exists
     await flags.insertOne(flagQuery);
     res.end();

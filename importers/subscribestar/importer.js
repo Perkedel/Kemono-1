@@ -64,7 +64,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       entity: 'user',
       entityId: post.user,
       id: post.id
-    })
+    });
     const postExists = await posts.findOne({ id: post.id, service: 'subscribestar' });
     if (postExists) return;
 

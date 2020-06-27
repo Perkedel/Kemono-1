@@ -61,7 +61,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       entity: 'user',
       entityId: rel.user.data.id,
       id: post.id
-    })
+    });
     const existingPosts = await posts.find({ id: post.id }).toArray();
     if (existingPosts.length && existingPosts[0].version === 1) {
       return;

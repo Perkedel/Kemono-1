@@ -35,12 +35,12 @@ module.exports = async (data) => {
     data.service === 'patreon' ? '' : data.service,
     data.entityId,
     data.id
-  ))
+  ));
   await fs.remove(path.join(
     process.env.DB_ROOT,
     'files',
     data.service === 'patreon' ? '' : data.service,
     data.entityId,
     data.id
-  ))
-}
+  ));
+};

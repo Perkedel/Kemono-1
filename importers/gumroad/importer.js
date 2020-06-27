@@ -59,7 +59,7 @@ async function scraper (key) {
       entity: 'user',
       entityId: userId,
       id: product.id
-    })
+    });
     const postExists = await posts.findOne({ id: product.id, service: 'gumroad' });
     if (postExists) return;
 

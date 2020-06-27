@@ -48,7 +48,7 @@ async function processFanbox (url, key) {
       entity: 'user',
       entityId: post.user.userId,
       id: post.id
-    })
+    });
     const postModel = {
       version: 2,
       service: 'fanbox',

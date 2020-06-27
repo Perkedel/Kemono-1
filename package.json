@@ -48,7 +48,8 @@
       "lazyload",
       "getParameterByName",
       "renderPost",
-      "debounce"
+      "debounce",
+      "confirm"
     ]
   }
 }

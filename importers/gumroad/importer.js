@@ -1,4 +1,4 @@
-const { posts } = require('../../db');
+const { posts, bans } = require('../../db');
 const scrapeIt = require('scrape-it');
 const Promise = require('bluebird');
 const fs = require('fs-extra');
@@ -54,6 +54,8 @@ async function scraper (key) {
   });
   await Promise.map(data.products, async (product) => {
     const userId = new URL(product.userHref).pathname.replace('/', '');
+    const banExists = await bans.findOne({ user: userId, service: 'gumroad' })
+    if (banExists) return;
     await checkForFlags({
       service: 'gumroad',
       entity: 'user',

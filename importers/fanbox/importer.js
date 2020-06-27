@@ -1,4 +1,4 @@
-const { posts } = require('../../db');
+const { posts, bans } = require('../../db');
 const fs = require('fs-extra');
 const request = require('request-promise');
 const request2 = require('request')
@@ -43,6 +43,9 @@ async function processFanbox (url, key) {
   const data = await proxy(unraw(url), requestOptions(key), request);
   await Promise.mapSeries(data.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
+    const banExists = await bans.findOne({ user: post.user.userId, service: 'fanbox' })
+    if (banExists) return;
+
     await checkForFlags({
       service: 'fanbox',
       entity: 'user',

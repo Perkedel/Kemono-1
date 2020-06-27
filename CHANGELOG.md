@@ -11,6 +11,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Discord importer form is now combined with the main one
 - User and recent page now use Oboe.js to stream in posts
 - Reimport flagging
+- Ban implementation
 
 ### v1.3.1
 - Replaced Cloudscraper module

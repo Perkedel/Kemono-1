@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { posts, lookup, flags } = require('./db');
+const { posts, lookup, flags, bans } = require('./db');
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const bodyParser = require('body-parser');
@@ -68,6 +68,11 @@ express()
       'user', random[0].user,
       'post', random[0].id
     ));
+  })
+  .get('/api/bans', async (req, res) => {
+    const userBans = await bans.find({}).toArray();
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
+    res.json(userBans);
   })
   .get('/api/recent', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })

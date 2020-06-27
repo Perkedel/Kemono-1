@@ -1,5 +1,5 @@
 const cloudscraper = require('cloudscraper');
-const { posts } = require('../../db');
+const { posts, bans } = require('../../db');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
 const request = require('request');
@@ -59,6 +59,9 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
   });
 
   await Promise.mapSeries(data.posts, async (post) => {
+    const banExists = await bans.findOne({ user: post.user, service: 'subscribestar' })
+    if (banExists) return;
+
     await checkForFlags({
       service: 'subscribestar',
       entity: 'user',

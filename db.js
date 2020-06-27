@@ -2,7 +2,8 @@ const mongo = require('mongo-lazy-connect')(process.env.MONGO_URL, { useUnifiedT
 const db = {
   posts: mongo.collection('posts'),
   lookup: mongo.collection('lookup'),
-  flags: mongo.collection('flags')
+  flags: mongo.collection('flags'),
+  bans: mongo.collection('bans')
 };
 
 module.exports = db;

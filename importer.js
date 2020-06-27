@@ -1,4 +1,4 @@
-const { posts } = require('./db');
+const { posts, bans } = require('./db');
 const request = require('request');
 const cloudscraper = require('cloudscraper');
 const { slugify } = require('transliteration');
@@ -56,6 +56,10 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     const rel = post.relationships;
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
+
+    const banExists = await bans.findOne({ user: rel.user.data.id, service: 'patreon' })
+    if (banExists) return;
+
     await checkForFlags({
       service: 'patreon',
       entity: 'user',

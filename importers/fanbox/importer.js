@@ -10,6 +10,7 @@ const Promise = require('bluebird');
 const crypto = require('crypto');
 const retry = require('p-retry');
 const proxy = require('../../proxy');
+const checkForFlags = require('../../flagcheck');
 const requestOptions = (key) => {
   return {
     json: true,
@@ -42,6 +43,12 @@ async function processFanbox (url, key) {
   const data = await proxy(unraw(url), requestOptions(key), request);
   await Promise.mapSeries(data.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
+    await checkForFlags({
+      service: 'fanbox',
+      entity: 'user',
+      entityId: post.user.userId,
+      id: post.id
+    })
     const postModel = {
       version: 2,
       service: 'fanbox',

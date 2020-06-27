@@ -14,6 +14,7 @@ const hasha = require('hasha');
 const { URL } = require('url');
 const retry = require('p-retry');
 const proxy = require('./proxy');
+const checkForFlags = require('./flagcheck');
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
   if (!content) return '';
@@ -55,7 +56,12 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     const rel = post.relationships;
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
-
+    await checkForFlags({
+      service: 'patreon',
+      entity: 'user',
+      entityId: rel.user.data.id,
+      id: post.id
+    })
     const existingPosts = await posts.find({ id: post.id }).toArray();
     if (existingPosts.length && existingPosts[0].version === 1) {
       return;

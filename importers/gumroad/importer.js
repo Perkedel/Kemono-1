@@ -9,6 +9,7 @@ const request2 = require('request').defaults({ encoding: null });
 const { slugify } = require('transliteration');
 const indexer = require('../../indexer');
 const { URL } = require('url');
+const checkForFlags = require('../../flagcheck');
 const cloudscraper = require('cloudscraper');
 const proxy = require('../../proxy');
 const retry = require('p-retry');
@@ -52,10 +53,16 @@ async function scraper (key) {
     }
   });
   await Promise.map(data.products, async (product) => {
+    const userId = new URL(product.userHref).pathname.replace('/', '');
+    await checkForFlags({
+      service: 'gumroad',
+      entity: 'user',
+      entityId: userId,
+      id: product.id
+    })
     const postExists = await posts.findOne({ id: product.id, service: 'gumroad' });
     if (postExists) return;
 
-    const userId = new URL(product.userHref).pathname.replace('/', '');
     const model = {
       version: 2,
       service: 'gumroad',

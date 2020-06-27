@@ -1,7 +1,7 @@
 require('dotenv').config();
+const { posts, lookup, flags } = require('./db');
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
-const { posts, lookup } = require('./db');
 const bodyParser = require('body-parser');
 const scrapeIt = require('scrape-it');
 const express = require('express');
@@ -193,6 +193,36 @@ express()
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
+  })
+  .get('/api/:service?/:entity/:id/post/:post/flag', async (req, res) => {
+    const service = req.params.service ? req.params.service : 'patreon';
+    const flagQuery = { id: req.params.post, service: service };
+    flagQuery[req.params.entity] = req.params.id;
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
+    return await flags.findOne(flagQuery) ? res.sendStatus(200) : res.sendStatus(404);
+  })
+  .post('/api/:service?/:entity/:id/post/:post/flag', async (req, res) => {
+    const query = { id: req.params.post };
+    query[req.params.entity] = req.params.id;
+    if (!req.params.service) {
+      query.$or = [
+        { service: 'patreon' },
+        { service: { $exists: false } }
+      ];
+    } else {
+      query.service = req.params.service;
+    }
+
+    const postExists = await posts.findOne(query);
+    if (!postExists) return res.sendStatus(404);
+    
+    const service = req.params.service ? req.params.service : 'patreon';
+    const flagQuery = { id: req.params.post, service: service };
+    flagQuery[req.params.entity] = req.params.id;
+    const flagExists = await flags.findOne(query)
+    if (flagExists) return res.sendStatus(409); // flag already exists
+    await flags.insertOne(flagQuery);
+    res.end();
   })
   .get('/proxy/user/:id', async (req, res) => {
     const api = 'https://www.patreon.com/api/user';

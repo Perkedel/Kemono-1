@@ -10,6 +10,7 @@ const ellipsize = require('ellipsize');
 const striptags = require('striptags');
 const indexer = require('../../indexer');
 const { slugify } = require('transliteration');
+const checkForFlags = require('../../flagcheck');
 const { unraw } = require('unraw');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
@@ -58,6 +59,12 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
   });
 
   await Promise.mapSeries(data.posts, async (post) => {
+    await checkForFlags({
+      service: 'subscribestar',
+      entity: 'user',
+      entityId: post.user,
+      id: post.id
+    })
     const postExists = await posts.findOne({ id: post.id, service: 'subscribestar' });
     if (postExists) return;
 

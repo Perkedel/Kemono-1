@@ -1,13 +1,24 @@
+function attemptFlag (e, api) {
+  e.preventDefault();
+  if (confirm('Are you sure you want to flag this post for reimport?')) {
+    fetch(api, { method: 'post' })
+      .then(res => {
+        window.alert(res.ok ? 'Successfully flagged.' : 'You\'ve been flagging too much. Wait a while and try again.')
+      })
+  }
+}
+
 async function main () {
   const pathname = window.location.pathname.split('/');
   const resultsView = document.getElementById('results');
-  let posts, cache;
+  let posts, cache, flagApi;
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon': {
       const postData = await fetch(`/api/user/${pathname[2]}/post/${pathname[4]}`);
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[2]}?service=patreon`);
       cache = await cacheData.json();
+      flagApi = `/api/user/${pathname[2]}/post/${pathname[4]}/flag`
       break;
     }
     case 'gumroad': {
@@ -15,6 +26,7 @@ async function main () {
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=gumroad`);
       cache = await cacheData.json();
+      flagApi = `/api/gumroad/user/${pathname[3]}/post/${pathname[5]}/flag`
       break;
     }
     case 'subscribestar': {
@@ -22,6 +34,7 @@ async function main () {
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=subscribestar`);
       cache = await cacheData.json();
+      flagApi = `/api/subscribestar/user/${pathname[3]}/post/${pathname[5]}/flag`
       break;
     }
     default: {
@@ -29,6 +42,7 @@ async function main () {
       posts = await postData.json();
       const cacheData = await fetch(`/api/lookup/cache/${pathname[3]}?service=fanbox`);
       cache = await cacheData.json();
+      flagApi = `/api/fanbox/user/${pathname[3]}/post/${pathname[5]}/flag`
     }
   }
 
@@ -46,6 +60,20 @@ async function main () {
       Added at: ${new Date(posts[0].added_at).toISOString()}
     </li>
   `;
+
+  fetch(flagApi)
+    .then(res => {
+      resultsView.innerHTML += res.ok ? `
+        <li>
+          <span class="subtitle">This post has been flagged for reimport.</span>
+        </li>
+      ` : `
+        <li>
+          <a href="" id="flag-button">Flag for reimport</a>
+        </li>
+      `
+      document.getElementById('flag-button').addEventListener('click', e => attemptFlag(e, flagApi));
+    })
 
   const multipost = posts.length > 1;
   posts.forEach(post => {

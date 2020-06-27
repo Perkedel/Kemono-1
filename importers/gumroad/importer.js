@@ -54,7 +54,7 @@ async function scraper (key) {
   });
   await Promise.map(data.products, async (product) => {
     const userId = new URL(product.userHref).pathname.replace('/', '');
-    const banExists = await bans.findOne({ user: userId, service: 'gumroad' })
+    const banExists = await bans.findOne({ id: userId, service: 'gumroad' })
     if (banExists) return;
     await checkForFlags({
       service: 'gumroad',

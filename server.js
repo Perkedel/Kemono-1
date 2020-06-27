@@ -179,14 +179,14 @@ express()
     await fs.remove(path.join(
       process.env.DB_ROOT,
       'files',
-      req.params.service === 'patreon' ? '' : req.params.service,
-      req.params.entityId
+      req.params.service ? req.params.service : '',
+      req.params.entity
     ));
     await fs.remove(path.join(
       process.env.DB_ROOT,
       'attachments',
-      req.params.service === 'patreon' ? '' : req.params.service,
-      req.params.entityId
+      req.params.service ? req.params.service : '',
+      req.params.entity
     ));
     res.send('Purged!'); // THOTFAGS BTFO
   })

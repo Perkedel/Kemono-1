@@ -8,9 +8,7 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 - Patreon
 - Gumroad
 - Discord
-
-**Experimental/Unfinished**
-
+#### Experimental/Unfinished
 - SubscribeStar
 - Pixiv Fanbox
 
@@ -30,9 +28,14 @@ Your instance should now be running [here](http://localhost:8000).
 
 For production, [Dokku](http://dokku.viewdocs.io/dokku/) is highly recommended for zero-friction deployment.
 
-**Where did the test scripts go?** The importer test scripts were removed in [v1.2](https://github.com/OpenYiff/Kemono/releases/tag/v1.2).
+### FAQ
+#### Where did the test scripts go?
+The importer test scripts were removed in [v1.2](https://github.com/OpenYiff/Kemono/releases/tag/v1.2).
+#### My instance uses too much memory!/My instance is randomly crashing!
+Large instances may see memory issues due to the thumbnail generator. Either [set some swap space](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-16-04) or disable the feature in your `.env` file.
 
-### Legal
+---
+
 [Licensed under BSD 3-Clause.](/LICENSE) [tldr.](https://www.tldrlegal.com/l/bsd3)
 
 Kemono itself does not circumvent any technological copyright measures. Content is retrieved legally.

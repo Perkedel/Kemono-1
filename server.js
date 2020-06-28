@@ -176,13 +176,19 @@ express()
       query.service = req.params.service;
     }
     await posts.deleteMany(query);
-    await fs.remove(path.join(
+    console.log(path.join(
+      process.env.DB_ROOT,
+      'files',
+      req.params.service ? req.params.service : '',
+      req.params.entity
+    ))
+    await rmfr(path.join(
       process.env.DB_ROOT,
       'files',
       req.params.service ? req.params.service : '',
       req.params.entity
     ));
-    await fs.remove(path.join(
+    await rmfr(path.join(
       process.env.DB_ROOT,
       'attachments',
       req.params.service ? req.params.service : '',

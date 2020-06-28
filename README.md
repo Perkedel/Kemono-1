@@ -28,6 +28,8 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 
 Your instance should now be running [here](http://localhost:8000).
 
+For production, [Dokku](http://dokku.viewdocs.io/dokku/) is highly recommended for zero-friction deployment.
+
 **Where did the test scripts go?** The importer test scripts were removed in [v1.2](https://github.com/OpenYiff/Kemono/releases/tag/v1.2).
 
 ### Legal

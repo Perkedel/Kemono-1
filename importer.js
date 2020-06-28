@@ -57,7 +57,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
 
-    const banExists = await bans.findOne({ id: rel.user.data.id, service: 'patreon' })
+    const banExists = await bans.findOne({ id: rel.user.data.id, service: 'patreon' });
     if (banExists) return;
 
     await checkForFlags({

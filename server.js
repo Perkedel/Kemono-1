@@ -162,7 +162,7 @@ express()
     res.json(userPosts);
   })
   .get('/api/:service?/:entity/:id/purge', async (req, res) => {
-    const banExists = await bans.findOne({ id: req.params.id, service: req.params.service || 'patreon'});
+    const banExists = await bans.findOne({ id: req.params.id, service: req.params.service || 'patreon' });
     if (!banExists) return res.sendStatus(403);
 
     const query = {};

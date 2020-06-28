@@ -43,7 +43,7 @@ async function processFanbox (url, key) {
   const data = await proxy(unraw(url), requestOptions(key), request);
   await Promise.mapSeries(data.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
-    const banExists = await bans.findOne({ id: post.user.userId, service: 'fanbox' })
+    const banExists = await bans.findOne({ id: post.user.userId, service: 'fanbox' });
     if (banExists) return;
 
     await checkForFlags({

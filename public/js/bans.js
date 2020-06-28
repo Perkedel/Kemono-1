@@ -1,7 +1,7 @@
 window.onload = async () => {
   const bansData = await fetch('/api/bans');
   const bans = await bansData.json();
-  bans.forEach(async(ban) => {
+  bans.forEach(async (ban) => {
     let cache, href, service;
     switch (ban.service) {
       case 'patreon': {
@@ -12,21 +12,21 @@ window.onload = async () => {
         break;
       }
       case 'fanbox': {
-        service = 'Pixiv Fanbox'
+        service = 'Pixiv Fanbox';
         const cacheData = await fetch(`/api/lookup/cache/${ban.id}?service=fanbox`);
         cache = await cacheData.json();
         href = `https://www.pixiv.net/fanbox/creator/${ban.id}`;
         break;
       }
       case 'gumroad': {
-        service = 'Gumroad'
+        service = 'Gumroad';
         const cacheData = await fetch(`/api/lookup/cache/${ban.id}?service=gumroad`);
         cache = await cacheData.json();
         href = `https://gumroad.com/${ban.id}`;
         break;
       }
       case 'subscribestar': {
-        service = 'SubscribeStar'
+        service = 'SubscribeStar';
         const cacheData = await fetch(`/api/lookup/cache/${ban.id}?service=subscribestar`);
         cache = await cacheData.json();
         href = `https://subscribestar.adult/${ban.id}`;
@@ -39,6 +39,6 @@ window.onload = async () => {
           ${cache.name} <span class="subtitle">${service}</span>
         </a>
       </li>
-    `
-  })
+    `;
+  });
 };

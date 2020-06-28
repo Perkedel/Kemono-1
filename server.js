@@ -188,6 +188,7 @@ express()
       req.params.service ? req.params.service : '',
       req.params.id
     ));
+    res.setHeader('Cache-Control', 'no-store');
     res.send('Purged!'); // THOTFAGS BTFO
   })
   .get('/api/:service?/:entity/:id/post/:post', async (req, res) => {

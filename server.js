@@ -5,13 +5,14 @@ const request = require('request-promise');
 const bodyParser = require('body-parser');
 const scrapeIt = require('scrape-it');
 const express = require('express');
+const sharp = require('sharp');
 const fs = require('fs-extra');
 const path = require('path');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 const getUrls = require('get-urls');
 const proxy = require('./proxy');
-const sharp = require('sharp');
+const rmfr = require('rmfr');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
 posts.createIndex({ service: 1 }); // /random, /api/recent

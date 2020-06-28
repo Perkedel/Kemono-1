@@ -180,13 +180,13 @@ express()
       process.env.DB_ROOT,
       'files',
       req.params.service ? req.params.service : '',
-      req.params.entity
+      req.params.id
     ));
     await fs.remove(path.join(
       process.env.DB_ROOT,
       'attachments',
       req.params.service ? req.params.service : '',
-      req.params.entity
+      req.params.id
     ));
     res.send('Purged!'); // THOTFAGS BTFO
   })

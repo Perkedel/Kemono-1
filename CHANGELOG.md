@@ -10,11 +10,12 @@ Kemono uses [semantic versioning](https://semver.org/).
 <details>
   <summary>Patch</summary>
 
-  - General code rewrites and cleanup
+  - Fixed Gumroad importer
   - Fixed issue causing error when ID is not in the lookup database
   - Reworked API cache
   - Discord importer form is now combined with the main one in the UI
   - User and recent page now use Oboe.js
+  - General code rewrites and cleanup
 </details>
 
 ### v1.3.1

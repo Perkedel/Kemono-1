@@ -78,21 +78,24 @@ async function scraper (key) {
       post_file: {},
       attachments: []
     };
-    const productInfo = await proxy(`https://gumroad.com/links/${product.id}/user_info`, apiOptions(key), cloudscraper);
-    const downloadPage = await proxy(productInfo.purchase.redirect_url, scrapeOptions(key), cloudscraper);
+    const productInfo = await proxy(`https://gumroad.com/links/${product.id}/user_info?fetch_purchase=true`, apiOptions(key), cloudscraper);
+    const downloadPage = await proxy(productInfo.purchase.content_url, scrapeOptions(key), cloudscraper);
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail: {
         selector: '.image-preview-container img',
         attr: 'src'
       },
-      files: {
-        listItem: '.js-file-row',
-        data: {
-          filename: '.file-row-content-component__info h4',
-          link: {
-            selector: '.js-download-trigger',
-            attr: 'data-url',
-            convert: x => 'https://gumroad.com' + x
+      data: {
+        selector: 'div[data-react-class="DownloadPage/FileList"]',
+        attr: 'data-react-props',
+        convert: x => {
+          try {
+            return JSON.parse(x);
+          } catch (err) {
+            return {
+              files: [],
+              download_info: {}
+            };
           }
         }
       }
@@ -115,17 +118,16 @@ async function scraper (key) {
       model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
     }
 
-    await Promise.map(downloadData.files, async (file) => {
+    await Promise.map(downloadData.data.files, async (file) => {
       const randomKey = crypto.randomBytes(20).toString('hex');
       await fs.ensureFile(`${process.env.DB_ROOT}/attachments/gumroad/${userId}/${product.id}/${randomKey}`);
       await retry(() => {
         return new Promise((resolve, reject) => {
           request2
-            .get(file.link, scrapeOptions(key))
-            .on('complete', async (res) => {
-              let ext = mime.getExtension(res.headers['content-type']);
-              if (res.headers['content-type'] === 'attachment') ext = 'pdf';
-              const filename = slugify(file.filename, { lowercase: false });
+            .get('https://gumroad.com' + downloadData.data.download_info[file.id].download_url, scrapeOptions(key))
+            .on('complete', async () => {
+              let ext = file.extension.toLowerCase();
+              const filename = slugify(file.file_name, { lowercase: false });
               model.attachments.push({
                 name: `${filename}.${ext}`,
                 path: `/attachments/gumroad/${userId}/${product.id}/${filename}.${ext}`

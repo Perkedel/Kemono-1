@@ -164,7 +164,7 @@ async function main () {
     oboe(`/api/recent?skip=${skip}`)
       .node('!.*', post => renderPost(post));
   });
-  document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
+  document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(150), 350));
   document.getElementById('service-input').addEventListener('change', () => queryUpdate(150));
   queryUpdate(150);
 }

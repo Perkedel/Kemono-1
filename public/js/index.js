@@ -166,7 +166,7 @@ async function main () {
   });
   document.getElementById('search-input').addEventListener('keyup', debounce(() => queryUpdate(), 350));
   document.getElementById('service-input').addEventListener('change', () => queryUpdate(150));
-  queryUpdate();
+  queryUpdate(150);
 }
 
 window.onload = () => main();

@@ -3,7 +3,7 @@ function attemptFlag (e, api) {
   if (confirm('Are you sure you want to flag this post for reimport?')) {
     fetch(api, { method: 'post' })
       .then(res => {
-        window.alert(res.ok ? 'Successfully flagged.' : 'You\'ve been flagging too much. Wait a while and try again.');
+        window.alert(res.ok ? 'Successfully flagged.' : 'Error. There might already be a flag here.');
       });
   }
 }

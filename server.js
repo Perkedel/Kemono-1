@@ -346,10 +346,14 @@ express()
   })
   .get('/:service?/:type/:id', (req, res) => {
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `${req.params.type}.html`));
+    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `${req.params.type}.html`), undefined, err => {
+      if (err) res.sendStatus(404);
+    });
   })
   .get('/:service?/:type/:id/post/:post', (req, res) => {
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', 'post.html'));
+    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', 'post.html'), undefined, err => {
+      if (err) res.sendStatus(404);
+    });
   })
   .listen(process.env.PORT || 8000);

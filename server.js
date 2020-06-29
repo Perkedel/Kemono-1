@@ -24,7 +24,7 @@ indexer();
 
 const staticOpts = {
   dotfiles: 'allow',
-  setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600')
+  setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600, no-cache')
 };
 
 express()
@@ -214,7 +214,7 @@ express()
     const service = req.params.service ? req.params.service : 'patreon';
     const flagQuery = { id: req.params.post, service: service };
     flagQuery[req.params.entity] = req.params.id;
-    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
+    res.setHeader('Cache-Control', 'max-age=60, public, no-cache');
     return await flags.findOne(flagQuery) ? res.sendStatus(200) : res.sendStatus(404);
   })
   .post('/api/:service?/:entity/:id/post/:post/flag', async (req, res) => {

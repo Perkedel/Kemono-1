@@ -2,16 +2,20 @@ Kemono uses [semantic versioning](https://semver.org/).
 
 ### v1.4
 - New UI
-- Search posts
+- Search user posts
 - Pagination
-- Implemented thumbnail generation
-- General code rewrites and cleanup
-- Fixed issue causing error when ID is not in the lookup database
-- Slightly longer API cache times
-- Discord importer form is now combined with the main one
-- User and recent page now use Oboe.js to stream in posts
+- Thumbnail generation
 - Reimport flagging
 - Ban implementation
+<details>
+  <summary>Patch</summary>
+
+  - General code rewrites and cleanup
+  - Fixed issue causing error when ID is not in the lookup database
+  - Reworked API cache
+  - Discord importer form is now combined with the main one in the UI
+  - User and recent page now use Oboe.js
+</details>
 
 ### v1.3.1
 - Replaced Cloudscraper module

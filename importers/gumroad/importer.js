@@ -2,7 +2,6 @@ const { posts, bans } = require('../../db');
 const scrapeIt = require('scrape-it');
 const Promise = require('bluebird');
 const fs = require('fs-extra');
-const mime = require('mime');
 const crypto = require('crypto');
 const request = require('request');
 const request2 = require('request').defaults({ encoding: null });
@@ -126,7 +125,7 @@ async function scraper (key) {
           request2
             .get('https://gumroad.com' + downloadData.data.download_info[file.id].download_url, scrapeOptions(key))
             .on('complete', async () => {
-              let ext = file.extension.toLowerCase();
+              const ext = file.extension.toLowerCase();
               const filename = slugify(file.file_name, { lowercase: false });
               model.attachments.push({
                 name: `${filename}.${ext}`,

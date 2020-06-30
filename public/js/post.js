@@ -72,7 +72,7 @@ async function main () {
         </li>
       `;
       document.getElementById('flag-button').addEventListener('click', e => attemptFlag(e, flagApi));
-    })
+    });
 
   const multipost = posts.length > 1;
   posts.forEach(post => {

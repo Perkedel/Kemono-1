@@ -60,8 +60,7 @@ async function main () {
         </li>
       `;
     })
-  
-  fetch(flagApi)
+    .then(() => fetch(flagApi))
     .then(res => {
       resultsView.innerHTML += res.ok ? `
         <li>
@@ -73,7 +72,7 @@ async function main () {
         </li>
       `;
       document.getElementById('flag-button').addEventListener('click', e => attemptFlag(e, flagApi));
-    });
+    })
 
   const multipost = posts.length > 1;
   posts.forEach(post => {

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { posts, lookup, flags, bans } = require('./db');
+const { post, user, server } = require('./templates');
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const bodyParser = require('body-parser');
@@ -346,14 +347,19 @@ express()
   })
   .get('/:service?/:type/:id', (req, res) => {
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', `${req.params.type}.html`), undefined, err => {
-      if (err) res.sendStatus(404);
-    });
+    switch (req.params.type) {
+      case 'user':
+        res.send(user({ service: req.params.service || 'patreon' }));
+        break;
+      case 'server':
+        res.send(server());
+        break;
+      default:
+        res.sendStatus(404);
+    }
   })
   .get('/:service?/:type/:id/post/:post', (req, res) => {
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.sendFile(path.join(__dirname, '/www/', req.params.service || '', 'post.html'), undefined, err => {
-      if (err) res.sendStatus(404);
-    });
+    res.send(post({ service: req.params.service || 'patreon' }));
   })
   .listen(process.env.PORT || 8000);

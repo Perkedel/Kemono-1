@@ -1,3 +1,5 @@
+[![Telegram](https://img.shields.io/badge/-telegram-blue)](https://t.me/kemonoparty)
+
 [Kemono](https://kemono.party) is an open-source reimplementation of [yiff.party](https://yiff.party/). It archives and dumps data, images, and files from paysites like Patreon.
 
 Kemono's codebase consists of both importers to handle API data and a frontend to share it. While the status of the project is considered stable, there may be bugs and weird quirks here and there. Beware!

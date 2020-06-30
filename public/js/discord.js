@@ -65,7 +65,7 @@ const load = async () => {
   const serverData = await fetch(`/api/discord/channels/lookup?q=${pathname[3]}`);
   const server = await serverData.json();
   const channels = document.getElementById('channels');
-  server.map(ch => {
+  server.forEach(ch => {
     const channel = document.getElementById(`channel-${ch.id}`);
     if (!channel) {
       channels.innerHTML += `

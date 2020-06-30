@@ -70,7 +70,7 @@ express()
       'post', random[0].id
     ));
   })
-  .get('/api/bans', async (req, res) => {
+  .get('/api/bans', async (_, res) => {
     const userBans = await bans.find({}).toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userBans);
@@ -84,7 +84,7 @@ express()
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
-  .post('/api/import', async (req, res) => {
+  .post('/api/import', (req, res) => {
     if (!req.body.session_key) return res.sendStatus(401);
     switch (req.body.service) {
       case 'patreon':
@@ -260,7 +260,7 @@ express()
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
-  .get('/proxy/user/:id', async (req, res) => {
+  .get('/proxy/user/:id', (req, res) => {
     const api = 'https://www.patreon.com/api/user';
     const options = cloudscraper.defaultParams;
     options.json = true;
@@ -271,7 +271,7 @@ express()
       })
       .catch(() => res.sendStatus(404));
   })
-  .get('/proxy/fanbox/user/:id', async (req, res) => {
+  .get('/proxy/fanbox/user/:id', (req, res) => {
     const api = 'https://api.fanbox.cc/creator.get?userId';
     proxy(`${api}=${req.params.id}`, {
       json: true,

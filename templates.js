@@ -71,15 +71,17 @@ const post = data => shell(`
   <div class="main">
     ${header()}
     ${subheader()}
-    <div class="sidebar" style="margin-right: 20px;">
-      <span class="subtitle">Click on the thumbnails to reveal the original resolution image.</span>
-      <h1>Information</h1>
-      <div class="results" id="results"></div>
-    </div>
-    <div class="page" id="page">
-      <noscript>
-        <h1 class="subtitle">Javascript is disabled.</h1>
-      </noscript>
+    <div class="views">
+      <div class="sidebar" style="margin-right: 20px;">
+        <span class="subtitle">Click on the thumbnails to reveal the original resolution image.</span>
+        <h1>Information</h1>
+        <div class="results" id="results"></div>
+      </div>
+      <div class="page" id="page">
+        <noscript>
+          <h1 class="subtitle">Javascript is disabled.</h1>
+        </noscript>
+      </div>
     </div>
   </div>
   <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>

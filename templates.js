@@ -6,7 +6,9 @@ const shell = (html, props) => `
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>Kemono</title>
       <link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
-      <link rel="stylesheet" type="text/css" href="/css/index.css">
+      ${props.compatibility ? '<link rel="stylesheet" type="text/css" href="/css/compatibility.css">' : ''}
+      ${props.compatibility ? '' : '<link rel="stylesheet" type="text/css" href="/css/index.css">'}
+      ${props.discord ? '<link rel="stylesheet" type="text/css" href="/css/discord.css">' : ''}
       <meta name="service" content="${props.service}"/>
     </head>
     <body>
@@ -32,6 +34,7 @@ const subheader = () => `
     <li><a href="/help/posts">Help</a></li>
   </ul>
 `
+
 const user = data => shell(`
   <div class="main" id="main">
     ${header()}
@@ -52,12 +55,8 @@ const user = data => shell(`
         <div id="extra-info-block"></div>
       </div>
     </div>
-    <div class="paginator" id="paginator">
-
-    </div>
-    <div class="content" id="content">
-
-    </div>
+    <div class="paginator" id="paginator"></div>
+    <div class="content" id="content"></div>
     <noscript>
       <h1 class="subtitle">Javascript is disabled.</h1>
     </noscript>
@@ -76,9 +75,7 @@ const post = data => shell(`
       <div class="sidebar" style="margin-right: 20px;">
         <span class="subtitle">Click on the thumbnails to reveal the original resolution image.</span>
         <h1>Information</h1>
-        <div class="results" id="results">
-
-        </div>
+        <div class="results" id="results"></div>
       </div>
       <div class="page" id="page">
         <noscript>
@@ -92,32 +89,19 @@ const post = data => shell(`
   <script src="/js/post.js"></script>
 `, { service: data.service });
 
-const server = () => `
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      <title>Discord Archive</title>
-      <link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css@8.0.1/normalize.css">
-      <link rel="stylesheet" type="text/css" href="/css/compatibility.css">
-      <link rel="stylesheet" type="text/css" href="/css/discord.css">
-      <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
-      <script src="/js/discord.js"></script>
-    </head>
-    <body>
-      <div class="discord-main">
-        <div class="channels" id="channels"></div>
-        <div class="messages" id="messages">
-          <noscript>
-            <div class="message">
-              <p>You need JavaScript to view archived Discord messages.</p>
-            </div>
-          </noscript>
+const server = () => shell(`
+  <div class="discord-main">
+    <div class="channels" id="channels"></div>
+    <div class="messages" id="messages">
+      <noscript>
+        <div class="message">
+          <p>You need JavaScript to view archived Discord messages.</p>
         </div>
-      </div>
-    </body>
-  </html>
-`
+      </noscript>
+    </div>
+  </div>
+  <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
+  <script src="/js/discord.js"></script>
+`, { service: 'discord', compatibility: true, discord: true })
 
 module.exports = { post, user, server };

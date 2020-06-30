@@ -1,5 +1,8 @@
 Kemono uses [semantic versioning](https://semver.org/).
 
+### v1.4.1
+- Minor UI changes
+
 ### v1.4
 - New UI
 - Search user posts

@@ -103,7 +103,7 @@ async function processChannel (id, server, key, before) {
       await fs.ensureFile(`${process.env.DB_ROOT}/${attachmentsKey}/${attachment.filename}`);
       await retry(() => {
         return new Promise((resolve, reject) => {
-          request.get({ url: attachment.proxy_url, encoding: null })
+          request.get({ url: attachment.url || attachment.proxy_url, encoding: null })
             .on('complete', () => resolve())
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${attachment.filename}`));

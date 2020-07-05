@@ -39,27 +39,32 @@ const user = data => shell(`
   <div class="main" id="main">
     ${header()}
     ${subheader()}
-    <div class="sidebar">
-      <input
-        id="search-input"
-        type="text"
-        placeholder="search for posts..."
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      >
-      <h1>Information</h1>
-      <div class="results" id="results">
-        <div id="info-block"></div>
-        <div id="extra-info-block"></div>
+    <div class="views">
+      <div class="sidebar">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="search for posts..."
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        >
+        <h1>Information</h1>
+        <div class="results" id="results">
+          <div id="info-block"></div>
+          <div id="extra-info-block"></div>
+        </div>
       </div>
+      <div class="vertical-views">
+        <div class="paginator" id="paginator-top"></div>
+        <div class="content" id="content"></div>
+        <noscript>
+          <h1 class="subtitle">Javascript is disabled.</h1>
+        </noscript>
+        <div class="paginator" id="paginator-bottom"></div>
+      </div>  
     </div>
-    <div class="paginator" id="paginator"></div>
-    <div class="content" id="content"></div>
-    <noscript>
-      <h1 class="subtitle">Javascript is disabled.</h1>
-    </noscript>
   </div>
   <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>

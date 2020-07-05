@@ -53,6 +53,12 @@ a:link {
   display: flex;
 }
 
+.vertical-views {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* thumbnails */
 
 .thumb-standard { border: 1px solid #000 }
@@ -197,10 +203,8 @@ input[type="text"]:focus {
 
 /* pagination */
 
-.paginator {
-  display: block;
-  text-align: center;
-  margin: 0 auto;
+.paginator menu {
+  padding: 0;
 }
 
 menu li {

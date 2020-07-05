@@ -149,9 +149,10 @@ function queryUpdate (num) {
 }
 
 async function main () {
-  const paginator = document.getElementById('paginator');
+  const paginatorTop = document.getElementById('paginator-top');
+  const paginatorBottom = document.getElementById('paginator-bottom');
   const skip = Number(getParameterByName('o')) || 0;
-  paginator.innerHTML += `
+  paginatorTop.innerHTML += paginatorBottom.innerHTML += `
     <menu>
       ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}" title="-50">«</a></li>` : '<li class="subtitle">«</li>'}
       ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}" title="-25">‹</a></li>` : '<li class="subtitle">‹</li>'}

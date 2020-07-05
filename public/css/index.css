@@ -116,10 +116,7 @@ a:link {
 }
 
 select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: rgba(0, 0, 0, 0);
-  color: white;
+  color: #000;
   border-color: #111;
   border-radius: 5px;
   min-height: 24px;

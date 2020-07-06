@@ -28,14 +28,15 @@ module.exports = (opts, requestOpts = {}) => {
               if (res.statusCode !== 200) reject(new Error(`Status code: ${res.statusCode}`));
               if (res.headers['content-length']) {
                 const tempstats = await fs.stat(path.join(opts.ddir, tempname));
-                if (tempstats['size'] !== Number(res.headers['content-length'])) return reject(new Error('Size differ from reported'));
+                if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differ from reported'));
               }
               // filename guessing
               const [name, ext] = opts.name ? opts.name.split('.') : (
-                data.headers['x-amz-meta-original-filename'] ? data.headers['x-amz-meta-original-filename'].split('.') : (
-                res.headers['content-disposition'] ? cd.parse(res.headers['content-disposition']).parameters.filename.split('.') : ['Untitled', 'Untitled']
-              ))
-              const filename = `${slugify(name, { lowercase: false })}.${ext}`
+                res.headers['x-amz-meta-original-filename'] ? res.headers['x-amz-meta-original-filename'].split('.') : (
+                  res.headers['content-disposition'] ? cd.parse(res.headers['content-disposition']).parameters.filename.split('.') : ['Untitled', 'Untitled']
+                )
+              );
+              const filename = `${slugify(name, { lowercase: false })}.${ext}`;
               // move to final location
               await fs.rename(
                 path.join(opts.ddir, tempname),
@@ -47,8 +48,8 @@ module.exports = (opts, requestOpts = {}) => {
               });
             })
             .on('error', err => reject(err))
-            .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)))
-        })
-    })
+            .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));
+        });
+    });
   }, { retries: 25 });
-}
+};

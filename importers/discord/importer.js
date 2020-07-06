@@ -1,8 +1,6 @@
 const { posts, lookup } = require('../../db');
 const Promise = require('bluebird');
 const cloudscraper = require('cloudscraper');
-const request = require('request').defaults({ encoding: null });
-const fs = require('fs-extra');
 const nl2br = require('nl2br');
 const retry = require('p-retry');
 const isImage = require('is-image');
@@ -108,7 +106,7 @@ async function processChannel (id, server, key, before) {
       }, {
         url: attachment.url || attachment.proxy_url
       });
-      
+
       model.attachments.push({
         isImage: isImage(attachment.filename),
         name: attachment.filename,

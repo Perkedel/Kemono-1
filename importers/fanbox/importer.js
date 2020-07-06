@@ -70,17 +70,17 @@ async function processFanbox (url, key) {
     const attachmentsLocation = '/attachments/fanbox';
     if (post.body.images) {
       await Promise.mapSeries(post.body.images, async (image, index) => {
-        let location = index === 0 && !postModel.post_file.name ? filesLocation : attachmentsLocation;
-        let store = index === 0 && !postModel.post_file.name ? fn => {
+        const location = index === 0 && !postModel.post_file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !postModel.post_file.name ? fn => {
           postModel.post_file.name = `${image.id}.${image.extension}`;
-          postModel.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`
+          postModel.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
         } : fn => {
           postModel.attachments.push({
             id: image.id,
             name: `${image.id}.${image.extension}`,
             path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${fn}`
           });
-        }
+        };
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, `${location}/${post.user.userId}/${post.id}`),
           name: `${image.id}.${image.extension}`
@@ -93,17 +93,17 @@ async function processFanbox (url, key) {
 
     if (post.body.files) {
       await Promise.mapSeries(post.body.files, async (file, index) => {
-        let location = index === 0 && !postModel.post_file.name ? filesLocation : attachmentsLocation;
-        let store = index === 0 && !postModel.post_file.name ? fn => {
+        const location = index === 0 && !postModel.post_file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !postModel.post_file.name ? fn => {
           postModel.post_file.name = `${file.name}.${file.extension}`;
-          postModel.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`
+          postModel.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
         } : fn => {
           postModel.attachments.push({
-            id: image.id,
+            id: file.id,
             name: `${file.name}.${file.extension}`,
             path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${fn}`
           });
-        }
+        };
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, `${location}/${post.user.userId}/${post.id}`),
           name: `${file.name}.${file.extension}`
@@ -133,7 +133,9 @@ async function concatenateArticle (body, key) {
       }, Object.assign({
         url: unraw(imageInfo.originalUrl)
       }, fileRequestOptions(key)))
-        .then(res => concatenatedString += `<img src="/inline/fanbox/${res.filename}"><br>`)
+        .then(res => {
+          concatenatedString += `<img src="/inline/fanbox/${res.filename}"><br>`;
+        });
       concatenatedString += `<img src="/inline/fanbox/${slugify(imageInfo.id, { lowercase: false })}.${imageInfo.extension}"><br>`;
     } else if (block.type === 'p') {
       concatenatedString += `${unraw(block.text)}<br>`;

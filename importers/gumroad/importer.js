@@ -104,7 +104,7 @@ async function scraper (key) {
         name: filename
       }, {
         url: downloadData.thumbnail
-      })
+      });
       model.post_file.name = filename;
       model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
     }
@@ -121,7 +121,7 @@ async function scraper (key) {
             name: res.filename,
             path: `/attachments/gumroad/${userId}/${product.id}/${res.filename}`
           });
-        })
+        });
     });
 
     posts.insertOne(model);

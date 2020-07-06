@@ -99,8 +99,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       })
         .then(res => {
           postDb.post_file.name = attr.post_file.name;
-          postDb.post_file.path = `/${fileKey}/${res.filename}`
-        })
+          postDb.post_file.path = `/${fileKey}/${res.filename}`;
+        });
     }
 
     if (attr.embed) {
@@ -125,7 +125,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       await downloadFile({
         ddir: path.join(process.env.DB_ROOT, attachmentsKey)
       }, {
-        url: res.headers.location 
+        url: res.headers.location
       })
         .then(res => {
           postDb.attachments.push({
@@ -133,7 +133,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             name: res.filename,
             path: `/${attachmentsKey}/${res.filename}`
           });
-        })
+        });
     });
 
     const postData = await retry(() => {

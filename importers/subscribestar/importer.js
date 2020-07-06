@@ -85,7 +85,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     if ((/This post belongs to a locked/i).test(model.content)) return;
     await Promise.mapSeries(post.attachments, async (attachment) => {
       await downloadFile({
-        ddir: path.join(process.env.DB_ROOT, `/attachments/subscribestar/${post.user}/${post.id}`),
+        ddir: path.join(process.env.DB_ROOT, `/attachments/subscribestar/${post.user}/${post.id}`)
       }, {
         url: attachment.url
       })
@@ -100,7 +100,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
               path: `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`
             });
           }
-        })
+        });
     });
 
     posts.insertOne(model);

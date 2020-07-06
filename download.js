@@ -4,8 +4,9 @@ const cd = require('content-disposition');
 const crypto = require('crypto');
 const retry = require('p-retry');
 const fs = require('fs-extra');
+const mime = require('mime');
 const path = require('path');
-
+const PNG = require('png-js');
 /**
  * Wrapper for Request that automatically handles integrity checking and automatic retries when downloading files.
  * @constructor
@@ -24,12 +25,6 @@ module.exports = (opts, requestOpts = {}) => {
         .then(() => {
           request.get(requestOpts)
             .on('complete', async (res) => {
-              // content integrity
-              if (res.statusCode !== 200) reject(new Error(`Status code: ${res.statusCode}`));
-              if (res.headers['content-length']) {
-                const tempstats = await fs.stat(path.join(opts.ddir, tempname));
-                if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differ from reported'));
-              }
               // filename guessing
               const [name, ext] = opts.name ? opts.name.split('.') : (
                 res.headers['x-amz-meta-original-filename'] ? res.headers['x-amz-meta-original-filename'].split('.') : (
@@ -37,6 +32,19 @@ module.exports = (opts, requestOpts = {}) => {
                 )
               );
               const filename = `${slugify(name, { lowercase: false })}.${ext}`;
+              // content integrity
+              if (res.statusCode !== 200) return reject(new Error(`Status code: ${res.statusCode}`));
+              if (res.headers['content-length']) {
+                const tempstats = await fs.stat(path.join(opts.ddir, tempname));
+                if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differ from reported'));
+              }
+              if (mime.getType(filename) === 'image/png') {
+                try {
+                  PNG.load(path.join(opts.ddir, tempname));
+                } catch (err) {
+                  return reject(err); // corrupt png
+                }
+              }
               // move to final location
               await fs.rename(
                 path.join(opts.ddir, tempname),

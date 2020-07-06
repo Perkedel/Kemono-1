@@ -1,17 +1,14 @@
 const cloudscraper = require('cloudscraper');
 const { posts, bans } = require('../../db');
+const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
-const request = require('request');
-const retry = require('p-retry');
-const fs = require('fs-extra');
-const crypto = require('crypto');
-const ellipsize = require('ellipsize');
-const striptags = require('striptags');
+const path = require('path');
 const indexer = require('../../indexer');
-const { slugify } = require('transliteration');
-const checkForFlags = require('../../flagcheck');
+const ellipsize = require('ellipsize');
 const { unraw } = require('unraw');
+const checkForFlags = require('../../flagcheck');
+const downloadFile = require('../../download');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
   const subscribestar = await cloudscraper.get(uri, {
@@ -87,36 +84,23 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     if (model.title === 'Extend Subscription') return;
     if ((/This post belongs to a locked/i).test(model.content)) return;
     await Promise.mapSeries(post.attachments, async (attachment) => {
-      await retry(() => {
-        return new Promise((resolve, reject) => {
-          const randomKey = crypto.randomBytes(20).toString('hex');
-          fs.ensureFile(`${process.env.DB_ROOT}/attachments/subscribestar/${post.user}/${post.id}/${randomKey}`)
-            .then(() => {
-              request.get(attachment.url, { encoding: null })
-                .on('complete', data => {
-                  const filename = slugify(data.headers['x-amz-meta-original-filename'], { lowercase: false });
-                  fs.rename(
-                    `${process.env.DB_ROOT}/attachments/subscribestar/${post.user}/${post.id}/${randomKey}`,
-                    `${process.env.DB_ROOT}/attachments/subscribestar/${post.user}/${post.id}/${filename}`
-                  );
-                  if (!Object.keys(model.post_file).length) {
-                    model.post_file.name = data.headers['x-amz-meta-original-filename'];
-                    model.post_file.path = `/attachments/subscribestar/${post.user}/${post.id}/${filename}`;
-                    model.post_type = attachment.type;
-                  } else {
-                    model.attachments.push({
-                      id: String(attachment.id),
-                      name: data.headers['x-amz-meta-original-filename'],
-                      path: `/attachments/subscribestar/${post.user}/${post.id}/${filename}`
-                    });
-                  }
-                  resolve();
-                })
-                .on('error', err => reject(err))
-                .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/attachments/subscribestar/${post.user}/${post.id}/${randomKey}`));
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, `/attachments/subscribestar/${post.user}/${post.id}`),
+      }, {
+        url: attachment.url
+      })
+        .then(res => {
+          if (!Object.keys(model.post_file).length) {
+            model.post_file.path = `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`;
+            model.post_type = attachment.type;
+          } else {
+            model.attachments.push({
+              id: String(attachment.id),
+              name: res.filename,
+              path: `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`
             });
-        });
-      });
+          }
+        })
     });
 
     posts.insertOne(model);

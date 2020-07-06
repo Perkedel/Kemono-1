@@ -1,18 +1,18 @@
-const { posts, bans } = require('./db');
-const request = require('request');
+
 const cloudscraper = require('cloudscraper');
-const { slugify } = require('transliteration');
-const cd = require('content-disposition');
-const Promise = require('bluebird');
-const indexer = require('./indexer');
-const fs = require('fs-extra');
-const isImage = require('is-image');
-const mime = require('mime');
-const getUrls = require('get-urls');
-const crypto = require('crypto');
-const hasha = require('hasha');
-const { URL } = require('url');
+const { posts, bans } = require('./db');
 const retry = require('p-retry');
+const hasha = require('hasha');
+const mime = require('mime');
+const path = require('path');
+const checkForFlags = require('./flagcheck');
+const downloadFile = require('./download');
+const Promise = require('bluebird');
+const { URL } = require('url');
+const indexer = require('./indexer');
+const isImage = require('is-image');
+const getUrls = require('get-urls');
+
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
   if (!content) return '';
@@ -25,18 +25,16 @@ const sanitizePostContent = async (content) => {
     if (isImage(url.origin + url.pathname)) {
       const imageMime = mime.getType(url.origin + url.pathname);
       const filename = new Date().getTime() + '.' + mime.getExtension(imageMime);
-      await fs.ensureFile(`${process.env.DB_ROOT}/inline/${filename}`);
-      await retry(() => {
-        return new Promise(resolve => {
-          request.get({ url: val, encoding: null })
-            .on('complete', () => {
-              content = content.replace(val, `/inline/${filename}`);
-              resolve();
-            })
-            .on('error', () => resolve())
-            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/inline/${filename}`));
-        });
-      });
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, 'inline'),
+        name: filename
+      }, {
+        url: val
+      })
+        .then(() => {
+          content = content.replace(val, `/inline/${filename}`);
+        })
+        .catch(() => {});
     }
   });
   return content;
@@ -51,7 +49,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       }
     });
   });
-  Promise.map(patreon.body.data, async (post) => {
+  Promise.mapSeries(patreon.body.data, async (post) => {
     const attr = post.attributes;
     const rel = post.relationships;
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
@@ -93,20 +91,16 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     };
 
     if (attr.post_file) {
-      const fileBits = attr.post_file.name.split('.');
-      const filename = slugify(fileBits[0], { lowercase: false });
-      const ext = fileBits[fileBits.length - 1];
-      await fs.ensureFile(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`);
-      await retry(() => {
-        return new Promise((resolve, reject) => {
-          request.get({ url: attr.post_file.url, encoding: null })
-            .on('complete', () => resolve())
-            .on('error', err => reject(err))
-            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${fileKey}/${filename}.${ext}`));
-        });
-      });
-      postDb.post_file.name = attr.post_file.name;
-      postDb.post_file.path = `/${fileKey}/${filename}.${ext}`;
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, fileKey),
+        name: attr.post_file.name
+      }, {
+        url: attr.post_file.url
+      })
+        .then(res => {
+          postDb.post_file.name = attr.post_file.name;
+          postDb.post_file.path = `/${fileKey}/${res.filename}`
+        })
     }
 
     if (attr.embed) {
@@ -116,9 +110,6 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     }
 
     await Promise.map(rel.attachments.data, async (attachment) => {
-      // use content disposition
-      const randomKey = crypto.randomBytes(20).toString('hex');
-      await fs.ensureFile(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`);
       const res = await retry(() => {
         return cloudscraper.get({
           url: `https://www.patreon.com/file?h=${post.id}&i=${attachment.id}`,
@@ -131,29 +122,18 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
           }
         });
       });
-      await retry(() => {
-        return new Promise((resolve, reject) => {
-          request.get({ url: res.headers.location, encoding: null })
-            .on('complete', async (attachmentData) => {
-              const info = cd.parse(attachmentData.headers['content-disposition']);
-              const fileBits = info.parameters.filename.split('.');
-              const filename = slugify(fileBits[0], { lowercase: false });
-              const ext = fileBits[fileBits.length - 1];
-              postDb.attachments.push({
-                id: attachment.id,
-                name: info.parameters.filename,
-                path: `/${attachmentsKey}/${filename}.${ext}`
-              });
-              await fs.rename(
-                `${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`,
-                `${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`
-              );
-              resolve();
-            })
-            .on('error', err => reject(err))
-            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${randomKey}`));
-        });
-      });
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, attachmentsKey)
+      }, {
+        url: res.headers.location 
+      })
+        .then(res => {
+          postDb.attachments.push({
+            id: attachment.id,
+            name: res.filename,
+            path: `/${attachmentsKey}/${res.filename}`
+          });
+        })
     });
 
     const postData = await retry(() => {
@@ -168,22 +148,18 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
 
     await Promise.map(postData.body.included, async (includedFile, i) => {
       if (i === 0 && JSON.stringify(postDb.post_file) !== '{}') return;
-      const fileBits = includedFile.attributes.file_name.split('.');
-      const filename = slugify(fileBits[0], { lowercase: false });
-      const ext = fileBits[fileBits.length - 1];
-      await fs.ensureFile(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`);
-      await retry(() => {
-        return new Promise((resolve, reject) => {
-          request.get({ url: includedFile.attributes.download_url, encoding: null })
-            .on('complete', () => resolve())
-            .on('error', err => reject(err))
-            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${filename}.${ext}`));
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, attachmentsKey),
+        name: includedFile.attributes.file_name
+      }, {
+        url: includedFile.attributes.download_url
+      })
+        .then(res => {
+          postDb.attachments.push({
+            name: res.filename,
+            path: `/${attachmentsKey}/${res.filename}`
+          });
         });
-      });
-      postDb.attachments.push({
-        name: includedFile.attributes.file_name,
-        path: `/${attachmentsKey}/${filename}.${ext}`
-      });
     }).catch(() => {});
 
     await posts.insertOne(postDb);

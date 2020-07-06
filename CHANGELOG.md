@@ -3,7 +3,8 @@ Kemono uses [semantic versioning](https://semver.org/).
 ### v1.4.1
 - Discord importer now uses main download instead of proxy (which is usually lower quality)
 - Minor UI fixes
-- Removed proxy support (bad implementation and caused bugs)
+- Removed proxy support
+- Importers now use unified downloader with more integrity checking
 
 ### v1.4
 - New UI

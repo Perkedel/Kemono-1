@@ -6,6 +6,8 @@ const fs = require('fs-extra');
 const nl2br = require('nl2br');
 const retry = require('p-retry');
 const isImage = require('is-image');
+const path = require('path');
+const downloadFile = require('../../download');
 const random = (min, max) => Math.floor(Math.random() * (max - min) + min);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const cloudscraperWithRateLimits = (url, opts) => {
@@ -100,15 +102,13 @@ async function processChannel (id, server, key, before) {
 
     await Promise.map(msg.embeds, async (embed) => model.embeds.push(embed));
     await Promise.map(msg.attachments, async (attachment) => {
-      await fs.ensureFile(`${process.env.DB_ROOT}/${attachmentsKey}/${attachment.filename}`);
-      await retry(() => {
-        return new Promise((resolve, reject) => {
-          request.get({ url: attachment.url || attachment.proxy_url, encoding: null })
-            .on('complete', () => resolve())
-            .on('error', err => reject(err))
-            .pipe(fs.createWriteStream(`${process.env.DB_ROOT}/${attachmentsKey}/${attachment.filename}`));
-        });
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, attachmentsKey),
+        name: attachment.filename
+      }, {
+        url: attachment.url || attachment.proxy_url
       });
+      
       model.attachments.push({
         isImage: isImage(attachment.filename),
         name: attachment.filename,

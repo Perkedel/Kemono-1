@@ -3,7 +3,6 @@ const request = require('request-promise');
 const { unraw } = require('unraw');
 const cloudscraper = require('cloudscraper');
 const { posts, lookup } = require('./db');
-const proxy = require('./proxy');
 async function indexer () {
   const postsData = await posts
     .find({})
@@ -17,7 +16,7 @@ async function indexer () {
     switch (post.service) {
       case 'patreon': {
         const api = 'https://www.patreon.com/api/user';
-        const user = await proxy(`${api}/${post.user}`, { json: true }, cloudscraper);
+        const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'patreon',
@@ -28,12 +27,12 @@ async function indexer () {
       }
       case 'fanbox': {
         const api = 'https://api.fanbox.cc/creator.get?userId';
-        const user = await proxy(`${api}=${post.user}`, {
+        const user = await request.get(`${api}=${post.user}`, {
           json: true,
           headers: {
             origin: 'https://fanbox.cc'
           }
-        }, request);
+        });
         await lookup.insertOne({
           version: post.version,
           service: 'fanbox',
@@ -44,7 +43,7 @@ async function indexer () {
       }
       case 'gumroad': {
         const api = `${process.env.ORIGIN}/proxy/gumroad/user`;
-        const user = await proxy(`${api}/${post.user}`, { json: true }, cloudscraper);
+        const user = await request.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'gumroad',
@@ -55,7 +54,7 @@ async function indexer () {
       }
       case 'subscribestar': {
         const api = `${process.env.ORIGIN}/proxy/subscribestar/user`;
-        const user = await proxy(`${api}/${post.user}`, { json: true }, cloudscraper);
+        const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'subscribestar',
@@ -66,7 +65,7 @@ async function indexer () {
       }
       default: {
         const api = 'https://www.patreon.com/api/user';
-        const user = await proxy(`${api}/${post.user}`, { json: true }, cloudscraper);
+        const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'patreon',

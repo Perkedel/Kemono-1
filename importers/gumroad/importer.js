@@ -10,7 +10,6 @@ const indexer = require('../../indexer');
 const { URL } = require('url');
 const checkForFlags = require('../../flagcheck');
 const cloudscraper = require('cloudscraper');
-const proxy = require('../../proxy');
 const retry = require('p-retry');
 const apiOptions = key => {
   return {
@@ -29,7 +28,7 @@ const scrapeOptions = key => {
 };
 
 async function scraper (key) {
-  const gumroad = await proxy('https://gumroad.com/discover_search?from=1&user_purchases_only=true', apiOptions(key), cloudscraper);
+  const gumroad = await cloudscraper.get('https://gumroad.com/discover_search?from=1&user_purchases_only=true', apiOptions(key));
   if (gumroad.total > 500000) return; // not logged in
   const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
@@ -77,8 +76,8 @@ async function scraper (key) {
       post_file: {},
       attachments: []
     };
-    const productInfo = await proxy(`https://gumroad.com/links/${product.id}/user_info?fetch_purchase=true`, apiOptions(key), cloudscraper);
-    const downloadPage = await proxy(productInfo.purchase.content_url, scrapeOptions(key), cloudscraper);
+    const productInfo = await cloudscraper.get(`https://gumroad.com/links/${product.id}/user_info`, apiOptions(key));
+    const downloadPage = await cloudscraper.get(productInfo.purchase.redirect_url, scrapeOptions(key));
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail: {
         selector: '.image-preview-container img',

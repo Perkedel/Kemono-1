@@ -3,6 +3,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 ### v1.4.1
 - Discord importer now uses main download instead of proxy (which is usually lower quality)
 - Minor UI fixes
+- Removed proxy support (bad implementation and caused bugs)
 
 ### v1.4
 - New UI
@@ -45,6 +46,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Discord importer now uses messages/scroll API for faster and more efficient imports
 - Discord importer no longer requires server ID
 - Fixed skip amount of all "load more" buttons
+- More fail-resistance in importer
 
 ### v1.2.2
 - Queried fields are now properly indexed

@@ -11,7 +11,6 @@ const path = require('path');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 const getUrls = require('get-urls');
-const proxy = require('./proxy');
 const sharp = require('sharp');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
@@ -264,7 +263,7 @@ express()
     const api = 'https://www.patreon.com/api/user';
     const options = cloudscraper.defaultParams;
     options.json = true;
-    proxy(`${api}/${req.params.id}`, options, cloudscraper)
+    cloudscraper.get(`${api}/${req.params.id}`, options)
       .then(user => {
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
@@ -273,13 +272,13 @@ express()
   })
   .get('/proxy/fanbox/user/:id', (req, res) => {
     const api = 'https://api.fanbox.cc/creator.get?userId';
-    proxy(`${api}=${req.params.id}`, {
+    request.get(`${api}=${req.params.id}`, {
       json: true,
       headers: {
         origin: 'https://fanbox.cc',
         cookie: `FANBOXSESSID=${process.env.FANBOX_KEY}`
       }
-    }, request)
+    })
       .then(user => {
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
@@ -289,7 +288,7 @@ express()
   .get('/proxy/gumroad/user/:id', async (req, res) => {
     const api = 'https://gumroad.com';
     try {
-      const html = await proxy(`${api}/${req.params.id}`, {}, cloudscraper);
+      const html = await request.get(`${api}/${req.params.id}`);
       const user = scrapeIt.scrapeHTML(html, {
         background: {
           selector: '.profile-background-container.js-background-image-container img',
@@ -318,7 +317,7 @@ express()
   .get('/proxy/subscribestar/user/:id', async (req, res) => {
     const api = 'https://subscribestar.adult';
     try {
-      const html = await proxy(`${api}/${req.params.id}`, {}, cloudscraper);
+      const html = await cloudscraper(`${api}/${req.params.id}`);
       const user = scrapeIt.scrapeHTML(html, {
         background: {
           selector: '.profile_main_info-cover',

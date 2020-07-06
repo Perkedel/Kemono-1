@@ -14,8 +14,10 @@ const getUrls = require('get-urls');
 const sharp = require('sharp');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
+posts.createIndex({ user: 1, service: 1, published_at: -1 });
+posts.createIndex({ id: 1, user: 1, service: 1, published_at: -1 });
 posts.createIndex({ service: 1 }); // /random, /api/recent
-posts.createIndex({ added_at: -1 }); // /api/recent
+posts.createIndex({ service: 1, added_at: -1 }); // /api/recent
 posts.createIndex({ published_at: -1 }); // /api/:service?/:entity/:id, /api/:service?/:entity/:id/lookup, /api/:service?/:entity/:id/post/:post,
 lookup.createIndex({ service: 1, name: 1 }); // /api/lookup, /api/discord/channels/lookup
 lookup.createIndex({ id: 1, service: 1 }); // /api/lookup/cache/:id
@@ -77,6 +79,7 @@ express()
   .get('/api/recent', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
+      .hint({ service: 1, added_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
@@ -148,7 +151,7 @@ express()
     if (!req.params.service) {
       query.$or = [
         { service: 'patreon' },
-        { service: { $exists: false } }
+        { service: null }
       ];
     } else {
       query.service = req.params.service;
@@ -170,7 +173,7 @@ express()
     if (!req.params.service) {
       query.$or = [
         { service: 'patreon' },
-        { service: { $exists: false } }
+        { service: null }
       ];
     } else {
       query.service = req.params.service;
@@ -197,13 +200,14 @@ express()
     if (!req.params.service) {
       query.$or = [
         { service: 'patreon' },
-        { service: { $exists: false } }
+        { service: null }
       ];
     } else {
       query.service = req.params.service;
     }
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })
+      .hint({ id: 1, user: 1, service: 1, published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
@@ -223,7 +227,7 @@ express()
     if (!req.params.service) {
       query.$or = [
         { service: 'patreon' },
-        { service: { $exists: false } }
+        { service: null }
       ];
     } else {
       query.service = req.params.service;
@@ -246,13 +250,14 @@ express()
     if (!req.params.service) {
       query.$or = [
         { service: 'patreon' },
-        { service: { $exists: false } }
+        { service: null }
       ];
     } else {
       query.service = req.params.service;
     }
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })
+      .hint({ user: 1, service: 1, published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();

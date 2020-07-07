@@ -7,6 +7,7 @@ async function indexer () {
   const postsData = await posts
     .find({})
     .sort({ added_at: -1 })
+    .hint({ added_at: -1 })
     .project({ version: 1, user: 1, service: 1 })
     .toArray();
   Promise.mapSeries(postsData, async (post) => {

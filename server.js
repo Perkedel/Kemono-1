@@ -39,18 +39,16 @@ express()
   .get('/thumbnail/*', async (req, res) => {
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
     if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
-    const resizer = sharp({ failOnError: false, sequentialRead: true })
+    const fileExists = await fs.pathExists(file);
+    if (!fileExists || !(/\.(gif|jpe?g|png|webp|Untitled)$/i).test(file)) return res.sendStatus(404);
+    res.setHeader('Cache-Control', 'max-age=31557600, public');
+    sharp(file, { failOnError: false })
       .jpeg({ quality: 60 })
       .resize({ width: Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
       .on('error', () => {
         fs.createReadStream(file)
           .pipe(res);
-      });
-    const fileExists = await fs.pathExists(file);
-    if (!fileExists || !(/\.(gif|jpe?g|png|webp|Untitled)$/i).test(file)) return res.sendStatus(404);
-    res.setHeader('Cache-Control', 'max-age=31557600, public');
-    fs.createReadStream(file)
-      .pipe(resizer)
+      })
       .pipe(res);
   })
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))

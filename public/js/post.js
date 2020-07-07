@@ -77,6 +77,7 @@ async function main () {
   const multipost = posts.length > 1;
   posts.forEach(post => {
     let previews = '';
+    let attachments = '';
     if (post.post_type === 'image_file' || post.post_type === 'image') {
       previews += `
         <a class="fileThumb" href="${post.post_file.path}">
@@ -88,7 +89,7 @@ async function main () {
         <br>
       `;
     } else if (Object.keys(post.post_file).length !== 0) {
-      previews += `
+      attachments += `
         <a href="${post.post_file.path}" target="_blank">
           Download ${post.post_file.name}
         </a>
@@ -128,6 +129,7 @@ async function main () {
     const pageView = document.getElementById('page');
     pageView.innerHTML += `
       ${previews}
+      ${attachments}
       <h1>${post.title}</h1>
       <p>${post.content}</p>
       ${multipost ? '<hr>' : ''}

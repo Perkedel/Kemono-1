@@ -2,6 +2,10 @@ html {
   background: #1d1f21
 }
 
+body {
+  font-size: 85%;
+}
+
 .sidebar h1 {
   font-size: 1.16667em;
 }
@@ -133,6 +137,10 @@ input[type="text"]:focus {
 }
 
 /* headers */
+
+.header a, .subheader a {
+  font-size: 1.05em;
+}
 
 .subheader {
   background-color: #282a2e;

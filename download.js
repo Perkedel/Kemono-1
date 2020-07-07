@@ -36,7 +36,7 @@ module.exports = (opts, requestOpts = {}) => {
               if (res.statusCode !== 200) return reject(new Error(`Status code: ${res.statusCode}`));
               if (res.headers['content-length']) {
                 const tempstats = await fs.stat(path.join(opts.ddir, tempname));
-                if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differ from reported'));
+                if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
               }
               if (mime.getType(filename) === 'image/png') {
                 try {

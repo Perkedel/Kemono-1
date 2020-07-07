@@ -29,7 +29,7 @@ module.exports = (opts, requestOpts = {}) => {
               // filename guessing
               const extension = await FileType.fromFile(path.join(opts.ddir, tempname));
               const namedata = opts.name || res.headers['x-amz-meta-original-filename'] || res.headers['content-disposition'] ? cd.parse(res.headers['content-disposition']).parameters.filename : () => {
-                return `Untitled.${extension.ext}`;
+                return `Untitled.${extension.ext || 'Untitled'}`;
               };
               const [name, ext] = namedata.split('.');
               const filename = `${slugify(name, { lowercase: false })}.${ext}`;

@@ -1,6 +1,7 @@
 const request = require('request').defaults({ encoding: null });
 const { slugify } = require('transliteration');
 const cd = require('content-disposition');
+const FileType = require('file-type');
 const crypto = require('crypto');
 const retry = require('p-retry');
 const fs = require('fs-extra');
@@ -26,8 +27,9 @@ module.exports = (opts, requestOpts = {}) => {
           request.get(requestOpts)
             .on('complete', async (res) => {
               // filename guessing
+              const extension = await FileType.fromFile(path.join(opts.ddir, tempname))
               const namedata = opts.name || res.headers['x-amz-meta-original-filename'] || res.headers['content-disposition'] ? cd.parse(res.headers['content-disposition']).parameters.filename : () => {
-                return `Untitled.${mime.getExtension(res.headers['content-type'])}`
+                return `Untitled.${extension.ext}`
               }
               const [name, ext] = namedata.split('.')
               const filename = `${slugify(name, { lowercase: false })}.${ext}`;

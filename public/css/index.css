@@ -74,17 +74,6 @@ a:link {
   height: 200px;
 }
 
-@media only screen and (max-width : 600px) {
-  .thumb {
-    width: 140px;
-    height: 140px;
-  }
-  .content * {
-    max-width: 140px;
-    max-height: 140px;
-  }
-}
-
 .thumb-with-image {
   display: flex;
   flex-direction: column;
@@ -240,4 +229,19 @@ input[type="submit"] {
 .embed-view {
   border: 1px solid #111;
   padding: 2px;
+}
+
+/* media queries */
+@media only screen and (max-width : 600px) {
+  .thumb {
+    width: 140px;
+    height: 140px;
+  }
+  .content * {
+    max-width: 140px;
+    max-height: 140px;
+  }
+  .views {
+    display: block;
+  }
 }

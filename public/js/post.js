@@ -100,7 +100,7 @@ async function main () {
       previews += `
         <a href="${post.embed.url}" target="_blank">
           <div class="embed-view">
-            ${post.embed.subject ? `<h3>${post.embed.subject}</h3>` : ''}
+            ${post.embed.subject ? `<h3>${post.embed.subject}</h3>` : '<h3 class="subtitle">(No title)</h3>'}
             ${post.embed.description ? `<p>${post.embed.description}</p>` : ''}
           </div>
         </a>

@@ -26,11 +26,10 @@ module.exports = (opts, requestOpts = {}) => {
           request.get(requestOpts)
             .on('complete', async (res) => {
               // filename guessing
-              const [name, ext] = opts.name ? opts.name.split('.') : (
-                res.headers['x-amz-meta-original-filename'] ? res.headers['x-amz-meta-original-filename'].split('.') : (
-                  res.headers['content-disposition'] ? cd.parse(res.headers['content-disposition']).parameters.filename.split('.') : ['Untitled', 'Untitled']
-                )
-              );
+              const namedata = opts.name || res.headers['x-amz-meta-original-filename'] || res.headers['content-disposition'] ? cd.parse(res.headers['content-disposition']).parameters.filename : () => {
+                return `Untitled.${mime.getExtension(res.headers['content-type'])}`
+              }
+              const [name, ext] = namedata.split('.')
               const filename = `${slugify(name, { lowercase: false })}.${ext}`;
               // content integrity
               if (res.statusCode !== 200) return reject(new Error(`Status code: ${res.statusCode}`));

@@ -5,6 +5,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Minor UI fixes
 - Removed proxy support
 - Importers now use unified downloader with more integrity checking
+- Better query indexing
 - Changes in thumbnail generator for reduced resource usage
 
 ### v1.4

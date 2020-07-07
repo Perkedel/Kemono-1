@@ -58,6 +58,7 @@ express()
     const postsCount = await posts.countDocuments({ service: { $ne: 'discord' } });
     const random = await posts
       .find({ service: { $ne: 'discord' } })
+      .hint({ service: 1 })
       .skip(Math.random() * postsCount)
       .limit(1)
       .toArray();

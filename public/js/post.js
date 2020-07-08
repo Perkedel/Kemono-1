@@ -110,24 +110,20 @@ async function main () {
     }
 
     post.attachments.forEach(attachment => {
-      (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? () => {
-        previews += `
-          <a class="fileThumb" href="${attachment.path}">
-            <img
-              data-src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
-              src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
-            >
-          </a>
-          <br>
-        `
-      } : () => {
-        attachments += `
-          <a href="${attachment.path}" target="_blank">
-            Download ${attachment.name}
-          </a>
-          <br>
-        `
-      };
+      (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? previews += `
+        <a class="fileThumb" href="${attachment.path}">
+          <img
+            data-src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
+            src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
+          >
+        </a>
+        <br>
+      ` : attachments += `
+        <a href="${attachment.path}" target="_blank">
+          Download ${attachment.name}
+        </a>
+        <br>
+      `;
     });
 
     const pageView = document.getElementById('page');

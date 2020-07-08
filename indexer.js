@@ -5,7 +5,7 @@ const cloudscraper = require('cloudscraper');
 const { posts, lookup } = require('./db');
 async function indexer () {
   const postsData = await posts
-    .find({})
+    .find({ service: { $ne: 'discord' } })
     .sort({ added_at: -1 })
     .hint({ added_at: -1 })
     .limit(10000)

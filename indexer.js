@@ -8,6 +8,7 @@ async function indexer () {
     .find({})
     .sort({ added_at: -1 })
     .hint({ added_at: -1 })
+    .limit(10000)
     .project({ version: 1, user: 1, service: 1 })
     .toArray();
   Promise.mapSeries(postsData, async (post) => {

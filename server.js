@@ -4,14 +4,16 @@ const { post, user, server } = require('./templates');
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const bodyParser = require('body-parser');
+const readChunk = require('read-chunk');
+const imageType = require('image-type');
 const scrapeIt = require('scrape-it');
 const express = require('express');
 const fs = require('fs-extra');
+const sharp = require('sharp');
 const path = require('path');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 const getUrls = require('get-urls');
-const sharp = require('sharp');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
 posts.createIndex({ user: 1, service: 1, published_at: -1 });
@@ -41,7 +43,12 @@ express()
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
     if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
     const fileExists = await fs.pathExists(file);
-    if (!fileExists || !(/\.(gif|jpe?g|png|webp|Untitled)$/i).test(file)) return res.sendStatus(404);
+    if (!fileExists) return res.sendStatus(404);
+    let type = imageType(await readChunk(file, 0, imageType.minimumBytes))
+    let ext = type ? type.ext : ''
+    ext = ext === 'jpg' ? 'jpeg' : ext;
+    const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false
+    if (!fileSupported) return res.sendStatus(404);
     res.setHeader('Cache-Control', 'max-age=31557600, public');
     sharp(file, { failOnError: false })
       .jpeg({ quality: 60 })

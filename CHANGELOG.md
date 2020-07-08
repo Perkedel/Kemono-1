@@ -7,6 +7,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Importers now use unified downloader with more integrity checking
 - Better query indexing
 - Changes in thumbnail generator for reduced resource usage
+- Thumbnail generator now directly checks file contents instead of relying on naming
 
 ### v1.4
 - New UI

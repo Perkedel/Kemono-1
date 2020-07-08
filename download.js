@@ -28,7 +28,7 @@ module.exports = (opts, requestOpts = {}) => {
             .on('complete', async (res) => {
               // filename guessing
               const extension = await FileType.fromFile(path.join(opts.ddir, tempname));
-              const name = opts.name || res.headers['x-amz-meta-original-filename']
+              let name = opts.name || res.headers['x-amz-meta-original-filename']
               if (!name) {
                 name = res.headers['content-disposition'] ? cd.parse(res.headers['content-disposition']).parameters.filename : `Untitled.${extension.ext || 'Untitled'}`;
               }

@@ -138,7 +138,7 @@ const artists = data => shell(`
                 })[artist.service]}
               </td>
               <td>
-                <div>${transliterate(artist.name)}</div>
+                <div>${transliterate(artist.name) !== artist.name ? transliterate(artist.name) : '<span class="subtitle">(N/A)</span>'}</div>
               </td>
               <td>
                 ${({

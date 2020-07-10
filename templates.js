@@ -183,7 +183,7 @@ const user = data => shell(`
           <div id="extra-info-block"></div>
         </div>
       </div>
-      <div class="vertical-views">
+      <div id="vertical-views" class="vertical-views">
         <div class="paginator" id="paginator-top"></div>
         <div class="content" id="content"></div>
         <noscript>

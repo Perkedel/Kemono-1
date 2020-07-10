@@ -91,17 +91,8 @@ async function main () {
   const paginatorTop = document.getElementById('paginator-top');
   const paginatorBottom = document.getElementById('paginator-bottom');
   const skip = Number(getParameterByName('o')) || 0;
-  paginatorTop.innerHTML += paginatorBottom.innerHTML += `
-    <menu>
-      ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}" title="-50">«</a></li>` : '<li class="subtitle">«</li>'}
-      ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}" title="-25">‹</a></li>` : '<li class="subtitle">‹</li>'}
-      <li>offset: ${skip}</li>
-      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}" title="+25">›</a></li>
-      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}" title="+50">»</a></li>
-    </menu>
-  `;
   const pathname = window.location.pathname.split('/');
-  const mainView = document.getElementById('main');
+  const mainView = document.getElementById('vertical-views');
   let api;
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
@@ -126,6 +117,16 @@ async function main () {
           mainView.innerHTML += `
             <h1 class="subtitle">There are no posts.</h1>
             <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
+          `;
+        } else {
+          paginatorTop.innerHTML += paginatorBottom.innerHTML += `
+            <menu>
+              ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}" title="-50">«</a></li>` : '<li class="subtitle">«</li>'}
+              ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}" title="-25">‹</a></li>` : '<li class="subtitle">‹</li>'}
+              <li>offset: ${skip}</li>
+              <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}" title="+25">›</a></li>
+              <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}" title="+50">»</a></li>
+            </menu>
           `;
         }
       });

@@ -156,6 +156,7 @@ const artists = data => shell(`
     </div>
   </div>
   ${data.results.length !== 0 ? `
+    <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
     <script src="/js/artists.js"></script>
   ` : ''}

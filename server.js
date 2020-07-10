@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { posts, lookup, flags, bans } = require('./db');
-const { post, user, server } = require('./templates');
+const { artists, post, user, server } = require('./templates');
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const bodyParser = require('body-parser');
@@ -59,6 +59,26 @@ express()
           .pipe(res);
       })
       .pipe(res);
+  })
+  .get('/', (_, res) => res.redirect('/artists'))
+  .get('/artists', async (req, res) => {
+    if (!req.query.commit) return res.send(artists({ results: [], query: req.query }))
+    let query = {
+      name: {
+        $regex: esc(req.query.q || ''),
+        $options: 'i'
+      }
+    };
+    if (req.query.service) query['service'] = req.query.service;
+    let sort = {};
+    if (req.query.sort_by) sort[req.query.sort_by] = req.query.order === 'asc' ? 1 : -1;
+    const index = await lookup
+      .find(query)
+      .sort(sort)
+      .limit(Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50)
+      .toArray();
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
+    res.send(artists({ results: index, query: req.query, url: req.originalUrl }))
   })
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))

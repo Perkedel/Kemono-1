@@ -1,4 +1,4 @@
-const { transliterate } = require('transliteration')
+const { transliterate } = require('transliteration');
 
 const shell = (html, props = {}) => `
   <!DOCTYPE html>
@@ -30,7 +30,7 @@ const header = data => `
 `;
 
 const subheader = data => ({
-  'posts': `
+  posts: `
     <ul class="subheader">
       <li><a href="/posts">List</a></li>
       <li><a href="/importer">Import</a></li>
@@ -38,7 +38,7 @@ const subheader = data => ({
       <li><a href="/help/posts">Help</a></li>
     </ul>
   `,
-  'artists': `
+  artists: `
     <ul class="subheader">
       <li><a href="">List</a></li>
     </ul>
@@ -130,11 +130,11 @@ const artists = data => shell(`
               </td>
               <td>
                 ${({
-                  'patreon': `<a href="/user/${artist.id}">${artist.name}</a>`,
-                  'fanbox': `<a href="/fanbox/user/${artist.id}">${artist.name}</a>`,
-                  'subscribestar': `<a href="/subscribestar/user/${artist.id}">${artist.name}</a>`,
-                  'gumroad': `<a href="/gumroad/user/${artist.id}">${artist.name}</a>`,
-                  'discord': `<a href="/discord/server/${artist.id}">${artist.name}</a>`
+                  patreon: `<a href="/user/${artist.id}">${artist.name}</a>`,
+                  fanbox: `<a href="/fanbox/user/${artist.id}">${artist.name}</a>`,
+                  subscribestar: `<a href="/subscribestar/user/${artist.id}">${artist.name}</a>`,
+                  gumroad: `<a href="/gumroad/user/${artist.id}">${artist.name}</a>`,
+                  discord: `<a href="/discord/server/${artist.id}">${artist.name}</a>`
                 })[artist.service]}
               </td>
               <td>
@@ -142,11 +142,11 @@ const artists = data => shell(`
               </td>
               <td>
                 ${({
-                  'patreon': 'Patreon',
-                  'fanbox': 'Pixiv Fanbox',
-                  'subscribestar': 'SubscribeStar',
-                  'gumroad': 'Gumroad',
-                  'discord': 'Discord'
+                  patreon: 'Patreon',
+                  fanbox: 'Pixiv Fanbox',
+                  subscribestar: 'SubscribeStar',
+                  gumroad: 'Gumroad',
+                  discord: 'Discord'
                 })[artist.service]}
               </td>
             </tr>

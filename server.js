@@ -44,10 +44,10 @@ express()
     if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
     const fileExists = await fs.pathExists(file);
     if (!fileExists) return res.sendStatus(404);
-    let type = imageType(await readChunk(file, 0, imageType.minimumBytes))
-    let ext = type ? type.ext : ''
+    const type = imageType(await readChunk(file, 0, imageType.minimumBytes));
+    let ext = type ? type.ext : '';
     ext = ext === 'jpg' ? 'jpeg' : ext;
-    const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false
+    const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false;
     if (!fileSupported) return res.sendStatus(404);
     res.setHeader('Cache-Control', 'max-age=31557600, public');
     sharp(file, { failOnError: false })
@@ -62,15 +62,15 @@ express()
   })
   .get('/', (_, res) => res.redirect('/artists'))
   .get('/artists', async (req, res) => {
-    if (!req.query.commit) return res.send(artists({ results: [], query: req.query }))
-    let query = {
+    if (!req.query.commit) return res.send(artists({ results: [], query: req.query }));
+    const query = {
       name: {
         $regex: esc(req.query.q || ''),
         $options: 'i'
       }
     };
-    if (req.query.service) query['service'] = req.query.service;
-    let sort = {};
+    if (req.query.service) query.service = req.query.service;
+    const sort = {};
     if (req.query.sort_by) sort[req.query.sort_by] = req.query.order === 'asc' ? 1 : -1;
     const index = await lookup
       .find(query)
@@ -78,7 +78,7 @@ express()
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.send(artists({ results: index, query: req.query, url: req.originalUrl }))
+    res.send(artists({ results: index, query: req.query, url: req.originalUrl }));
   })
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))

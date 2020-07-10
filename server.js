@@ -52,7 +52,7 @@ express()
     res.setHeader('Cache-Control', 'max-age=31557600, public');
     sharp(file, { failOnError: false })
       .jpeg({ quality: 60 })
-      .resize({ width: Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
+      .resize({ width: Number(req.query.limit) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
       .setMaxListeners(250)
       .on('error', () => {
         fs.createReadStream(file)
@@ -75,7 +75,7 @@ express()
     const index = await lookup
       .find(query)
       .sort(sort)
-      .limit(Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.send(artists({ results: index, query: req.query, url: req.originalUrl }))
@@ -109,7 +109,7 @@ express()
       .sort({ added_at: -1 })
       .hint({ service: 1, added_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
@@ -149,7 +149,7 @@ express()
           $options: 'i'
         }
       })
-      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .map(user => user.id)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
@@ -162,7 +162,7 @@ express()
         service: 'discord-channel',
         server: req.query.q
       })
-      .limit(Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index);
@@ -187,7 +187,7 @@ express()
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
@@ -237,7 +237,7 @@ express()
       .sort({ published_at: -1 })
       .hint({ id: 1, user: 1, service: 1, published_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
@@ -287,7 +287,7 @@ express()
       .sort({ published_at: -1 })
       .hint({ user: 1, service: 1, published_at: -1 })
       .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);

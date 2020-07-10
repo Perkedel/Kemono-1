@@ -40,8 +40,8 @@ const thumbHTML = data => `
   </a>
 `;
 
+const contentView = document.getElementById('content');
 function renderPost (post) {
-  const contentView = document.getElementById('content');
   let parent = false;
   // if you couldn't tell, i'm very bad at regex
   const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];

@@ -44,11 +44,6 @@ body {
   margin: auto;
 }
 
-.messages {
-  display: flex;
-  flex-direction: column;
-}
-
 .message-container {
   display: flex;
 }

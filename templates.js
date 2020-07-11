@@ -185,6 +185,7 @@ const user = data => shell(`
       </div>
       <div class="vertical-views">
         <div class="paginator" id="paginator-top"></div>
+        <div id="no-posts"></div>
         <div class="content" id="content"></div>
         <noscript>
           <h1 class="subtitle">Javascript is disabled.</h1>

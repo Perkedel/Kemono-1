@@ -101,7 +101,7 @@ async function main () {
     </menu>
   `;
   const pathname = window.location.pathname.split('/');
-  const mainView = document.getElementById('main');
+  const noPosts = document.getElementById('no-posts');
   let api;
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
@@ -123,7 +123,7 @@ async function main () {
       .node('!.*', post => renderPost(post))
       .done(posts => {
         if (posts.length === 0) {
-          mainView.innerHTML += `
+          noPosts.innerHTML += `
             <h1 class="subtitle">There are no posts.</h1>
             <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
           `;

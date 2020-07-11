@@ -1,6 +1,5 @@
 require('dotenv').config();
 const { posts, lookup, flags, bans } = require('./db');
-const { artists, post, user, server } = require('./templates');
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const bodyParser = require('body-parser');
@@ -11,6 +10,7 @@ const express = require('express');
 const fs = require('fs-extra');
 const sharp = require('sharp');
 const path = require('path');
+const { artists, post, user, server, recent } = require('./views');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 const getUrls = require('get-urls');
@@ -82,6 +82,19 @@ express()
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.send(artists({ results: index, query: req.query, url: req.originalUrl }));
+  })
+  .get('/posts', async (req, res) => {
+    const recentPosts = await posts.find({ service: { $ne: 'discord' } })
+      .sort({ added_at: -1 })
+      .hint({ service: 1, added_at: -1 })
+      .skip(Number(req.query.o) || 0)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
+      .toArray();
+    res.send(recent({
+      posts: recentPosts,
+      query: req.query,
+      url: req.path
+    }))
   })
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
@@ -380,21 +393,59 @@ express()
     res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
     res.json(index);
   })
-  .get('/:service?/:type/:id', (req, res) => {
+  .get('/:service?/:type/:id', async (req, res) => {
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     switch (req.params.type) {
       case 'user':
-        res.send(user({ service: req.params.service || 'patreon' }));
+        const query = {};
+        query[req.params.type] = req.params.id;
+        if (!req.params.service) {
+          query.$or = [
+            { service: 'patreon' },
+            { service: null }
+          ];
+        } else {
+          query.service = req.params.service;
+        }
+        const userPosts = await posts.find(query)
+          .sort({ published_at: -1 })
+          .hint({ user: 1, service: 1, published_at: -1 })
+          .skip(Number(req.query.o) || 0)
+          .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+          .toArray();
+        res.type('html').send(user({
+          service: req.params.service || 'patreon',
+          posts: userPosts,
+          query: req.query,
+          url: req.path
+        }));
         break;
       case 'server':
-        res.send(server());
+        res.type('html').send(server());
         break;
       default:
         res.sendStatus(404);
     }
   })
-  .get('/:service?/:type/:id/post/:post', (req, res) => {
+  .get('/:service?/:type/:id/post/:post', async (req, res) => {
+    const query = { id: req.params.post };
+    query[req.params.type] = req.params.id;
+    if (!req.params.service) {
+      query.$or = [
+        { service: 'patreon' },
+        { service: null }
+      ];
+    } else {
+      query.service = req.params.service;
+    }
+    const userPosts = await posts.find(query)
+      .sort({ published_at: -1 })
+      .hint({ id: 1, user: 1, service: 1, published_at: -1 })
+      .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.send(post({ service: req.params.service || 'patreon' }));
+    res.type('html').send(post({
+      posts: userPosts,
+      service: req.params.service || 'patreon'
+    }));
   })
   .listen(process.env.PORT || 8000);

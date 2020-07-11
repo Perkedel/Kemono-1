@@ -87,50 +87,7 @@ function loadUserInfo () {
   }
 }
 
-async function main () {
-  const paginatorTop = document.getElementById('paginator-top');
-  const paginatorBottom = document.getElementById('paginator-bottom');
-  const skip = Number(getParameterByName('o')) || 0;
-  paginatorTop.innerHTML += paginatorBottom.innerHTML += `
-    <menu>
-      ${skip >= 50 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 50}" title="-50">«</a></li>` : '<li class="subtitle">«</li>'}
-      ${skip >= 25 ? `<li><a href="${window.location.href.split('?')[0]}?o=${skip - 25}" title="-25">‹</a></li>` : '<li class="subtitle">‹</li>'}
-      <li>offset: ${skip}</li>
-      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 25}" title="+25">›</a></li>
-      <li><a href="${window.location.href.split('?')[0]}?o=${skip + 50}" title="+50">»</a></li>
-    </menu>
-  `;
-  const pathname = window.location.pathname.split('/');
-  const noPosts = document.getElementById('no-posts');
-  let api;
-  switch (document.getElementsByName('service')[0].content) {
-    case 'patreon':
-      api = `/api/user/${pathname[2]}?skip=${skip}`;
-      break;
-    case 'fanbox':
-      api = `/api/fanbox/user/${pathname[3]}?skip=${skip}`;
-      break;
-    case 'gumroad':
-      api = `/api/gumroad/user/${pathname[3]}?skip=${skip}`;
-      break;
-    case 'subscribestar':
-      api = `/api/subscribestar/user/${pathname[3]}?skip=${skip}`;
-      break;
-  }
-
-  require(['oboe'], oboe => {
-    oboe(api)
-      .node('!.*', post => renderPost(post))
-      .done(posts => {
-        if (posts.length === 0) {
-          noPosts.innerHTML += `
-            <h1 class="subtitle">There are no posts.</h1>
-            <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
-          `;
-        }
-      });
-  });
-
+function main () {
   loadUserInfo();
   document.getElementById('search-input').addEventListener('keyup', debounce(() => loadQuery(), 350));
 }

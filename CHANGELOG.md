@@ -9,6 +9,7 @@ Kemono uses [semantic versioning](https://semver.org/).
 - Better query indexing
 - Changes in thumbnail generator for reduced resource usage
 - Thumbnail generator now directly checks file contents instead of relying on naming
+- Fix Discord CSS
 
 ### v1.4
 - New UI

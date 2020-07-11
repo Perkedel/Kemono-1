@@ -64,12 +64,15 @@ express()
   .get('/artists', async (req, res) => {
     if (!req.query.commit) return res.send(artists({ results: [], query: req.query }));
     const query = {
+      $and: [
+        { service: { $ne: 'discord-channel' } }
+      ],
       name: {
         $regex: esc(req.query.q || ''),
         $options: 'i'
       }
     };
-    if (req.query.service) query.service = req.query.service;
+    if (req.query.service) query.$and.push({ service: req.query.service });
     const sort = {};
     if (req.query.sort_by) sort[req.query.sort_by] = req.query.order === 'asc' ? 1 : -1;
     const index = await lookup

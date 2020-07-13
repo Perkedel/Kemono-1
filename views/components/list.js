@@ -1,12 +1,12 @@
-const { preview } = require('./preview')
-const { paginator } = require('./paginator')
+const { preview } = require('./preview');
+const { paginator } = require('./paginator');
 
 const list = props => `
   <div class="vertical-views">
     <div class="paginator" id="paginator-top">
       ${paginator({
         o: props.o,
-        url: props.url 
+        url: props.url
       })}
     </div>
     <div id="no-posts">
@@ -21,10 +21,10 @@ const list = props => `
     <div class="paginator" id="paginator-bottom">
       ${paginator({
         o: props.o,
-        url: props.url 
+        url: props.url
       })}
     </div>
   </div> 
-`
+`;
 
 module.exports = { list };

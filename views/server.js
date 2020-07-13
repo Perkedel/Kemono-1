@@ -1,4 +1,4 @@
-const { shell } = require('./components')
+const { shell } = require('./components');
 
 const server = () => shell(`
   <div class="discord-main">

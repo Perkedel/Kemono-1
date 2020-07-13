@@ -1,4 +1,4 @@
-const { shell, header, subheader, list } = require('./components')
+const { shell, header, subheader, list } = require('./components');
 
 const recent = props => shell(`
   <div class="main">

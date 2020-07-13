@@ -1,4 +1,4 @@
-const { shell, header, subheader } = require('./components')
+const { shell, header, subheader } = require('./components');
 const { transliterate } = require('transliteration');
 
 const artists = data => shell(`

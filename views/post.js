@@ -1,4 +1,4 @@
-const { shell, header, subheader } = require('./components')
+const { shell, header, subheader } = require('./components');
 
 const post = props => shell(`
   <div class="main">
@@ -32,7 +32,7 @@ const post = props => shell(`
               <br>
             `;
           }
-        
+
           if (post.embed && Object.keys(post.embed).length !== 0) {
             previews += `
               <a href="${post.embed.url}" target="_blank">
@@ -44,7 +44,7 @@ const post = props => shell(`
               <br>
             `;
           }
-        
+
           post.attachments.forEach(attachment => {
             (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? previews += `
               <a class="fileThumb" href="${attachment.path}">
@@ -61,7 +61,7 @@ const post = props => shell(`
               <br>
             `;
           });
-        
+
           return `
             ${previews}
             ${attachments}

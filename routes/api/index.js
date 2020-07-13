@@ -1,5 +1,6 @@
 const { posts, lookup, flags, bans } = require('../../db');
 const fs = require('fs-extra');
+const path = require('path');
 const esc = require('escape-string-regexp');
 
 const express = require('express');
@@ -198,6 +199,6 @@ router
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
-  })
+  });
 
 module.exports = router;

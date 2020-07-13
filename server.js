@@ -100,7 +100,7 @@ express()
         posts: recentPosts,
         query: req.query,
         url: req.path
-      }))
+      }));
   })
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
@@ -124,7 +124,7 @@ express()
   .get('/:service?/:type/:id', async (req, res) => {
     res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     switch (req.params.type) {
-      case 'user':
+      case 'user': {
         const query = {};
         query[req.params.type] = req.params.id;
         if (!req.params.service) {
@@ -149,6 +149,7 @@ express()
             url: req.path
           }));
         break;
+      }
       case 'server':
         res.type('html')
           .send(server());

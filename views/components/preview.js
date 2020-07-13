@@ -37,6 +37,6 @@ const preview = props => {
     href: href
   });
   return html;
-}
+};
 
 module.exports = { preview };

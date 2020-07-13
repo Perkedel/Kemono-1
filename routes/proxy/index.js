@@ -92,6 +92,6 @@ router
       .toArray();
     res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
     res.json(index);
-  })
+  });
 
 module.exports = router;

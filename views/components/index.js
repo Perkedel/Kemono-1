@@ -7,5 +7,5 @@ module.exports = {
   subheader,
   header,
   shell,
-  list,
+  list
 };

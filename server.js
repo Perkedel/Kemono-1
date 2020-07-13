@@ -59,7 +59,7 @@ express()
       })
       .pipe(res);
   })
-  .get('/', (_, res) => res.redirect('/artists'))
+  .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
   .get('/artists', async (req, res) => {
     if (!req.query.commit) return res.send(artists({ results: [], query: req.query }));
     const query = {
@@ -79,8 +79,13 @@ express()
       .sort(sort)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50)
       .toArray();
-    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.send(artists({ results: index, query: req.query, url: req.originalUrl }));
+    res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+      .type('html')
+      .send(artists({
+        results: index,
+        query: req.query,
+        url: req.originalUrl
+      }));
   })
   .get('/posts', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })
@@ -89,11 +94,13 @@ express()
       .skip(Number(req.query.o) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
-    res.send(recent({
-      posts: recentPosts,
-      query: req.query,
-      url: req.path
-    }))
+    res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+      .type('html')
+      .send(recent({
+        posts: recentPosts,
+        query: req.query,
+        url: req.path
+      }))
   })
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
@@ -106,16 +113,16 @@ express()
       .skip(Math.random() * postsCount)
       .limit(1)
       .toArray();
-    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000');
-    res.redirect(path.join(
-      '/',
-      random[0].service === 'patreon' || !random[0].service ? '' : random[0].service,
-      'user', random[0].user,
-      'post', random[0].id
-    ));
+    res.set('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
+      .redirect(path.join(
+        '/',
+        random[0].service === 'patreon' || !random[0].service ? '' : random[0].service,
+        'user', random[0].user,
+        'post', random[0].id
+      ));
   })
   .get('/:service?/:type/:id', async (req, res) => {
-    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
+    res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     switch (req.params.type) {
       case 'user':
         const query = {};
@@ -134,15 +141,17 @@ express()
           .skip(Number(req.query.o) || 0)
           .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
           .toArray();
-        res.type('html').send(user({
-          service: req.params.service || 'patreon',
-          posts: userPosts,
-          query: req.query,
-          url: req.path
-        }));
+        res.type('html')
+          .send(user({
+            service: req.params.service || 'patreon',
+            posts: userPosts,
+            query: req.query,
+            url: req.path
+          }));
         break;
       case 'server':
-        res.type('html').send(server());
+        res.type('html')
+          .send(server());
         break;
       default:
         res.sendStatus(404);
@@ -163,10 +172,11 @@ express()
       .sort({ published_at: -1 })
       .hint({ id: 1, user: 1, service: 1, published_at: -1 })
       .toArray();
-    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.type('html').send(post({
-      posts: userPosts,
-      service: req.params.service || 'patreon'
-    }));
+    res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+      .type('html')
+      .send(post({
+        posts: userPosts,
+        service: req.params.service || 'patreon'
+      }));
   })
   .listen(process.env.PORT || 8000);

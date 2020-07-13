@@ -1,5 +1,4 @@
 function attemptFlag (e, api) {
-  e.preventDefault();
   if (confirm('Are you sure you want to flag this post for reimport?')) {
     fetch(api, { method: 'post' })
       .then(res => {
@@ -68,10 +67,10 @@ async function main () {
         </li>
       ` : `
         <li>
-          <a href="" id="flag-button">Flag for reimport</a>
+          <a href="javascript:;" id="flag-button">Flag for reimport</a>
         </li>
       `;
-      document.getElementById('flag-button').addEventListener('click', e => attemptFlag(e, flagApi));
+      if (!res.ok) document.getElementById('flag-button').addEventListener('click', e => attemptFlag(e, flagApi));
     });
 }
 

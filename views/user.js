@@ -32,6 +32,6 @@ const user = props => shell(`
   <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
   <script src="/js/utils.js"></script>
   <script src="/js/user.js"></script>
-`, { service: props.service });
+`, { service: props.service, count: props.count });
 
 module.exports = { user };

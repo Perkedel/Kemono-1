@@ -1,7 +1,8 @@
 Kemono uses [semantic versioning](https://semver.org/).
 
-### v1.4.1
+### v2.0
 - "Artists" tab
+- Missing content indicator
 - Pages are now server-side rendered
 - Discord importer now uses main download instead of proxy (which is usually lower quality)
 - Minor UI fixes

@@ -82,6 +82,11 @@ function loadUserInfo () {
           <li>
             CUF Enabled: ${user.included[0].attributes.is_charge_upfront ? 'Yes' : '<span style="color: #0f0">No</span>'}
           </li>
+          <li>
+            ${user.included[0].attributes.creation_count > Number(document.getElementsByName('count')[0].content) ? `
+              <span style="color:#cc0">Missing ${user.included[0].attributes.creation_count - Number(document.getElementsByName('count')[0].content)} posts</span>
+            ` : '<span style="color:#0f0">Up to date</span>'}
+          </li>
         `;
       });
   }

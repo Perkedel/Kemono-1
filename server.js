@@ -141,8 +141,10 @@ express()
           .skip(Number(req.query.o) || 0)
           .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
           .toArray();
+        const userUniqueIds = await posts.distinct('id', query);
         res.type('html')
           .send(user({
+            count: userUniqueIds.length,
             service: req.params.service || 'patreon',
             posts: userPosts,
             query: req.query,

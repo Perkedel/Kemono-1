@@ -73,8 +73,8 @@ async function scraper (key) {
       post_file: {},
       attachments: []
     };
-    const productInfo = await cloudscraper.get(`https://gumroad.com/links/${product.id}/user_info`, apiOptions(key));
-    const downloadPage = await cloudscraper.get(productInfo.purchase.redirect_url, scrapeOptions(key));
+    const productInfo = await cloudscraper.get(`https://gumroad.com/links/${product.id}/user_info?fetch_purchase=true`, apiOptions(key));
+    const downloadPage = await cloudscraper.get(productInfo.purchase.content_url, scrapeOptions(key));
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail: {
         selector: '.image-preview-container img',

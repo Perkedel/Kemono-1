@@ -155,7 +155,13 @@ router
     const flagQuery = { id: req.params.post, service: service };
     flagQuery[req.params.entity] = req.params.id;
     res.setHeader('Cache-Control', 'max-age=60, public, no-cache');
-    return await flags.findOne(flagQuery) ? res.sendStatus(200) : res.sendStatus(404);
+    return await flags.findOne(flagQuery, {
+      hint: {
+        id: 1,
+        service: 1,
+        user: 1
+      }
+    }) ? res.sendStatus(200) : res.sendStatus(404);
   })
   .post('/:service?/:entity/:id/post/:post/flag', async (req, res) => {
     const query = { id: req.params.post };

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { posts, lookup } = require('./db');
+const { posts, lookup, flags } = require('./db');
 const { api, proxy } = require('./routes');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
@@ -14,6 +14,7 @@ const indexer = require('./indexer');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
 posts.createIndex({ user: 1, service: 1, published_at: -1 });
+posts.createIndex({ id: 1, user: 1, service: 1 });
 posts.createIndex({ id: 1, user: 1, service: 1, published_at: -1 });
 posts.createIndex({ service: 1 }); // /random, /api/recent
 posts.createIndex({ service: 1, added_at: -1 }); // /api/recent
@@ -21,6 +22,7 @@ posts.createIndex({ added_at: -1 }); // indexer
 posts.createIndex({ published_at: -1 }); // /api/:service?/:entity/:id, /api/:service?/:entity/:id/lookup, /api/:service?/:entity/:id/post/:post,
 lookup.createIndex({ service: 1, name: 1 }); // /api/lookup, /api/discord/channels/lookup
 lookup.createIndex({ id: 1, service: 1 }); // /api/lookup/cache/:id
+flags.createIndex({ id: 1, service: 1, user: 1 })
 sharp.cache(false);
 indexer();
 

@@ -12,15 +12,8 @@ const { artists, post, user, server, recent } = require('./views');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
-posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
-posts.createIndex({ user: 1, service: 1, published_at: -1 });
-posts.createIndex({ id: 1, user: 1, service: 1, published_at: -1 });
-posts.createIndex({ service: 1 }); // /random, /api/recent
-posts.createIndex({ service: 1, added_at: -1 }); // /api/recent
-posts.createIndex({ added_at: -1 }); // indexer
-posts.createIndex({ published_at: -1 }); // /api/:service?/:entity/:id, /api/:service?/:entity/:id/lookup, /api/:service?/:entity/:id/post/:post,
-lookup.createIndex({ service: 1, name: 1 }); // /api/lookup, /api/discord/channels/lookup
-lookup.createIndex({ id: 1, service: 1 }); // /api/lookup/cache/:id
+posts.createIndex({ '$**' : 1 });
+lookup.createIndex({ '$**' : 1 });
 sharp.cache(false);
 indexer();
 
@@ -90,7 +83,6 @@ express()
   .get('/posts', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
-      .hint({ service: 1, added_at: -1 })
       .skip(Number(req.query.o) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
@@ -109,7 +101,6 @@ express()
     const postsCount = await posts.countDocuments({ service: { $ne: 'discord' } });
     const random = await posts
       .find({ service: { $ne: 'discord' } })
-      .hint({ service: 1 })
       .skip(Math.random() * postsCount)
       .limit(1)
       .toArray();
@@ -137,7 +128,6 @@ express()
         }
         const userPosts = await posts.find(query)
           .sort({ published_at: -1 })
-          .hint({ user: 1, service: 1, published_at: -1 })
           .skip(Number(req.query.o) || 0)
           .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
           .toArray();
@@ -173,7 +163,6 @@ express()
     }
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })
-      .hint({ id: 1, user: 1, service: 1, published_at: -1 })
       .toArray();
     res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
       .type('html')

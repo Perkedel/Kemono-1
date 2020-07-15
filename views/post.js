@@ -14,8 +14,8 @@ const post = props => shell(`
         ${props.posts.map(post => {
           let previews = '';
           let attachments = '';
-          if (post.post_type === 'image_file' || post.post_type === 'image') {
-            previews += `
+          if (Object.keys(post.post_file).length !== 0) {
+            post.post_type === 'image_file' || post.post_type === 'image' ? previews += `
               <a class="fileThumb" href="${post.post_file.path}">
                 <img
                   data-src="/thumbnail${post.post_file.path.replace('https://kemono.party', '')}"
@@ -23,9 +23,7 @@ const post = props => shell(`
                 >
               </a>
               <br>
-            `;
-          } else if (Object.keys(post.post_file).length !== 0) {
-            attachments += `
+            ` : attachments += `
               <a href="${post.post_file.path}" target="_blank">
                 Download ${post.post_file.name}
               </a>

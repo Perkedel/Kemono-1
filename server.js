@@ -14,22 +14,10 @@ const indexer = require('./indexer');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
 posts.createIndex({ user: 1, service: 1, published_at: -1 });
-posts.createIndex({ id: 1, user: 1, service: 1 }); // distinct
+posts.createIndex({ id: 1, user: 1, service: 1 });
 posts.createIndex({ id: 1, user: 1, service: 1, published_at: -1 });
 posts.createIndex({ service: 1 }); // /random, /api/recent
 posts.createIndex({ service: 1, added_at: -1 }); // /api/recent
-posts.createIndex({
-  service: 1,
-  added_at: -1,
-  content: 1,
-  user: 1,
-  id: 1,
-  attachments: 1,
-  post_type: 1,
-  post_file: 1,
-  title: 1,
-  content: 1
-});
 posts.createIndex({ added_at: -1 }); // indexer
 posts.createIndex({ published_at: -1 }); // /api/:service?/:entity/:id, /api/:service?/:entity/:id/lookup, /api/:service?/:entity/:id/post/:post,
 lookup.createIndex({ service: 1, name: 1 }); // /api/lookup, /api/discord/channels/lookup
@@ -102,33 +90,9 @@ express()
       }));
   })
   .get('/posts', async (req, res) => {
-    const recentPosts = await posts.find({ service: { $ne: 'discord' } }, {
-      projection: {
-        _id: 0,
-        content: 1,
-        service: 1,
-        user: 1,
-        id: 1,
-        attachments: 1,
-        post_type: 1,
-        post_file: 1,
-        title: 1,
-        content: 1
-      }
-    })
+    const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
-      .hint({
-        service: 1,
-        added_at: -1,
-        content: 1,
-        user: 1,
-        id: 1,
-        attachments: 1,
-        post_type: 1,
-        post_file: 1,
-        title: 1,
-        content: 1
-      })
+      .hint({ service: 1, added_at: -1 })
       .skip(Number(req.query.o) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();

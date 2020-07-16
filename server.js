@@ -14,6 +14,7 @@ const indexer = require('./indexer');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
 posts.createIndex({ user: 1, service: 1, published_at: -1 });
+posts.createIndex({ channel: 1, service: 1 });
 posts.createIndex({ id: 1, user: 1, service: 1 });
 posts.createIndex({ id: 1, user: 1, service: 1, published_at: -1 });
 posts.createIndex({ service: 1 }); // /random, /api/recent

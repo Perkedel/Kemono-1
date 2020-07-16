@@ -15,7 +15,6 @@ router
   .get('/recent', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
-      .hint({ service: 1, added_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
@@ -143,7 +142,6 @@ router
     }
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })
-      .hint({ id: 1, user: 1, service: 1, published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();
@@ -155,13 +153,7 @@ router
     const flagQuery = { id: req.params.post, service: service };
     flagQuery[req.params.entity] = req.params.id;
     res.setHeader('Cache-Control', 'max-age=60, public, no-cache');
-    return await flags.findOne(flagQuery, {
-      hint: {
-        id: 1,
-        service: 1,
-        user: 1
-      }
-    }) ? res.sendStatus(200) : res.sendStatus(404);
+    return await flags.findOne(flagQuery) ? res.sendStatus(200) : res.sendStatus(404);
   })
   .post('/:service?/:entity/:id/post/:post/flag', async (req, res) => {
     const query = { id: req.params.post };
@@ -199,7 +191,6 @@ router
     }
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })
-      .hint({ user: 1, service: 1, published_at: -1 })
       .skip(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       .toArray();

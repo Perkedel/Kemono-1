@@ -92,7 +92,6 @@ express()
   .get('/posts', async (req, res) => {
     const recentPosts = await posts.find({ service: { $ne: 'discord' } })
       .sort({ added_at: -1 })
-      .hint({ service: 1, added_at: -1 })
       .skip(Number(req.query.o) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
       .toArray();
@@ -111,7 +110,6 @@ express()
     const postsCount = await posts.countDocuments({ service: { $ne: 'discord' } });
     const random = await posts
       .find({ service: { $ne: 'discord' } })
-      .hint({ service: 1 })
       .skip(Math.random() * postsCount)
       .limit(1)
       .toArray();
@@ -139,7 +137,6 @@ express()
         }
         const userPosts = await posts.find(query)
           .sort({ published_at: -1 })
-          .hint({ user: 1, service: 1, published_at: -1 })
           .skip(Number(req.query.o) || 0)
           .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
           .toArray();
@@ -175,7 +172,6 @@ express()
     }
     const userPosts = await posts.find(query)
       .sort({ published_at: -1 })
-      .hint({ id: 1, user: 1, service: 1, published_at: -1 })
       .toArray();
     res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
       .type('html')

@@ -7,7 +7,6 @@ async function indexer () {
   const postsData = await posts
     .find({ service: { $ne: 'discord' } })
     .sort({ added_at: -1 })
-    .hint({ service: 1, added_at: -1 })
     .limit(10000)
     .project({ version: 1, user: 1, service: 1 })
     .toArray();

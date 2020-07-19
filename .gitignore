@@ -4,6 +4,7 @@ files/
 attachments/
 inline/
 board/
+!/routes/board
 threads/
 node_modules/
 .env

@@ -3,6 +3,8 @@
 files/
 attachments/
 inline/
+board/
 threads/
 node_modules/
 .env
+yarn-error.log

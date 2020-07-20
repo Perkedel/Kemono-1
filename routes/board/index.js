@@ -67,6 +67,7 @@ router
     setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600, no-cache')
   }))
   .get('/', async (_, res) => {
+    await fs.ensureDir(path.join(process.env.DB_ROOT, 'board', 'threads'));
     const latest = await getLatestModifiedFiles(path.join(process.env.DB_ROOT, 'board', 'threads'));
     const latestData = await Promise.mapSeries(latest.slice(0, 25), async (threadId) => {
       const threadHtml = await fs.readFile(path.join(process.env.DB_ROOT, 'board', 'threads', `${threadId}.html`), 'utf8');

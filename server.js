@@ -24,7 +24,7 @@ posts.createIndex({ added_at: -1 }); // indexer
 posts.createIndex({ published_at: -1 }); // /api/:service?/:entity/:id, /api/:service?/:entity/:id/lookup, /api/:service?/:entity/:id/post/:post,
 lookup.createIndex({ service: 1, name: 1 }); // /api/lookup, /api/discord/channels/lookup
 lookup.createIndex({ id: 1, service: 1 }); // /api/lookup/cache/:id
-flags.createIndex({ id: 1, service: 1, user: 1 })
+flags.createIndex({ id: 1, service: 1, user: 1 });
 sharp.cache(false);
 indexer();
 

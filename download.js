@@ -52,7 +52,7 @@ module.exports = (opts, requestOpts = {}) => {
               } catch (err) {
                 return reject(err); // corrupt png
               }
-              
+
               // move to final location
               await fs.rename(
                 path.join(opts.ddir, tempname),

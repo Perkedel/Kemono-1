@@ -8,11 +8,11 @@ const nu = () => shell(`
     <div class="page" id="page">
       <h1>New thread</h1>
       ${form({
-        action: `/board/new`,
+        action: '/board/new',
         op: true
       })}
     </div>
   </div>
-`)
+`);
 
 module.exports = { nu };

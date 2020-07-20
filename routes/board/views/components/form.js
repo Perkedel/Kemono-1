@@ -53,6 +53,6 @@ const form = props => `
     </div>
     <input type="submit"/>
   </form>
-`
+`;
 
 module.exports = { form };

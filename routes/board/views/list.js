@@ -35,6 +35,6 @@ const list = props => shell(`
       </table>
     </div>
   </div>
-`)
+`);
 
 module.exports = { list };

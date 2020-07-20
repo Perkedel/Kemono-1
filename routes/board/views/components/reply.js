@@ -1,5 +1,5 @@
 const dfmt = require('dateformat');
-dfmt.masks['4time'] = 'mm/dd/yy(ddd)HH:MM:ss'
+dfmt.masks['4time'] = 'mm/dd/yy(ddd)HH:MM:ss';
 
 const reply = props => `
   <div class="bbs-post bbs-reply" id="${props.id}">
@@ -19,6 +19,6 @@ const reply = props => `
       <p>${props.body}</p>
     </div>
   </div>
-`
+`;
 
-module.exports = { reply }
+module.exports = { reply };

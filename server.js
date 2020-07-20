@@ -1,6 +1,6 @@
 require('dotenv').config();
+const { api, proxy, board } = require('./routes');
 const { posts, lookup, flags } = require('./db');
-const { api, proxy } = require('./routes');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
@@ -42,6 +42,7 @@ express()
   }))
   .use('/api', api)
   .use('/proxy', proxy)
+  .use('/board', board)
   .get('/thumbnail/*', async (req, res) => {
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
     if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);

@@ -1,3 +1,10 @@
+/**
+ * Subeader component.
+ * @constructor
+ * @param {Object} props
+ * @param {String} props.currentPage - The current view being rendered.
+ */
+
 const subheader = props => ({
   posts: `
     <ul class="subheader">
@@ -10,6 +17,12 @@ const subheader = props => ({
   artists: `
     <ul class="subheader">
       <li><a href="">List</a></li>
+    </ul>
+  `,
+  board: `
+    <ul class="subheader">
+      <li><a href="/board">List</a></li>
+      <li><a href="/board/new">New</a></li>
     </ul>
   `
 })[props.currentPage];

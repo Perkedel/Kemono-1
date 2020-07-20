@@ -22,6 +22,11 @@ a {
   color: #87CEFA;
 }
 
+textarea {
+  min-height: 3rem;
+  color: #000;
+}
+
 * {
   font-family: Verdana, sans-serif;
   color: #fff;
@@ -296,4 +301,56 @@ thead th {
   height: 45px;
   background-size: cover;
   background-position: center;
+}
+
+/* board */
+
+.bbs-thread {
+  margin-left: 5px;
+}
+
+.bbs-post {
+  background: #282a2e;
+  padding: 5px 10px 0;
+  display: table;
+}
+
+.bbs-reply {
+  margin-top: 7px;
+  font-size: 90%;
+}
+
+.bbs-header {
+  color: #b294bb;
+  font-weight: 700;
+}
+
+.bbs-post-name {
+  font-weight: 700;
+}
+
+.bbs-post-body {
+  margin: -5px 0 0 10px;
+  line-height: 1.3em;
+  word-break: break-word;
+}
+
+.bbs-post-img {
+  margin-bottom: 10px;
+  float: left;
+  margin-top: 3px;
+  margin-right: 20px;
+}
+
+.bbs-quote {
+  color: #96c83b;
+}
+
+.bbs-trip {
+  color: #d4b63c;
+  font-weight: normal;
+}
+
+.bbs-admin {
+  color: #d63e34;
 }

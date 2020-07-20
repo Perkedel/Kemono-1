@@ -4,10 +4,12 @@ const cd = require('content-disposition');
 const FileType = require('file-type');
 const crypto = require('crypto');
 const retry = require('p-retry');
+const JPEG = require('jpeg-js');
 const fs = require('fs-extra');
 const mime = require('mime');
 const path = require('path');
 const PNG = require('png-js');
+
 /**
  * Wrapper for Request that automatically handles integrity checking and automatic retries when downloading files.
  * @constructor
@@ -39,13 +41,18 @@ module.exports = (opts, requestOpts = {}) => {
                 const tempstats = await fs.stat(path.join(opts.ddir, tempname));
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
               }
-              if (mime.getType(filename) === 'image/png') {
-                try {
+              try {
+                if (mime.getType(filename) === 'image/png') {
                   PNG.load(path.join(opts.ddir, tempname));
-                } catch (err) {
-                  return reject(err); // corrupt png
+                } else if (mime.getType(filename) === 'image/jpeg') {
+                  JPEG.decode(await fs.readFile(path.join(opts.ddir, tempname)), {
+                    tolerantDecoding: false
+                  });
                 }
+              } catch (err) {
+                return reject(err); // corrupt png
               }
+              
               // move to final location
               await fs.rename(
                 path.join(opts.ddir, tempname),

@@ -56,7 +56,7 @@ express()
     res.setHeader('Cache-Control', 'max-age=31557600, public');
     sharp(file, { failOnError: false })
       .jpeg({ quality: 60 })
-      .resize({ width: Number(req.query.limit) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
+      .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
       .setMaxListeners(250)
       .on('error', () => {
         fs.createReadStream(file)

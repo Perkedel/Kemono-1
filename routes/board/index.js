@@ -6,6 +6,7 @@ const tripgen = require('tripcode');
 const Promise = require('bluebird');
 const { slugify } = require('transliteration');
 const scrapeIt = require('scrape-it');
+const { board } = require('../../db');
 const multer = require('multer');
 const fs = require('fs-extra');
 const path = require('path');
@@ -53,8 +54,8 @@ const quotes = str => replace(str, /&gt;&gt;\d+/g, async (match) => {
   const no = match.substring(8);
   const threadExists = await fs.pathExists(path.join(process.env.DB_ROOT, 'threads', `${no}.html`));
   if (threadExists) return `<a href="/board/thread/${no}">${match}</a>`;
-  const replies = await fs.readJSON(path.join(process.env.DB_ROOT, 'threads', 'index.json'));
-  if (replies.items[no]) return `<a href="/board/thread/${replies.items[no].in}#${no}">${match}</a>`;
+  const reply = await board.findOne({ reply: no })
+  if (reply) return `<a href="/board/thread/${reply.in}#${no}">${match}</a>`;
   return '';
 });
 const greentext = str => str
@@ -115,14 +116,7 @@ router
         body: url2a(greentext(await quotes(xss(req.body.body))))
       }));
 
-    const index = path.join(process.env.DB_ROOT, 'board', 'index.json');
-    const indexExists = await fs.pathExists(index);
-    if (!indexExists) fs.outputJSON(index, { items: {} });
-    await lock(index);
-    const indextowrite = await fs.readJson(index);
-    indextowrite.items[nextId] = { in: req.params.id };
-    await fs.outputJSON(index, indextowrite);
-    unlock(index);
+    await board.insertOne({ reply: nextId, in: req.params.id });
 
     res.redirect(`/board/thread/${req.params.id}`);
   })

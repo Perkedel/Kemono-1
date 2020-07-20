@@ -3,7 +3,8 @@ const db = {
   posts: mongo.collection('posts'),
   lookup: mongo.collection('lookup'),
   flags: mongo.collection('flags'),
-  bans: mongo.collection('bans')
+  bans: mongo.collection('bans'),
+  board: mongo.collection('board')
 };
 
 module.exports = db;

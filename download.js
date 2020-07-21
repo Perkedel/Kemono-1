@@ -29,7 +29,7 @@ module.exports = (opts, requestOpts = {}) => {
           request.get(requestOpts)
             .on('complete', async (res) => {
               // filename guessing
-              const extension = await FileType.fromFile(path.join(opts.ddir, tempname));
+              let extension = await FileType.fromFile(path.join(opts.ddir, tempname));
               extension = extension || {};
               let name = opts.name || res.headers['x-amz-meta-original-filename'];
               if (!name) {

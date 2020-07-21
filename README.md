@@ -8,11 +8,11 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 
 ### Supported Sites
 - Patreon
+- Pixiv Fanbox
 - Gumroad
 - Discord
 #### Experimental/Unfinished
 - SubscribeStar
-- Pixiv Fanbox
 
 ### Prerequisites
 - Node v8.x

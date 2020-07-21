@@ -1,18 +1,23 @@
-Kemono uses [semantic versioning](https://semver.org/).
+Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both development configuration and literal HTTP API.
 
 ### v2.0
+- *Breaking change:* Proxy support has been removed.
 - "Artists" tab
 - Board functionality
+- New and improved Fanbox importer; stable and (mostly) API complete
 - Missing content indicator for Patreon users
-- Pages are now server-side rendered
-- Discord importer now uses main download instead of proxy (which is usually lower quality)
-- Minor UI fixes
-- Removed proxy support
-- Importers now use unified downloader with more integrity checking
-- Better query indexing
-- Changes in thumbnail generator for reduced resource usage
-- Thumbnail generator now directly checks file contents instead of relying on naming
-- Fixed Discord CSS
+- New unified downloader with integrity checking and failure resistance
+<details>
+  <summary>Patch</summary>
+
+  - Pages are now server-side rendered for efficiency
+  - Discord importer now uses main download instead of proxy (which is usually lower quality)
+  - Changes in thumbnail generator for reduced resource usage
+  - Minor UI fixes
+  - Better query indexing
+  - Thumbnail generator now directly checks file contents instead of relying on naming
+  - Fixed Discord CSS
+</details>
 
 ### v1.4
 - New UI

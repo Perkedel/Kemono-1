@@ -74,10 +74,10 @@ const artists = data => shell(`
         <tbody>
           ${data.results.length === 0 ? `
             <tr>
-              <td>
-                <div></div>
-              </td>
+              <td></td>
               <td class="subtitle">No artists found for your query.</td>
+              <td></td>
+              <td></td>
             </tr>
           ` : ''}
           ${data.results.map(artist => `

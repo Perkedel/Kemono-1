@@ -55,10 +55,21 @@ async function indexer () {
       }
       case 'subscribestar': {
         const api = `${process.env.ORIGIN}/proxy/subscribestar/user`;
-        const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
+        const user = await request.get(`${api}/${post.user}`, { json: true });
         await lookup.insertOne({
           version: post.version,
           service: 'subscribestar',
+          id: post.user,
+          name: user.name
+        });
+        break;
+      }
+      case 'dlsite': {
+        const api = `${process.env.ORIGIN}/proxy/dlsite/user`;
+        const user = await request.get(`${api}/${post.user}`, { json: true });
+        await lookup.insertOne({
+          version: post.version,
+          service: 'dlsite',
           id: post.user,
           name: user.name
         });

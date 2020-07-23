@@ -54,7 +54,7 @@ const quotes = str => replace(str, /&gt;&gt;\d+/g, async (match) => {
   const no = match.substring(8);
   const threadExists = await fs.pathExists(path.join(process.env.DB_ROOT, 'threads', `${no}.html`));
   if (threadExists) return `<a href="/board/thread/${no}">${match}</a>`;
-  const reply = await board.findOne({ reply: Number(no) })
+  const reply = await board.findOne({ reply: Number(no) });
   if (reply) return `<a href="/board/thread/${reply.in}#${no}">${match}</a>`;
   return '';
 });

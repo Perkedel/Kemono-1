@@ -124,7 +124,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
 
 async function parseBody (body, key, opts) {
   // https://github.com/Nandaka/PixivUtil2/blob/master/PixivModelFanbox.py#L213
-  let bodyText = body.text || body.html || '';
+  const bodyText = body.text || body.html || '';
   let concatenatedText = '';
   if (body.blocks) {
     await Promise.mapSeries(body.blocks, async (block) => {
@@ -141,7 +141,9 @@ async function parseBody (body, key, opts) {
           }, Object.assign({
             url: unraw(imageInfo.originalUrl)
           }, fileRequestOptions(key)))
-            .then(res => concatenatedText += `<img src="/inline/fanbox/${res.filename}"><br>`);
+            .then(res => {
+              concatenatedText += `<img src="/inline/fanbox/${res.filename}"><br>`;
+            });
           break;
         }
         case 'file': {
@@ -152,13 +154,15 @@ async function parseBody (body, key, opts) {
           }, Object.assign({
             url: unraw(fileInfo.url)
           }, fileRequestOptions(key)))
-            .then(res => concatenatedText += `<a href="/attachments/fanbox/${opts.user}/${opts.id}/${res.filename}" target="_blank">Download ${res.filename}</a><br>`);
+            .then(res => {
+              concatenatedText += `<a href="/attachments/fanbox/${opts.user}/${opts.id}/${res.filename}" target="_blank">Download ${res.filename}</a><br>`;
+            });
           break;
         }
         case 'embed': {
           const embedInfo = body.embedMap[block.embedId];
           const embed = ({
-            'twitter': `
+            twitter: `
               <a href="https://twitter.com/_/status/${embedInfo.contentId}" target="_blank">
                 <div class="embed-view">
                   <h3 class="subtitle">(Twitter)</h3>
@@ -166,7 +170,7 @@ async function parseBody (body, key, opts) {
               </a>
               <br>
             `,
-            'youtube': `
+            youtube: `
               <a href="https://www.youtube.com/watch?v=${embedInfo.contentId}" target="_blank">
                 <div class="embed-view">
                   <h3 class="subtitle">(YouTube)</h3>
@@ -174,7 +178,7 @@ async function parseBody (body, key, opts) {
               </a>
               <br>
             `,
-            'fanbox': `
+            fanbox: `
               <a href="https://www.pixiv.net/fanbox/${embedInfo.contentId}" target="_blank">
                 <div class="embed-view">
                   <h3 class="subtitle">(Fanbox)</h3>
@@ -182,7 +186,7 @@ async function parseBody (body, key, opts) {
               </a>
               <br>
             `,
-            'vimeo': `
+            vimeo: `
               <a href="https://vimeo.com/${embedInfo.contentId}" target="_blank">
                 <div class="embed-view">
                   <h3 class="subtitle">(Vimeo)</h3>
@@ -190,7 +194,7 @@ async function parseBody (body, key, opts) {
               </a>
               <br>
             `,
-            'google_forms': `
+            google_forms: `
               <a href="https://docs.google.com/forms/d/e/${embedInfo.contentId}/viewform?usp=sf_link" target="_blank">
                 <div class="embed-view">
                   <h3 class="subtitle">(Google Forms)</h3>
@@ -198,7 +202,7 @@ async function parseBody (body, key, opts) {
               </a>
               <br>
             `,
-            'soundcloud': `
+            soundcloud: `
               <a href="https://soundcloud.com/${embedInfo.contentId}" target="_blank">
                 <div class="embed-view">
                   <h3 class="subtitle">(Soundcloud)</h3>
@@ -206,12 +210,12 @@ async function parseBody (body, key, opts) {
               </a>
               <br>
             `
-          })[embedInfo.serviceProvider]
+          })[embedInfo.serviceProvider];
           concatenatedText += embed;
           break;
         }
       }
-    })
+    });
   }
 
   return `${bodyText}<br>${concatenatedText}`;

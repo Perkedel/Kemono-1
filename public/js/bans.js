@@ -32,6 +32,13 @@ window.onload = async () => {
         href = `https://subscribestar.adult/${ban.id}`;
         break;
       }
+      case 'dlsite': {
+        service = 'DLsite';
+        const cacheData = await fetch(`/api/lookup/cache/${ban.id}?service=dlsite`);
+        cache = await cacheData.json();
+        href = `https://www.dlsite.com/eng/circle/profile/=/maker_id/${ban.id}`;
+        break;
+      }
     }
     document.getElementById('bans').innerHTML += `
       <li>

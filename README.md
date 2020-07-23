@@ -11,6 +11,7 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 - Pixiv Fanbox
 - Gumroad
 - Discord
+- DLsite
 #### Experimental/Unfinished
 - SubscribeStar
 

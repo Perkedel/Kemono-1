@@ -112,6 +112,26 @@ function renderSubscribestarQuery (query = '', limit = 10) {
   });
 }
 
+function renderDlsiteQuery (query = '', limit = 10) {
+  const resultsView = document.getElementById('results');
+  require(['oboe'], oboe => {
+    oboe(`/api/lookup?q=${encodeURIComponent(query)}&service=dlsite&limit=${limit}`)
+      .node('!.*', userId => {
+        fetch(`/api/lookup/cache/${userId}?service=dlsite`)
+          .then(res => res.json())
+          .then(cache => {
+            resultsView.innerHTML += rowHTML({
+              id: `dlsite-user-${userId}`,
+              href: '/dlsite/user/' + userId,
+              avatar: '',
+              title: cache.name,
+              subtitle: 'DLsite'
+            });
+          });
+      });
+  });
+}
+
 function queryUpdate (num) {
   const resultsView = document.getElementById('results');
   resultsView.innerHTML = '';
@@ -138,12 +158,17 @@ function queryUpdate (num) {
       renderSubscribestarQuery(query, num);
       break;
     }
+    case 'dlsite': {
+      renderDlsiteQuery(query, num);
+      break;
+    }
     default: {
       renderPatreonQuery(query);
       renderFanboxQuery(query);
       renderGumroadQuery(query);
       renderDiscordQuery(query);
       renderSubscribestarQuery(query);
+      renderDlsiteQuery(query);
     }
   }
 }

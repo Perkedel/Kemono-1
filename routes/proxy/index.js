@@ -85,6 +85,19 @@ router
       res.sendStatus(404);
     }
   })
+  .get('/dlsite/user/:id', async (req, res) => {
+    const api = 'https://www.dlsite.com/eng/circle/profile/=/maker_id'
+    try {
+      const html = await request.get(`${api}/${req.params.id}`);
+      const user = scrapeIt.scrapeHTML(html, {
+        name: '.prof_maker_name'
+      });
+      res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
+      res.json(user);
+    } catch (err) {
+      res.sendStatus(404);
+    }
+  })
   .get('/discord/server/:id', async (req, res) => {
     const index = await lookup
       .find({ service: 'discord', id: req.params.id })

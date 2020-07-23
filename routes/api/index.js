@@ -49,7 +49,7 @@ router
         if (!req.body.channel_ids) return res.sendStatus(400);
         require('../../importers/discord/importer')({
           key: req.body.session_key,
-          channels: req.body.channel_ids
+          channels: req.body.channel_ids.replace(/\s+/g, '')
         });
         break;
     }

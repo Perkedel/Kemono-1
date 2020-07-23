@@ -18,6 +18,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   - Minor UI fixes
   - Better query indexing
   - Thumbnail generator now directly checks file contents instead of relying on naming
+  - Whitespace is now removed from Discord channel ID string
   - Fixed Discord CSS
 </details>
 

@@ -24,8 +24,6 @@ const fileRequestOptions = (key) => {
 async function scraper (data, page = 1) {
   const dlsite = await retry(() => request.get(`https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(data.key)));
   Promise.map(dlsite.works, async (work) => {
-    if (work.workno !== 'RE291230') return;
-
     const banExists = await bans.findOne({ id: work.maker_id, service: 'dlsite' });
     if (banExists) return;
 

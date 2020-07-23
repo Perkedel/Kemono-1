@@ -65,7 +65,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       id: post.id
     });
     const existingPosts = await posts.find({ id: post.id }).toArray();
-    if (existingPosts.length && existingPosts[0].version === 1) {
+    const incompatibleVer = existingPosts[0].version === 1 || existingPosts[0].version === 2
+    if (existingPosts.length && incompatibleVer) {
       return;
     } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited_at === attr.edited_at) {
       return;

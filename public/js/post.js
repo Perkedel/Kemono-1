@@ -33,6 +33,13 @@ async function main () {
       flagApi = `/api/subscribestar/user/${pathname[3]}/post/${pathname[5]}/flag`;
       break;
     }
+    case 'dlsite': {
+      const postData = await fetch(`/api/dlsite/user/${pathname[3]}/post/${pathname[5]}`);
+      posts = await postData.json();
+      cacheApi = `/api/lookup/cache/${pathname[3]}?service=dlsite`;
+      flagApi = `/api/dlsite/user/${pathname[3]}/post/${pathname[5]}/flag`;
+      break;
+    }
     default: {
       const postData = await fetch(`/api/fanbox/user/${pathname[3]}/post/${pathname[5]}`);
       posts = await postData.json();

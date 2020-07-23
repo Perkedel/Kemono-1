@@ -2,6 +2,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
 
 ### v2.0
 - *Breaking change:* Proxy support has been removed.
+- DLsite support
 - "Artists" tab
 - Board functionality
 - New and improved Fanbox importer; stable and (mostly) API complete

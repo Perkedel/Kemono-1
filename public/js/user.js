@@ -23,6 +23,8 @@ function loadQuery () {
     case 'subscribestar':
       api = `/api/subscribestar/user/${pathname[3]}/lookup?q=${query}`;
       break;
+    case 'dlsite':
+      api = `/api/dlsite/user/${pathname[3]}/lookup?q=${query}`;
   }
   require(['oboe'], oboe => {
     oboe(api)
@@ -56,6 +58,11 @@ function loadUserInfo () {
       service = 'SubscribeStar';
       api = `/api/lookup/cache/${pathname[3]}?service=subscribestar`;
       href = `https://subscribestar.adult/${pathname[3]}`;
+      break;
+    case 'dlsite':
+      service = 'DLsite';
+      api = `/api/lookup/cache/${pathname[3]}?service=dlsite`;
+      href = `https://www.dlsite.com/eng/circle/profile/=/maker_id/${pathname[3]}`;
       break;
   }
   fetch(api)

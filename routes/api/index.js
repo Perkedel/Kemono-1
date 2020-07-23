@@ -36,6 +36,15 @@ router
       case 'subscribestar':
         require('../../importers/subscribestar/importer')(req.body.session_key);
         break;
+      case 'dlsite':
+        require('../../importers/dlsite/importer')({ key: req.body.session_key });
+        break;
+      case 'dlsite-jp':
+        require('../../importers/dlsite/importer')({
+          key: req.body.session_key,
+          jp: true
+        });
+        break;
       case 'discord':
         if (!req.body.channel_ids) return res.sendStatus(400);
         require('../../importers/discord/importer')({

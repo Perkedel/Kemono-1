@@ -34,6 +34,7 @@ const artists = data => shell(`
             <option value="gumroad" ${data.query.service === 'gumroad' ? 'selected' : ''}>Gumroad</option>
             <option value="subscribestar" ${data.query.service === 'subscribestar' ? 'selected' : ''}>SubscribeStar</option>
             <option value="discord" ${data.query.service === 'discord' ? 'selected' : ''}>Discord</option>
+            <option value="dlsite" ${data.query.service === 'dlsite' ? 'selected' : ''}>DLsite</option>
           </select>
         </div>
         <div>
@@ -90,7 +91,8 @@ const artists = data => shell(`
                   fanbox: `<a href="/fanbox/user/${artist.id}">${artist.name}</a>`,
                   subscribestar: `<a href="/subscribestar/user/${artist.id}">${artist.name}</a>`,
                   gumroad: `<a href="/gumroad/user/${artist.id}">${artist.name}</a>`,
-                  discord: `<a href="/discord/server/${artist.id}">${artist.name}</a>`
+                  discord: `<a href="/discord/server/${artist.id}">${artist.name}</a>`,
+                  dlsite: `<a href="/dlsite/user/${artist.id}">${artist.name}</a>`
                 })[artist.service]}
               </td>
               <td>
@@ -102,7 +104,8 @@ const artists = data => shell(`
                   fanbox: 'Pixiv Fanbox',
                   subscribestar: 'SubscribeStar',
                   gumroad: 'Gumroad',
-                  discord: 'Discord'
+                  discord: 'Discord',
+                  dlsite: 'DLsite'
                 })[artist.service]}
               </td>
             </tr>

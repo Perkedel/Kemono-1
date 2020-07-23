@@ -13,6 +13,7 @@ const recent = props => shell(`
           <option value="gumroad">Gumroad</option>
           <option value="discord">Discord</option>
           <option value="subscribestar">SubscribeStar</option>
+          <option value="dlsite">DLsite</option>
         </select>
         <input
           id="search-input"

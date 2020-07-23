@@ -34,6 +34,10 @@ async function scraper (key) {
         id: {
           attr: 'data-permalink'
         },
+        purchaseId: {
+          selector: '.js-product',
+          attr: 'data-purchase-id'
+        },
         title: '.description-container h1 strong',
         userHref: {
           selector: '.description-container .js-creator-profile-link',
@@ -73,8 +77,14 @@ async function scraper (key) {
       post_file: {},
       attachments: []
     };
-    const productInfo = await cloudscraper.get(`https://gumroad.com/links/${product.id}/user_info?fetch_purchase=true`, apiOptions(key));
-    const downloadPage = await cloudscraper.get(productInfo.purchase.content_url, scrapeOptions(key));
+    const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
+    const productData = await scrapeIt.scrapeHTML(productPage, {
+      contentUrl: {
+        selector: '.button.button-primary.button-block',
+        attr: 'href'
+      }
+    })
+    const downloadPage = await cloudscraper.get(productData.contentUrl, scrapeOptions(key));
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail: {
         selector: '.image-preview-container img',

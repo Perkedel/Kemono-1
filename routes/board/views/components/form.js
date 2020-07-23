@@ -12,7 +12,6 @@ const form = props => `
         name="name"
         id="name"
         placeholder="Anonymous"
-        maxlength="100"
       >
       <small class="subtitle" style="margin-left: 5px;">Tripcodes supported</small>
     </div>

@@ -25,7 +25,7 @@
           <h1>Import Index</h1>
           <div class="results" id="results">
             <li>
-              <a href="">» Import from paysite</a>
+              <a href="./">» Import from paysite</a>
             </li>
             <li>
               <a href="./yiff">» Import from yiff.party</a>
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="page" id="page">
-          <h1>Import from paysite</h1>
+          <h1>Import from yiff.party</h1>
           <form
             class="importer-form"
             action="/api/import"
@@ -44,50 +44,33 @@
             method="post"
           >
             <select id="service" name="service">
-              <option value="patreon" selected>Patreon</option>
-              <option value="fanbox">Pixiv Fanbox</option>
-              <option value="gumroad">Gumroad</option>
-              <option value="subscribestar">SubscribeStar</option>
-              <option value="discord">Discord</option>
-              <option value="dlsite">DLsite English</option>
-              <option value="dlsite-jp">DLsite Japan</option>
+              <option value="yiffparty" selected>yiff.party</option>
             </select>
             <input 
-              type="text"
+              type="hidden"
               name="session_key"
-              placeholder="session key"
+              value="nothing"
+            >
+            <input 
+              type="text"
+              id="users"
+              name="users"
+              placeholder="user ids (comma separated, no spaces)"
               autocomplete="off" 
               autocorrect="off" 
               autocapitalize="off" 
               spellcheck="false"
               required
             >
-            <input 
-              type="text"
-              id="channel_ids"
-              name="channel_ids"
-              placeholder="discord channel ids (comma separated, no spaces)"
-              autocomplete="off" 
-              autocorrect="off" 
-              autocapitalize="off" 
-              spellcheck="false"
-            >
             <input type="submit"/>
           </form>
           <p>
-            <a href="./tutorial.html">Learn how to get your session key.</a><br>
-            Make sure you are familiar with <a href="/help/rules">the rules</a> before importing.
+            If you don't have access to the user you want to import or the user can no longer be subscribed to, you may be able to import them for free if they are on <a href="https://yiff.party">yiff.party</a>. Simply put either a single ID (2390849 in <a href="https://yiff.party/patreon/2390849">https://yiff.party/patreon/2390849</a>) or comma-separated list of IDs in the field above, and Kemono will import it like any other site. Only Patreon is supported. Shared files will not be downloaded.
             <h2>Warnings</h2>
-            Your session key is used to scrape paid posts from your feed. After downloading missing posts, the key is immediately discarded and never stored.<br>
-            Please note that the SubscribeStar importer is considered experimental, and may not work exactly as expected. You are encouraged to report issues with it.<br>
-            The English and Japanese versions of DLsite are separate, and have different APIs and login systems. Make sure to select the right one!<br>
-            As of right now, the importer is unable to crack DRM-protected works from DLsite (anything with the filename .dlst or .cpd)<br>
-            <br>
-            If you're having trouble with the importer, contact admin. 
+            Due to API limitations on yiff.party's end, the imported posts will not have edit tracking. Please import artists that use anti-piracy editing techniques with the <a href="./">native importer</a>.
           </p>
         </div>
       </div>
     </div>
-    <script src="/js/importer.js"></script>
   </body>
 </html>

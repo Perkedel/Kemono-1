@@ -45,6 +45,10 @@ router
           jp: true
         });
         break;
+      case 'yiffparty':
+        if (!req.body.users) return res.sendStatus(400);
+        require('../../importers/yiffparty/importer')(req.body.users);
+        break;
       case 'discord':
         if (!req.body.channel_ids) return res.sendStatus(400);
         require('../../importers/discord/importer')({

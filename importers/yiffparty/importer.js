@@ -5,33 +5,27 @@ const path = require('path');
 const mime = require('mime');
 const downloadFile = require('../../download');
 const Promise = require('bluebird');
-const { URL } = require('url');
 const indexer = require('../../indexer');
 const isImage = require('is-image');
-const getUrls = require('get-urls');
 
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
   if (!content) return '';
-  const urls = getUrls(content, {
-    sortQueryParameters: false,
-    stripWWW: false
-  });
+  const urls = content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
   await Promise.mapSeries(urls, async (val) => {
-    const url = new URL(val);
-    if (isImage(url.origin + url.pathname)) {
-      const imageMime = mime.getType(url.origin + url.pathname);
+    if ((/\.(gif|jpe?g|png|webp)$/i).test(val) && (/\/patreon_inline\//i).test(val)) {
+      const downloadUrl = val.startsWith('/') ? 'https://data.yiff.party' + val : val
+      const imageMime = mime.getType(val);
       const filename = new Date().getTime() + '.' + mime.getExtension(imageMime);
       await downloadFile({
         ddir: path.join(process.env.DB_ROOT, 'inline'),
         name: filename
       }, {
-        url: val
+        url: downloadUrl
       })
         .then(() => {
           content = content.replace(val, `/inline/${filename}`);
-        })
-        .catch(() => {});
+        });
     }
   });
   return content;
@@ -44,6 +38,7 @@ async function scraper (users) {
       json: true
     }));
     await Promise.map(yiff.posts, async (post) => {
+      if (post.id !== 22214810) return;
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
       const banExists = await bans.findOne({ id: post.id, service: 'patreon' });
       if (banExists) return;

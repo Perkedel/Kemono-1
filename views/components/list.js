@@ -11,8 +11,10 @@ const list = props => `
     </div>
     <div id="no-posts">
       ${props.posts.length === 0 ? `
-        <h1 class="subtitle">There are no posts.</h1>
-        <p class="subtitle">The user either hasn't been imported, or has no more posts beyond this page.</p>
+        <h1 class="subtitle">Nobody here but us chickens!</h1>
+        <p class="subtitle">
+          There are either no more posts beyond this page, or this user hasn't been imported.
+        </p>
       ` : ''}
     </div>
     <div class="content" id="content">

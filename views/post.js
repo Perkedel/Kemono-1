@@ -62,10 +62,10 @@ const post = props => shell(`
 
           // title hidden with subscribestar posts to prevent redundancy
           return `
-            ${previews}
-            ${attachments}
             <h1>${post.service === 'subscribestar' ? '' : post.title}</h1>
             <p>${post.content}</p>
+            ${attachments}
+            ${previews}
             ${props.posts.length > 1 ? '<hr>' : ''}
           `;
         }).join('')}

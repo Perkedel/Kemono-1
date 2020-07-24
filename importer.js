@@ -64,7 +64,13 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       entityId: rel.user.data.id,
       id: post.id
     });
-    const existingPosts = await posts.find({ id: post.id }).toArray();
+    const existingPosts = await posts.find({
+      id: post.id,
+      $or: [
+        { service: 'patreon' },
+        { service: null }
+      ]
+    }).toArray();
     const incompatibleVer = existingPosts[0].version === 1 || existingPosts[0].version === 2
     if (existingPosts.length && incompatibleVer) {
       return;

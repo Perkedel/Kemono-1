@@ -38,7 +38,6 @@ async function scraper (users) {
       json: true
     }));
     await Promise.map(yiff.posts, async (post) => {
-      if (post.id !== 22214810) return;
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
       const banExists = await bans.findOne({ id: post.id, service: 'patreon' });
       if (banExists) return;

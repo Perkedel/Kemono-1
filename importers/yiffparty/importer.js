@@ -43,7 +43,7 @@ async function scraper (users) {
       if (banExists) return;
 
       const postExists = await posts.findOne({
-        id: post.id,
+        id: String(post.id),
         $or: [
           { service: 'patreon' },
           { service: null }

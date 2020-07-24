@@ -9,6 +9,9 @@ const post = props => shell(`
         <span class="subtitle">Click on the thumbnails to reveal the original resolution image.</span>
         <h1>Information</h1>
         <div class="results" id="results"></div>
+        <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+        <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
+        <script src="/js/post.js"></script>
       </div>
       <div class="page" id="page">
         ${props.posts.map(post => {
@@ -72,10 +75,7 @@ const post = props => shell(`
       </div>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
-  <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
   <script src="/js/expander.js"></script>
-  <script src="/js/post.js"></script>
 `, {
   service: props.service,
   posts: props.posts

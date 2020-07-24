@@ -7,7 +7,7 @@ function attemptFlag (_, api) {
   }
 }
 
-window.onload = function () {
+(function () {
   const pathname = window.location.pathname.split('/');
   const resultsView = document.getElementById('results');
   let cacheApi, flagApi;
@@ -71,4 +71,4 @@ window.onload = function () {
         });
       }
     });
-};
+})()

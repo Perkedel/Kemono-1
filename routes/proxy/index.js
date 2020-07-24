@@ -86,7 +86,7 @@ router
     }
   })
   .get('/dlsite/user/:id', async (req, res) => {
-    const api = 'https://www.dlsite.com/eng/circle/profile/=/maker_id'
+    const api = 'https://www.dlsite.com/eng/circle/profile/=/maker_id';
     try {
       const html = await request.get(`${api}/${req.params.id}`);
       const user = scrapeIt.scrapeHTML(html, {

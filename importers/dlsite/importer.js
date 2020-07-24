@@ -53,7 +53,7 @@ async function scraper (data, page = 1) {
 
     if (Object.keys(work.work_files || {}).length) {
       await downloadFile({
-        ddir: path.join(process.env.DB_ROOT, `/files/dlsite/${work.maker_id}/${work.workno}`),
+        ddir: path.join(process.env.DB_ROOT, `/files/dlsite/${work.maker_id}/${work.workno}`)
       }, {
         url: work.work_files.main || work.work_files['sam@3x'] || work.work_files['sam@2x'] || work.work_files.sam || work.work_files.mini
       })
@@ -78,7 +78,7 @@ async function scraper (data, page = 1) {
       });
 
     posts.insertOne(model);
-  })
+  });
 
   if (dlsite.works.length) {
     scraper(data, page + 1);

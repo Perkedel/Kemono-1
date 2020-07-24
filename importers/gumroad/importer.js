@@ -83,7 +83,7 @@ async function scraper (key) {
         selector: '.button.button-primary.button-block',
         attr: 'href'
       }
-    })
+    });
     const downloadPage = await cloudscraper.get(productData.contentUrl, scrapeOptions(key));
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail: {

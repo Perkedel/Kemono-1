@@ -14,7 +14,7 @@ const sanitizePostContent = async (content) => {
   const urls = content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
   await Promise.mapSeries(urls, async (val) => {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(val) && (/\/patreon_inline\//i).test(val)) {
-      const downloadUrl = val.startsWith('/') ? 'https://data.yiff.party' + val : val
+      const downloadUrl = val.startsWith('/') ? 'https://data.yiff.party' + val : val;
       const imageMime = mime.getType(val);
       const filename = new Date().getTime() + '.' + mime.getExtension(imageMime);
       await downloadFile({
@@ -41,7 +41,7 @@ async function scraper (users) {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
       const banExists = await bans.findOne({ id: post.id, service: 'patreon' });
       if (banExists) return;
-      
+
       const postExists = await posts.findOne({
         id: post.id,
         $or: [
@@ -70,7 +70,7 @@ async function scraper (users) {
         model.embed.subject = post.embed.subject;
         model.embed.description = post.embed.description;
         model.embed.url = post.embed.url;
-      }  
+      }
 
       if (Object.keys(post.post_file || {}).length) {
         await downloadFile({
@@ -84,7 +84,7 @@ async function scraper (users) {
             model.post_file.name = res.filename;
             model.post_file.path = `/files/${user}/${post.id}/${res.filename}`;
           });
-      }  
+      }
 
       await Promise.map(post.attachments, async (attachment) => {
         await downloadFile({
@@ -99,12 +99,12 @@ async function scraper (users) {
               name: res.filename,
               path: `/attachments/${user}/${post.id}/${res.filename}`
             });
-          })
-      })
+          });
+      });
 
       posts.insertOne(model);
-    })
-  })
+    });
+  });
 
   indexer();
 }

@@ -1,7 +1,7 @@
 function attemptFlag (_, api) {
   if (confirm('Are you sure you want to flag this post for reimport?')) {
     fetch(api, { method: 'post' })
-      .then(function(res) {
+      .then(function (res) {
         window.alert(res.ok ? 'Successfully flagged.' : 'Error. There might already be a flag here.');
       });
   }
@@ -39,8 +39,8 @@ window.onload = function () {
   }
 
   fetch(cacheApi)
-    .then(function(data) { return data.json() })
-    .then(function(cache) {
+    .then(function (data) { return data.json(); })
+    .then(function (cache) {
       resultsView.innerHTML += `
         <li>
           User: <a href="../">${cache.name}</a>
@@ -56,17 +56,19 @@ window.onload = function () {
         </li>
       `;
     })
-    .then(function() {
-      return fetch(flagApi)
+    .then(function () {
+      return fetch(flagApi);
     })
-    .then(function(res) {
+    .then(function (res) {
       resultsView.innerHTML += res.ok ? `
         <li><span class="subtitle">This post has been flagged for reimport.</span></li>
       ` : `
         <li><a href="javascript:;" id="flag-button">Flag for reimport</a> </li>
       `;
-      if (!res.ok) document.getElementById('flag-button').addEventListener('click', function(e) {
-        attemptFlag(e, flagApi)
-      });
+      if (!res.ok) {
+        document.getElementById('flag-button').addEventListener('click', function (e) {
+          attemptFlag(e, flagApi);
+        });
+      }
     });
 };

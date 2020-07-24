@@ -1,84 +1,72 @@
-function attemptFlag (e, api) {
+function attemptFlag (_, api) {
   if (confirm('Are you sure you want to flag this post for reimport?')) {
     fetch(api, { method: 'post' })
-      .then(res => {
+      .then(function(res) {
         window.alert(res.ok ? 'Successfully flagged.' : 'Error. There might already be a flag here.');
       });
   }
 }
 
-async function main () {
+window.onload = function () {
   const pathname = window.location.pathname.split('/');
   const resultsView = document.getElementById('results');
-  let posts, cacheApi, flagApi;
+  let cacheApi, flagApi;
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon': {
-      const postData = await fetch(`/api/user/${pathname[2]}/post/${pathname[4]}`);
-      posts = await postData.json();
       cacheApi = `/api/lookup/cache/${pathname[2]}?service=patreon`;
       flagApi = `/api/user/${pathname[2]}/post/${pathname[4]}/flag`;
       break;
     }
     case 'gumroad': {
-      const postData = await fetch(`/api/gumroad/user/${pathname[3]}/post/${pathname[5]}`);
-      posts = await postData.json();
       cacheApi = `/api/lookup/cache/${pathname[3]}?service=gumroad`;
       flagApi = `/api/gumroad/user/${pathname[3]}/post/${pathname[5]}/flag`;
       break;
     }
     case 'subscribestar': {
-      const postData = await fetch(`/api/subscribestar/user/${pathname[3]}/post/${pathname[5]}`);
-      posts = await postData.json();
       cacheApi = `/api/lookup/cache/${pathname[3]}?service=subscribestar`;
       flagApi = `/api/subscribestar/user/${pathname[3]}/post/${pathname[5]}/flag`;
       break;
     }
     case 'dlsite': {
-      const postData = await fetch(`/api/dlsite/user/${pathname[3]}/post/${pathname[5]}`);
-      posts = await postData.json();
       cacheApi = `/api/lookup/cache/${pathname[3]}?service=dlsite`;
       flagApi = `/api/dlsite/user/${pathname[3]}/post/${pathname[5]}/flag`;
       break;
     }
     default: {
-      const postData = await fetch(`/api/fanbox/user/${pathname[3]}/post/${pathname[5]}`);
-      posts = await postData.json();
       cacheApi = `/api/lookup/cache/${pathname[3]}?service=fanbox`;
       flagApi = `/api/fanbox/user/${pathname[3]}/post/${pathname[5]}/flag`;
     }
   }
 
   fetch(cacheApi)
-    .then(data => data.json())
-    .then(cache => {
+    .then(function(data) { return data.json() })
+    .then(function(cache) {
       resultsView.innerHTML += `
         <li>
           User: <a href="../">${cache.name}</a>
         </li>
         <li>
-          ID: <a href="">${posts[0].id}</a>
+          ID: <a href="">${document.getElementsByName('id')[0].content}</a>
         </li>
         <li>
-          Published at: ${posts[0].published_at}
+          Published at: ${document.getElementsByName('published_at')[0].content}
         </li>
         <li>
-          Added at: ${new Date(posts[0].added_at).toISOString()}
+          Added at: ${new Date(Number(document.getElementsByName('added_at')[0].content)).toISOString()}
         </li>
       `;
     })
-    .then(() => fetch(flagApi))
-    .then(res => {
+    .then(function() {
+      return fetch(flagApi)
+    })
+    .then(function(res) {
       resultsView.innerHTML += res.ok ? `
-        <li>
-          <span class="subtitle">This post has been flagged for reimport.</span>
-        </li>
+        <li><span class="subtitle">This post has been flagged for reimport.</span></li>
       ` : `
-        <li>
-          <a href="javascript:;" id="flag-button">Flag for reimport</a>
-        </li>
+        <li><a href="javascript:;" id="flag-button">Flag for reimport</a> </li>
       `;
-      if (!res.ok) document.getElementById('flag-button').addEventListener('click', e => attemptFlag(e, flagApi));
+      if (!res.ok) document.getElementById('flag-button').addEventListener('click', function(e) {
+        attemptFlag(e, flagApi)
+      });
     });
-}
-
-window.onload = () => main();
+};

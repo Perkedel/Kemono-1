@@ -55,7 +55,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     }
   });
 
-  await Promise.mapSeries(data.posts, async (post) => {
+  Promise.map(data.posts, async (post) => {
     const banExists = await bans.findOne({ id: post.user, service: 'subscribestar' });
     if (banExists) return;
 
@@ -77,7 +77,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       user: post.user,
       post_type: 'text_only',
       added_at: new Date().getTime(),
-      published_at: post.published_at,
+      published_at: new Date(Date.parse(post.published_at)).toISOString(),
       post_file: {},
       attachments: []
     };

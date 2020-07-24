@@ -116,7 +116,7 @@ router
         body: url2a(greentext(await quotes(xss(req.body.body))))
       }));
 
-    await board.insertOne({ reply: nextId, in: req.params.id });
+    await board.insertOne({ reply: Number(nextId), in: Number(req.params.id) });
 
     res.redirect(`/board/thread/${req.params.id}`);
   })

@@ -138,9 +138,8 @@ express()
         } else {
           query.service = req.params.service;
         }
-        const sort = req.params.service === 'subscribestar' ? { _id: -1 } : { published_at: -1 };
         const userPosts = await posts.find(query)
-          .sort(sort)
+          .sort({ published_at: -1 })
           .skip(Number(req.query.o) || 0)
           .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
           .toArray();

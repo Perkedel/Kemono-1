@@ -22,7 +22,9 @@ const fileRequestOptions = (key) => {
 };
 
 async function scraper (data, page = 1) {
-  const dlsite = await retry(() => request.get(`https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(data.key)));
+  const auth = await retry(() => request.get('https://play.dlsite.com/eng/api/dlsite/authorize', requestOptions(data.key)));
+  const key = auth.sid;
+  const dlsite = await retry(() => request.get(`https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key)));
   Promise.map(dlsite.works, async (work) => {
     const banExists = await bans.findOne({ id: work.maker_id, service: 'dlsite' });
     if (banExists) return;
@@ -63,13 +65,14 @@ async function scraper (data, page = 1) {
         });
     }
 
+    await retry(() => request.get(`https://play.dlsite.com/eng/api/dlsite/download_token?workno=${work.workno}`, requestOptions(key)));
     const jar = request.jar(); // required for auth dance
     await downloadFile({
       ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
     }, Object.assign({
       url: `https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
       jar: jar
-    }, fileRequestOptions(data.key)))
+    }, fileRequestOptions(key)))
       .then(res => {
         model.attachments.push({
           name: res.filename,

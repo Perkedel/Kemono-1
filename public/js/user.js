@@ -26,16 +26,17 @@ function loadQuery () {
     case 'dlsite':
       api = `/api/dlsite/user/${pathname[3]}/lookup?q=${query}`;
   }
-  require(['oboe'], oboe => {
+  require(['oboe'], function (oboe) {
     oboe(api)
-      .node('!.*', post => renderPost(post));
+      .node('!.*', function (post) { return renderPost(post); });
   });
 }
 
-function loadUserInfo () {
+(function () {
+  document.getElementById('search-input').addEventListener('keyup', debounce(() => loadQuery(), 350));
   let service, api, proxy, href;
   const infoView = document.getElementById('info-block');
-  const patreonView = document.getElementById('extra-info-block');
+  const extraView = document.getElementById('extra-info-block');
   const pathname = window.location.pathname.split('/');
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
@@ -66,8 +67,8 @@ function loadUserInfo () {
       break;
   }
   fetch(api)
-    .then(res => res.json())
-    .then(cache => {
+    .then(function (res) { return res.json(); })
+    .then(function (cache) {
       document.title = `${cache.name} | Kemono`;
       infoView.innerHTML += `
         <li>
@@ -78,11 +79,11 @@ function loadUserInfo () {
         </li>
       `;
     });
-  if (document.getElementsByName('service')[0].content === 'patreon') {
+  if (service === 'Patreon') {
     fetch(proxy)
-      .then(res => res.json())
-      .then(user => {
-        patreonView.innerHTML += `
+      .then(function (res) { return res.json(); })
+      .then(function (user) {
+        extraView.innerHTML += `
           <li>
             Tagline: ${user.included[0].attributes.creation_name}
           </li>
@@ -97,11 +98,4 @@ function loadUserInfo () {
         `;
       });
   }
-}
-
-function main () {
-  loadUserInfo();
-  document.getElementById('search-input').addEventListener('keyup', debounce(() => loadQuery(), 350));
-}
-
-window.onload = () => main();
+})();

@@ -25,20 +25,22 @@ function debounce (func, wait, immediate) {
   };
 }
 
-const thumbHTML = data => `
-  <a href="${data.href}" class="thumb-link">
-    ${data.src ? `
-      <div class="thumb thumb-with-image ${data.class || 'thumb-standard'}">
-        <img src="/thumbnail${data.src.replace('https://kemono.party', '')}?size=500">
-      </div>
-    ` : `
-      <div class="thumb thumb-with-text ${data.class || 'thumb-standard'}">
-        <h3>${data.title}</h3>
-        <p>${data.content}</p>
-      </div>
-    `}
-  </a>
-`;
+function thumbHTML (data) {
+  return `
+    <a href="${data.href}" class="thumb-link">
+      ${data.src ? `
+        <div class="thumb thumb-with-image ${data.class || 'thumb-standard'}">
+          <img src="/thumbnail${data.src.replace('https://kemono.party', '')}?size=500">
+        </div>
+      ` : `
+        <div class="thumb thumb-with-text ${data.class || 'thumb-standard'}">
+          <h3>${data.title}</h3>
+          <p>${data.content}</p>
+        </div>
+      `}
+    </a>
+  `;
+}
 
 const contentView = document.getElementById('content');
 function renderPost (post) {
@@ -47,7 +49,7 @@ function renderPost (post) {
   const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
   inline.reverse();
   const href = post.service === 'patreon' || !post.service ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
-  inline.forEach(url => {
+  inline.forEach(function (url) {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(url) && (/\/inline\//i).test(url)) {
       parent = true;
       contentView.innerHTML += thumbHTML({
@@ -59,7 +61,7 @@ function renderPost (post) {
   });
   const attachments = post.attachments;
   attachments.reverse();
-  attachments.forEach(attachment => {
+  attachments.forEach(function (attachment) {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(attachment.path)) {
       parent = true;
       contentView.innerHTML += thumbHTML({

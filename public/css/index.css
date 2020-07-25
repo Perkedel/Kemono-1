@@ -112,7 +112,7 @@ a:link {
   margin-right: 5px;
   margin-left: 5px;
   overflow: visible;
-  width: 195px;
+  max-width: 195px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;

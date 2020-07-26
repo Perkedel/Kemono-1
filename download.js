@@ -4,11 +4,9 @@ const cd = require('content-disposition');
 const FileType = require('file-type');
 const crypto = require('crypto');
 const retry = require('p-retry');
-const JPEG = require('jpeg-js');
 const fs = require('fs-extra');
-const mime = require('mime');
 const path = require('path');
-const PNG = require('png-js');
+const Worker = require('tiny-worker');
 
 /**
  * Wrapper for Request that automatically handles integrity checking and automatic retries when downloading files.
@@ -42,26 +40,50 @@ module.exports = (opts, requestOpts = {}) => {
                 const tempstats = await fs.stat(path.join(opts.ddir, tempname));
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
               }
-              try {
-                if (mime.getType(filename) === 'image/png') {
-                  PNG.load(path.join(opts.ddir, tempname));
-                } else if (mime.getType(filename) === 'image/jpeg') {
-                  JPEG.decode(await fs.readFile(path.join(opts.ddir, tempname)), {
-                    tolerantDecoding: false
-                  });
-                }
-              } catch (err) {
-                return reject(err); // corrupt png
-              }
 
-              // move to final location
-              await fs.rename(
-                path.join(opts.ddir, tempname),
-                path.join(opts.ddir, filename)
-              );
-              resolve({
+              const worker = new Worker(() => {
+                const JPEG = require('jpeg-js');
+                const fs = require('fs-extra');
+                const mime = require('mime');
+                const path = require('path');
+                const PNG = require('png-js');
+                self.onmessage = (e) => {
+                  try {
+                    if (mime.getType(e.filename) === 'image/png') {
+                      PNG.load(path.join(e.ddir, e.tempname));
+                    } else if (mime.getType(e.filename) === 'image/jpeg') {
+                      JPEG.decode(fs.readFileSync(path.join(e.ddir, e.tempname)), {
+                        tolerantDecoding: false
+                      });
+                    }
+                    postMessage();
+                  } catch (err) {
+                    throw new Error(err);
+                  }
+                  process.exit();
+                }
+              });
+              
+              worker.onmessage = () => {
+                worker.terminate();
+                fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
+                  .then(() => {
+                    resolve({
+                      filename: filename,
+                      res: res
+                    })
+                  })
+              };
+
+              worker.onerror = (err) => {
+                worker.terminate();
+                reject(err.data);
+              };
+
+              worker.postMessage({
                 filename: filename,
-                res: res
+                tempname: tempname,
+                ddir: opts.ddir
               });
             })
             .on('error', err => reject(err))

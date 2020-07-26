@@ -56,14 +56,14 @@ module.exports = (opts, requestOpts = {}) => {
                         tolerantDecoding: false
                       });
                     }
-                    postMessage();
+                    postMessage(); // eslint-disable-line no-undef
                   } catch (err) {
                     throw new Error(err);
                   }
                   process.exit();
-                }
+                };
               });
-              
+
               worker.onmessage = () => {
                 worker.terminate();
                 fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
@@ -71,8 +71,8 @@ module.exports = (opts, requestOpts = {}) => {
                     resolve({
                       filename: filename,
                       res: res
-                    })
-                  })
+                    });
+                  });
               };
 
               worker.onerror = (err) => {

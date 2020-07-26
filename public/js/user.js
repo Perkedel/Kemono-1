@@ -9,7 +9,7 @@ function loadQuery () {
   const pathname = window.location.pathname.split('/');
   const contentView = document.getElementById('content');
   contentView.innerHTML = '';
-  let api = ({
+  const api = ({
     patreon: `/api/user/${pathname[2]}/lookup?q=${query}`,
     fanbox: `/api/fanbox/user/${pathname[3]}/lookup?q=${query}`,
     gumroad: `/api/gumroad/user/${pathname[3]}/lookup?q=${query}`,

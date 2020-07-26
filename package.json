@@ -62,7 +62,8 @@
       "getParameterByName",
       "renderPost",
       "debounce",
-      "confirm"
+      "confirm",
+      "self"
     ]
   }
 }

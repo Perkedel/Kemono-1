@@ -13,6 +13,6 @@ const sidebar = () => `
       </li>
     </div>
   </div>
-`
+`;
 
 module.exports = { sidebar };

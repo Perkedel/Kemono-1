@@ -1,11 +1,11 @@
-const { posts, lookup } = require('../../db');
+const { posts, lookup } = require('../db');
 const Promise = require('bluebird');
 const cloudscraper = require('cloudscraper');
 const nl2br = require('nl2br');
 const retry = require('p-retry');
 const isImage = require('is-image');
 const path = require('path');
-const downloadFile = require('../../download');
+const downloadFile = require('../download');
 const random = (min, max) => Math.floor(Math.random() * (max - min) + min);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const cloudscraperWithRateLimits = (url, opts) => {

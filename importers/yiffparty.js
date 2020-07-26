@@ -1,11 +1,11 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../../db');
+const { posts, bans } = require('../db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
-const downloadFile = require('../../download');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
-const indexer = require('../../indexer');
+const indexer = require('../indexer');
 const isImage = require('is-image');
 
 const sanitizePostContent = async (content) => {

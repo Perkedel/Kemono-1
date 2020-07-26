@@ -1,12 +1,12 @@
-const { posts, bans } = require('../../db');
+const { posts, bans } = require('../db');
 const request = require('request-promise');
 const retry = require('p-retry');
 const path = require('path');
-const indexer = require('../../indexer');
+const indexer = require('../indexer');
 const { unraw } = require('unraw');
 const nl2br = require('nl2br');
-const checkForFlags = require('../../flagcheck');
-const downloadFile = require('../../download');
+const checkForFlags = require('../flagcheck');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 
 const requestOptions = (key) => {

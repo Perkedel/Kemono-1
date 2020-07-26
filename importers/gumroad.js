@@ -1,12 +1,12 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../../db');
+const { posts, bans } = require('../db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
-const checkForFlags = require('../../flagcheck');
-const downloadFile = require('../../download');
+const checkForFlags = require('../flagcheck');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
-const indexer = require('../../indexer');
+const indexer = require('../indexer');
 
 const apiOptions = key => {
   return {

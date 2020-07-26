@@ -9,26 +9,18 @@ function loadQuery () {
   const pathname = window.location.pathname.split('/');
   const contentView = document.getElementById('content');
   contentView.innerHTML = '';
-  let api;
-  switch (document.getElementsByName('service')[0].content) {
-    case 'patreon':
-      api = `/api/user/${pathname[2]}/lookup?q=${query}`;
-      break;
-    case 'fanbox':
-      api = `/api/fanbox/user/${pathname[3]}/lookup?q=${query}`;
-      break;
-    case 'gumroad':
-      api = `/api/gumroad/user/${pathname[3]}/lookup?q=${query}`;
-      break;
-    case 'subscribestar':
-      api = `/api/subscribestar/user/${pathname[3]}/lookup?q=${query}`;
-      break;
-    case 'dlsite':
-      api = `/api/dlsite/user/${pathname[3]}/lookup?q=${query}`;
-  }
+  let api = ({
+    patreon: `/api/user/${pathname[2]}/lookup?q=${query}`,
+    fanbox: `/api/fanbox/user/${pathname[3]}/lookup?q=${query}`,
+    gumroad: `/api/gumroad/user/${pathname[3]}/lookup?q=${query}`,
+    subscribestar: `/api/subscribestar/user/${pathname[3]}/lookup?q=${query}`,
+    dlsite: `/api/dlsite/user/${pathname[3]}/lookup?q=${query}`
+  })[document.getElementsByName('service')[0].content];
   require(['oboe'], function (oboe) {
     oboe(api)
-      .node('!.*', function (post) { return renderPost(post); });
+      .node('!.*', function (post) {
+        return renderPost(post);
+      });
   });
 }
 

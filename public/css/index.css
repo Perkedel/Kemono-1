@@ -111,15 +111,10 @@ a:link {
   float: left;
   margin-right: 5px;
   margin-left: 5px;
-  overflow: visible;
-  width: 195px;
+  max-width: 195px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-}
-
-.page-sidebar {
-  margin-right: 10px;
 }
 
 select {
@@ -238,15 +233,18 @@ input[type="submit"] {
 /* media queries */
 @media only screen and (max-width : 600px) {
   .thumb {
-    width: 140px;
-    height: 140px;
+    width: 160px;
+    height: 160px;
   }
   .content * {
-    max-width: 140px;
-    max-height: 140px;
+    max-width: 160px;
+    max-height: 160px;
   }
   .views {
-    display: block;
+    flex-direction: column;
+  }
+  .sidebar {
+    width: auto;
   }
 }
 

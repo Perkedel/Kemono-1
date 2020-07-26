@@ -111,7 +111,7 @@ a:link {
   float: left;
   margin-right: 5px;
   margin-left: 5px;
-  max-width: 195px;
+  width: 195px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;

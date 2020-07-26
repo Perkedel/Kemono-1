@@ -7,17 +7,17 @@ const downloadFile = require('../download');
 const Promise = require('bluebird');
 const indexer = require('../indexer');
 
-const requestOptions = (key) => {
+const requestOptions = (key, jp) => {
   return {
     json: true,
-    headers: { cookie: `__DLsite_SID=${key}` }
+    headers: { cookie: `__DLsite_SID=${key}; vendor_design=normal; loginchecked=1${jp ? '; dlloginjp=1' : '; dlloginen=1'}` }
   };
 };
 
-const fileRequestOptions = (key) => {
+const fileRequestOptions = (key, jp) => {
   return {
     encoding: null,
-    headers: { cookie: `__DLsite_SID=${key}` }
+    headers: { cookie: `__DLsite_SID=${key}; vendor_design=normal; loginchecked=1${jp ? '; dlloginjp=1' : '; dlloginen=1'}` }
   };
 };
 
@@ -72,7 +72,7 @@ async function scraper (data, page = 1) {
     }, Object.assign({
       url: `https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
       jar: jar
-    }, fileRequestOptions(key)))
+    }, fileRequestOptions(key, data.jp)))
       .then(res => {
         model.attachments.push({
           name: res.filename,

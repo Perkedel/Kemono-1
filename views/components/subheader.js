@@ -18,6 +18,16 @@ const subheader = props => ({
       <li><a href="">List</a></li>
     </ul>
   `,
+  import: `
+    <ul class="subheader">
+      <li><a href="">List</a></li>
+    </ul>
+  `,
+  help: `
+    <ul class="subheader">
+      <li><a href="">List</a></li>
+    </ul>
+  `,
   board: `
     <ul class="subheader">
       <li><a href="/board">List</a></li>

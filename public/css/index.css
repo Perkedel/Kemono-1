@@ -112,10 +112,14 @@ a:link {
   margin-right: 5px;
   margin-left: 5px;
   overflow: visible;
-  max-width: 195px;
+  width: 195px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+}
+
+.page-sidebar {
+  margin-right: 10px;
 }
 
 select {

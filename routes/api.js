@@ -1,4 +1,4 @@
-const { posts, lookup, flags, bans } = require('../../db');
+const { posts, lookup, flags, bans } = require('../db');
 const fs = require('fs-extra');
 const path = require('path');
 const esc = require('escape-string-regexp');
@@ -25,33 +25,33 @@ router
     if (!req.body.session_key) return res.sendStatus(401);
     switch (req.body.service) {
       case 'patreon':
-        require('../../importer')(req.body.session_key);
+        require('../importer')(req.body.session_key);
         break;
       case 'fanbox':
-        require('../../importers/fanbox/importer')(req.body.session_key);
+        require('../importers/fanbox/importer')(req.body.session_key);
         break;
       case 'gumroad':
-        require('../../importers/gumroad/importer')(req.body.session_key);
+        require('../importers/gumroad/importer')(req.body.session_key);
         break;
       case 'subscribestar':
-        require('../../importers/subscribestar/importer')(req.body.session_key);
+        require('../importers/subscribestar/importer')(req.body.session_key);
         break;
       case 'dlsite':
-        require('../../importers/dlsite/importer')({ key: req.body.session_key });
+        require('../importers/dlsite/importer')({ key: req.body.session_key });
         break;
       case 'dlsite-jp':
-        require('../../importers/dlsite/importer')({
+        require('../importers/dlsite/importer')({
           key: req.body.session_key,
           jp: true
         });
         break;
       case 'yiffparty':
         if (!req.body.users) return res.sendStatus(400);
-        require('../../importers/yiffparty/importer')(req.body.users);
+        require('../importers/yiffparty/importer')(req.body.users);
         break;
       case 'discord':
         if (!req.body.channel_ids) return res.sendStatus(400);
-        require('../../importers/discord/importer')({
+        require('../importers/discord/importer')({
           key: req.body.session_key,
           channels: req.body.channel_ids.replace(/\s+/g, '')
         });

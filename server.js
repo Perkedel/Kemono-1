@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { api, proxy, board } = require('./routes');
+const { api, proxy, board, importer, help } = require('./routes');
 const { posts, lookup, flags } = require('./db');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
@@ -41,8 +41,10 @@ express()
     setHeaders: (res) => res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
   }))
   .use('/api', api)
+  .use('/help', help)
   .use('/proxy', proxy)
   .use('/board', board)
+  .use('/importer', importer)
   .get('/thumbnail/*', async (req, res) => {
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
     if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);

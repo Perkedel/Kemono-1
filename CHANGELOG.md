@@ -15,6 +15,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   - SubscribeStar dates and sorting now fixed; importer now stable
   - Pages are now server-side rendered for efficiency
   - Better handling for deleted/unavailable products in Gumroad importer
+  - Thumbnail scraping improved in Gumroad importer
   - Discord importer now uses main download instead of proxy (which is usually lower quality)
   - Changes in thumbnail generator for reduced resource usage
   - Minor UI fixes

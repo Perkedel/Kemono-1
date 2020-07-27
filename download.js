@@ -47,12 +47,12 @@ module.exports = (opts, requestOpts = {}) => {
                 const mime = require('mime');
                 const path = require('path');
                 const PNG = require('png-js');
-                self.onmessage = (e) => {
+                self.onmessage = e => {
                   try {
-                    if (mime.getType(e.filename) === 'image/png') {
-                      PNG.load(path.join(e.ddir, e.tempname));
-                    } else if (mime.getType(e.filename) === 'image/jpeg') {
-                      JPEG.decode(fs.readFileSync(path.join(e.ddir, e.tempname)), {
+                    if (mime.getType(e.data.filename) === 'image/png') {
+                      PNG.load(path.join(e.data.ddir, e.data.tempname));
+                    } else if (mime.getType(e.data.filename) === 'image/jpeg') {
+                      JPEG.decode(fs.readFileSync(path.join(e.data.ddir, e.data.tempname)), {
                         tolerantDecoding: false
                       });
                     }

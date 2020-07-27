@@ -86,8 +86,16 @@ async function scraper (key) {
     });
     const downloadPage = await cloudscraper.get(productData.contentUrl, scrapeOptions(key));
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
-      thumbnail: {
+      thumbnail1: {
         selector: '.image-preview-container img',
+        attr: 'src'
+      },
+      thumbnail2: {
+        selector: '.image-preview-container img',
+        attr: 'data-cfsrc'
+      },
+      thumbnail3: {
+        selector: '.image-preview-container noscript img',
         attr: 'src'
       },
       data: {
@@ -106,14 +114,15 @@ async function scraper (key) {
       }
     });
 
-    if (downloadData.thumbnail) {
-      const urlBits = new URL(downloadData.thumbnail).pathname.split('/');
+    const thumbnail = downloadData.thumbnail1 || downloadData.thumbnail2 || downloadData.thumbnail3;
+    if (thumbnail) {
+      const urlBits = new URL(thumbnail).pathname.split('/');
       const filename = urlBits[urlBits.length - 1].replace(/%20/g, '_');
       await downloadFile({
         ddir: path.join(process.env.DB_ROOT, `/files/gumroad/${userId}/${product.id}`),
         name: filename
       }, {
-        url: downloadData.thumbnail
+        url: thumbnail
       });
       model.post_file.name = filename;
       model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;

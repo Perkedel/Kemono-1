@@ -27,6 +27,7 @@ const scrapeOptions = key => {
 async function scraper (key) {
   const gumroad = await cloudscraper.get('https://gumroad.com/discover_search?from=1&user_purchases_only=true', apiOptions(key));
   if (gumroad.total > 500000) return; // not logged in
+  console.log(gumroad) // temp debug
   const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
       listItem: '.product-card',
@@ -85,6 +86,7 @@ async function scraper (key) {
       }
     });
     const downloadPage = await cloudscraper.get(productData.contentUrl, scrapeOptions(key));
+    console.log(downloadPage) // temp debug
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail: {
         selector: '.image-preview-container img',
@@ -105,7 +107,7 @@ async function scraper (key) {
         }
       }
     });
-
+    console.log(downloadData) // temp debug
     if (downloadData.thumbnail) {
       const urlBits = new URL(downloadData.thumbnail).pathname.split('/');
       const filename = urlBits[urlBits.length - 1].replace(/%20/g, '_');

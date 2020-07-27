@@ -38,7 +38,7 @@ express()
   .use(bodyParser.json())
   .use(express.static('public', {
     extensions: ['html', 'htm'],
-    setHeaders: (res) => res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+    setHeaders: (res) => res.setHeader('Cache-Control', 'max-age=300, public, stale-while-revalidate=2592000')
   }))
   .use('/api', api)
   .use('/help', help)

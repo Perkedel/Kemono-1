@@ -53,6 +53,12 @@ async function scraper (data, page = 1) {
       attachments: []
     };
 
+    const { scrape, scrapeRes } = await scrapeIt(`https://www.dlsite.com/${data.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
+      drmTag: '.icon_PVA'
+    })
+
+    if (scrapeRes.statusCode === 200 && scrape.drmTag) return; // DRMed product; skip
+
     if (Object.keys(work.work_files || {}).length) {
       await downloadFile({
         ddir: path.join(process.env.DB_ROOT, `/files/dlsite/${work.maker_id}/${work.workno}`)

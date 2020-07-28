@@ -1,5 +1,6 @@
 const { posts, bans } = require('../db');
 const request = require('request-promise');
+const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');

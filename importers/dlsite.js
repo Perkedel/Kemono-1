@@ -89,7 +89,7 @@ async function scraper (importData, page = 1) {
 
     // handle split files
     if (res.filename.endsWith('.Untitled')) {
-      const splitFileData = scrapeIt.scrapeHtml(await fs.readFile(path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`, res.filename), 'utf8'), {
+      const splitFileData = scrapeIt.scrapeHTML(await fs.readFile(path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`, res.filename), 'utf8'), {
         parts: {
           listItem: '.work_download a',
           data: {

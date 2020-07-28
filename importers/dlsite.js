@@ -23,10 +23,10 @@ const fileRequestOptions = (key, jp) => {
   };
 };
 
-async function scraper (data, page = 1) {
-  const auth = await retry(() => request.get(`https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/authorize`, requestOptions(data.key)));
+async function scraper (importData, page = 1) {
+  const auth = await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/authorize`, requestOptions(importData.key)));
   const key = auth.sid;
-  const dlsite = await retry(() => request.get(`https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key)));
+  const dlsite = await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key)));
   Promise.map(dlsite.works, async (work) => {
     const banExists = await bans.findOne({ id: work.maker_id, service: 'dlsite' });
     if (banExists) return;
@@ -55,11 +55,11 @@ async function scraper (data, page = 1) {
       attachments: []
     };
 
-    const { scrape, scrapeRes } = await scrapeIt(`https://www.dlsite.com/${data.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
+    const { data, response } = await scrapeIt(`https://www.dlsite.com/${importData.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
       drmTag: '.icon_PVA'
     })
 
-    if (scrapeRes.statusCode === 200 && scrape.drmTag) return; // DRMed product; skip
+    if (response.statusCode === 200 && data.drmTag) return; // DRMed product; skip
 
     if (Object.keys(work.work_files || {}).length) {
       await downloadFile({
@@ -73,14 +73,14 @@ async function scraper (data, page = 1) {
         });
     }
 
-    await retry(() => request.get(`https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key)));
+    await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key)));
     const jar = request.jar(); // required for auth dance
     const res = await downloadFile({
       ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
     }, Object.assign({
-      url: `https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
+      url: `https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
       jar: jar
-    }, fileRequestOptions(key, data.jp)))
+    }, fileRequestOptions(key, importData.jp)))
 
     model.attachments.push({
       name: res.filename,
@@ -107,7 +107,7 @@ async function scraper (data, page = 1) {
           }, Object.assign({
             url: part,
             jar: jar
-          }, fileRequestOptions(key, data.jp)))
+          }, fileRequestOptions(key, importData.jp)))
             .then(res => {
               model.attachments.push({
                 name: res.filename,
@@ -124,7 +124,7 @@ async function scraper (data, page = 1) {
   });
 
   if (dlsite.works.length) {
-    scraper(data, page + 1);
+    scraper(importData, page + 1);
   } else {
     indexer();
   }

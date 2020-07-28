@@ -105,7 +105,7 @@ async function scraper (importData, page = 1) {
           await downloadFile({
             ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
           }, Object.assign({
-            url: part,
+            url: part.id,
             jar: jar
           }, fileRequestOptions(key, importData.jp)))
             .then(res => {

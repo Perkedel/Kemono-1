@@ -73,18 +73,48 @@ async function scraper (data, page = 1) {
 
     await retry(() => request.get(`https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key)));
     const jar = request.jar(); // required for auth dance
-    await downloadFile({
+    const res = await downloadFile({
       ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
     }, Object.assign({
       url: `https://play.dlsite.com/${data.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
       jar: jar
     }, fileRequestOptions(key, data.jp)))
-      .then(res => {
-        model.attachments.push({
-          name: res.filename,
-          path: `/attachments/dlsite/${work.maker_id}/${work.workno}/${res.filename}`
-        });
+
+    model.attachments.push({
+      name: res.filename,
+      path: `/attachments/dlsite/${work.maker_id}/${work.workno}/${res.filename}`
+    });
+
+    // handle split files
+    if (res.filename.endsWith('.Untitled')) {
+      const splitFileData = scrapeIt.scrapeHtml(await fs.readFile(path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`, res.filename)), {
+        parts: {
+          listItem: '.work_download a',
+          data: {
+            id: {
+              attr: 'href'
+            }
+          }
+        }
       });
+
+      if (splitFileData.parts) {
+        await Promise.map(splitFileData.parts, async (part) => {
+          await downloadFile({
+            ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
+          }, Object.assign({
+            url: part,
+            jar: jar
+          }, fileRequestOptions(key, data.jp)))
+            .then(res => {
+              model.attachments.push({
+                name: res.filename,
+                path: `/attachments/dlsite/${work.maker_id}/${work.workno}/${res.filename}`
+              });
+            });
+        })
+      }
+    }
 
     posts.insertOne(model);
   });

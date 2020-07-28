@@ -65,6 +65,11 @@ const post = props => shell(`
 
           // title hidden with subscribestar posts to prevent redundancy
           return `
+            ${post.service === 'dlsite' && post.attachments.length > 1 ? `
+              <p class="subtitle">
+                This DLsite post was received as a split set of multiple files due to file size. Download all the files, then open <strong>${post.attachments[1].name}</strong> to compile them into a single one.
+              </p>
+            ` : ''}
             <h1>${post.service === 'subscribestar' ? '' : post.title}</h1>
             ${attachments}
             <p>${post.content}</p>

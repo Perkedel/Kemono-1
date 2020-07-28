@@ -54,7 +54,7 @@ const list = () => shell(`
           <h3>DLsite</h3>
           <ul>
             <li>The English and Japanese versions of DLsite are separate, and have different APIs and login systems. Make sure to select the right one!</li>
-            <li>As of right now, the importer is unable to crack DRM-protected works from DLsite (anything with the extensions .dlst or .cpd)</li>
+            <li>As of right now, the importer is unable to crack DRM-protected works from DLsite. (extensions .dlst and .cpd) These will not be downloaded.</li>
             <li>DLsite has a short token expiration period. If your import fails, try getting a new token by logging out and back in.</li>
           </ul>
           If you're having trouble with the importer, contact admin. 

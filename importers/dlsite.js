@@ -113,6 +113,7 @@ async function scraper (data, page = 1) {
               });
             });
         })
+        model.attachments.splice(0, 1); // remove untitled file
       }
     }
 

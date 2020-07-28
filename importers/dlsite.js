@@ -1,6 +1,7 @@
 const { posts, bans } = require('../db');
 const request = require('request-promise');
 const retry = require('p-retry');
+const fs = require('fs-extra');
 const path = require('path');
 const checkForFlags = require('../flagcheck');
 const downloadFile = require('../download');
@@ -113,6 +114,7 @@ async function scraper (data, page = 1) {
               });
             });
         })
+        await fs.remove(model.attachments[0].path);
         model.attachments.splice(0, 1); // remove untitled file
       }
     }

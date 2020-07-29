@@ -8,7 +8,7 @@ const express = require('express');
 const fs = require('fs-extra');
 const sharp = require('sharp');
 const path = require('path');
-const { artists, post, user, server, recent } = require('./views');
+const { artists, post, user, server, recent, upload } = require('./views');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
@@ -47,9 +47,9 @@ express()
   .use('/importer', importer)
   .get('/thumbnail/*', async (req, res) => {
     const file = `${process.env.DB_ROOT}/${req.params[0]}`;
-    if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
     const fileExists = await fs.pathExists(file);
     if (!fileExists) return res.sendStatus(404);
+    if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
     const type = imageType(await readChunk(file, 0, imageType.minimumBytes));
     let ext = type ? type.ext : '';
     ext = ext === 'jpg' ? 'jpeg' : ext;
@@ -108,6 +108,9 @@ express()
         url: req.path
       }));
   })
+  .get('/posts/upload', (req, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(upload({
+    query: req.query
+  })))
   .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
   .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
   .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
@@ -150,6 +153,7 @@ express()
           .send(user({
             count: userUniqueIds.length,
             service: req.params.service || 'patreon',
+            id: req.params.id,
             posts: userPosts,
             query: req.query,
             url: req.path

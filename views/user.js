@@ -25,6 +25,8 @@ const user = props => shell(`
         <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
         <script src="/js/utils.js"></script>
         <script src="/js/user.js"></script>
+        <h1>Actions</h1>
+        <a href="/posts/upload?user=${props.id}&service=${props.service}">Upload file</a>
       </div>
       ${list({
         o: props.query.o,

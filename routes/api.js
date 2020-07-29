@@ -1,4 +1,5 @@
 const { posts, lookup, flags, bans } = require('../db');
+const upload = require('./upload');
 const fs = require('fs-extra');
 const path = require('path');
 const esc = require('escape-string-regexp');
@@ -7,6 +8,7 @@ const express = require('express');
 const router = express.Router();
 
 router
+  .use('/upload', upload)
   .get('/bans', async (_, res) => {
     const userBans = await bans.find({}).toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');

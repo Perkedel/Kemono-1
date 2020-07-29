@@ -33,7 +33,7 @@ const preview = props => {
     src: props.post.post_type === 'image_file' || props.post.post_type === 'image' ? props.post.post_file.path : undefined,
     title: props.post.title,
     content: props.post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
-    class: parent ? 'thumb-parent' : undefined,
+    class: props.post.shared_file ? 'thumb-shared' : (parent ? 'thumb-parent' : undefined),
     href: href
   });
   return html;

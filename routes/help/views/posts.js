@@ -12,6 +12,7 @@ const posts = () => shell(`
         <p>
           A <span style="color:#0f0">green</span> border means the post is the parent of one or more "child" images.<br>
           A <span style="color:#cc0">yellow</span> border means the image has a parent.<br>
+          An <span style="color:#ff7f00">orange</span> border means the post is a shared file.<br>
           <br>
           Multiple edits of the same post can appear on one page.
         </p>

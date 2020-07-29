@@ -130,7 +130,7 @@ async function parseBody (body, key, opts) {
     await Promise.mapSeries(body.blocks, async (block) => {
       switch (block.type) {
         case 'p': {
-          concatenatedText += `${unraw(block.text)}<br>`;
+          concatenatedText += block.text ? `${unraw(block.text)}<br>` : '';
           break;
         }
         case 'image': {

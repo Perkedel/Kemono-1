@@ -18,7 +18,7 @@ const Worker = require('tiny-worker');
  * @param {String} requestOpts.url - The URL to download from.
  */
 module.exports = (opts, requestOpts = {}) => {
-  Object.assign(opts, { encoding: null });
+  Object.assign(requestOpts, { encoding: null });
   const tempname = crypto.randomBytes(20).toString('hex') + '.temp';
   return retry(() => {
     return new Promise((resolve, reject) => {

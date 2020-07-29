@@ -57,7 +57,7 @@ async function scraper (importData, page = 1) {
 
     const { data, response } = await scrapeIt(`https://www.dlsite.com/${importData.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
       drmTag: '.icon_PVA'
-    })
+    });
 
     if (response.statusCode === 200 && data.drmTag) return; // DRMed product; skip
 
@@ -80,7 +80,7 @@ async function scraper (importData, page = 1) {
     }, Object.assign({
       url: `https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
       jar: jar
-    }, fileRequestOptions(key, importData.jp)))
+    }, fileRequestOptions(key, importData.jp)));
 
     model.attachments.push({
       name: res.filename,
@@ -114,7 +114,7 @@ async function scraper (importData, page = 1) {
                 path: `/attachments/dlsite/${work.maker_id}/${work.workno}/${res.filename}`
               });
             });
-        })
+        });
         await fs.remove(model.attachments[0].path);
         model.attachments.splice(0, 1); // remove untitled file
       }

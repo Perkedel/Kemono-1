@@ -14,7 +14,6 @@ const { artists, post, user, server, recent, upload } = require('./views');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
 const urljoin = require('url-join');
-const { url } = require('inspector');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
 posts.createIndex({ user: 1, service: 1, published_at: -1 });
@@ -159,15 +158,15 @@ express()
       ttl: 40
     });
     await Promise.map(userPosts, post => {
-      let item = {
+      const item = {
         title: post.title,
         id: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id, 'post', post.id),
         link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id, 'post', post.id),
         description: post.content,
         date: new Date(post.added_at)
       };
-      if (Object.keys(post.post_file).length !== 0 && post.post_type === 'image_file' || post.post_type === 'image') {
-        item['image'] = post.post_file.path;
+      if (Object.keys(post.post_file).length !== 0 && (post.post_type === 'image_file' || post.post_type === 'image')) {
+        item.image = post.post_file.path;
       }
       feed.addItem({
         title: post.title,
@@ -175,7 +174,7 @@ express()
         link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id, 'post', post.id),
         description: post.content,
         date: new Date(post.added_at)
-      })
+      });
     });
     res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
       .send(feed.rss2());

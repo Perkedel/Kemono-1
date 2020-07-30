@@ -154,7 +154,7 @@ express()
       description: `Feed for posts from ${cache.name}.`,
       id: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id),
       link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id),
-      generator: 'Kemono', // optional, default = 'Feed for Node.js'
+      generator: 'Kemono',
       ttl: 40
     });
     await Promise.map(userPosts, post => {

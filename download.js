@@ -58,7 +58,7 @@ module.exports = (opts, requestOpts = {}) => {
                     }
                     postMessage(); // eslint-disable-line no-undef
                   } catch (err) {
-                    throw new Error(err);
+                    throw new Error('Decode failed');
                   }
                   process.exit();
                 };

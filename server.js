@@ -177,7 +177,8 @@ express()
         date: new Date(post.added_at)
       })
     });
-    res.send(feed.rss2());
+    res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+      .send(feed.rss2());
   })
   .get('/:service?/:type/:id', async (req, res) => {
     res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');

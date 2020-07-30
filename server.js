@@ -8,9 +8,13 @@ const express = require('express');
 const fs = require('fs-extra');
 const sharp = require('sharp');
 const path = require('path');
+const Promise = require('bluebird');
+const { Feed } = require('feed');
 const { artists, post, user, server, recent, upload } = require('./views');
 const esc = require('escape-string-regexp');
 const indexer = require('./indexer');
+const urljoin = require('url-join');
+const { url } = require('inspector');
 posts.createIndex({ title: 'text', content: 'text' }); // /api/:service?/:entity/:id/lookup
 posts.createIndex({ user: 1, service: 1 }); // /api/:service?/:entity/:id
 posts.createIndex({ user: 1, service: 1, published_at: -1 });
@@ -128,6 +132,52 @@ express()
         'user', random[0].user,
         'post', random[0].id
       ));
+  })
+  .get('/:service?/:entity/:id/rss', async (req, res) => {
+    const query = {};
+    query[req.params.entity] = req.params.id;
+    if (!req.params.service) {
+      query.$or = [
+        { service: 'patreon' },
+        { service: null }
+      ];
+    } else {
+      query.service = req.params.service;
+    }
+    const userPosts = await posts.find(query)
+      .sort({ added_at: -1 })
+      .limit(10)
+      .toArray();
+
+    const cache = await lookup.findOne({ id: req.params.id, service: req.params.service || 'patreon' });
+    const feed = new Feed({
+      title: cache.name,
+      description: `Feed for posts from ${cache.name}.`,
+      id: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id),
+      link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id),
+      generator: 'Kemono', // optional, default = 'Feed for Node.js'
+      ttl: 40
+    });
+    await Promise.map(userPosts, post => {
+      let item = {
+        title: post.title,
+        id: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id, 'post', post.id),
+        link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id, 'post', post.id),
+        description: post.content,
+        date: new Date(post.added_at)
+      };
+      if (Object.keys(post.post_file).length !== 0 && post.post_type === 'image_file' || post.post_type === 'image') {
+        item['image'] = post.post_file.path;
+      }
+      feed.addItem({
+        title: post.title,
+        id: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id, 'post', post.id),
+        link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service || '', req.params.entity, req.params.id, 'post', post.id),
+        description: post.content,
+        date: new Date(post.added_at)
+      })
+    });
+    res.send(feed.rss2());
   })
   .get('/:service?/:type/:id', async (req, res) => {
     res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');

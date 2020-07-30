@@ -4,6 +4,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
 - *Breaking change:* Proxy support has been removed.
 - Yiff.party support
 - Shared Files support
+- RSS feeds
 - DLsite support
 - "Artists" tab
 - Board functionality

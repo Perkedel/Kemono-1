@@ -42,7 +42,7 @@ router
   })
   .post('/', upload.single('file'), async (req, res) => {
     if (!req.body.title || req.body.content.length > 50) return res.sendStatus(400);
-    if (!req.body.content || req.body.content.length > 5000) return res.sendStatus(400);
+    if (req.body.content && req.body.content.length > 5000) return res.sendStatus(400);
     if (!req.file) return res.sendStatus(400);
     if (process.env.MASTER_KEY && !req.body.token) return res.sendStatus(401);
     if (process.env.MASTER_KEY) {
@@ -71,7 +71,7 @@ router
       shared_file: true,
       service: service,
       title: xss(req.body.title),
-      content: xss(req.body.content),
+      content: xss(req.body.content || ''),
       id: req.id,
       user: xss(req.body.user),
       post_type: (/\.(gif|jpe?g|png|webp)$/i).test(req.file.originalname) ? 'image' : 'text_only',

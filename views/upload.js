@@ -64,6 +64,7 @@ const upload = props => shell(`
             id="title"
             maxlength="50"
             required
+            placeholder="&quot;February 2016 Rewards&quot;"
           >
         </div>
         <div>
@@ -75,7 +76,7 @@ const upload = props => shell(`
             cols="48"
             rows="4"
             wrap="soft"
-            required
+            placeholder="Specify what the file/archive is, where the original post can be found, include relevant keys/passwords, etc."
           ></textarea>
         </div>
         <div>

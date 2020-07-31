@@ -48,18 +48,14 @@ module.exports = (opts, requestOpts = {}) => {
                 const path = require('path');
                 const PNG = require('png-js');
                 self.onmessage = e => {
-                  try {
-                    if (mime.getType(e.data.filename) === 'image/png') {
-                      PNG.load(path.join(e.data.ddir, e.data.tempname));
-                    } else if (mime.getType(e.data.filename) === 'image/jpeg') {
-                      JPEG.decode(fs.readFileSync(path.join(e.data.ddir, e.data.tempname)), {
-                        tolerantDecoding: false
-                      });
-                    }
-                    postMessage(); // eslint-disable-line no-undef
-                  } catch (err) {
-                    throw err;
+                  if (mime.getType(e.data.filename) === 'image/png') {
+                    PNG.load(path.join(e.data.ddir, e.data.tempname));
+                  } else if (mime.getType(e.data.filename) === 'image/jpeg') {
+                    JPEG.decode(fs.readFileSync(path.join(e.data.ddir, e.data.tempname)), {
+                      tolerantDecoding: false
+                    });
                   }
+                  postMessage(); // eslint-disable-line no-undef
                   process.exit();
                 };
               });

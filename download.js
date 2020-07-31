@@ -58,7 +58,7 @@ module.exports = (opts, requestOpts = {}) => {
                     }
                     postMessage(); // eslint-disable-line no-undef
                   } catch (err) {
-                    throw new Error('Decode failed');
+                    throw err;
                   }
                   process.exit();
                 };
@@ -75,9 +75,9 @@ module.exports = (opts, requestOpts = {}) => {
                   });
               };
 
-              worker.onerror = (err) => {
+              worker.onerror = () => {
                 worker.terminate();
-                reject(err.data);
+                reject(new Error('Decode failed'));
               };
 
               worker.postMessage({

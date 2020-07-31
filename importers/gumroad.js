@@ -24,8 +24,8 @@ const scrapeOptions = key => {
   };
 };
 
-async function scraper (key) {
-  const gumroad = await cloudscraper.get('https://gumroad.com/discover_search?from=1&user_purchases_only=true', apiOptions(key));
+async function scraper (key, from = 1) {
+  const gumroad = await cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key));
   if (gumroad.total > 500000) return; // not logged in
   const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
@@ -146,7 +146,11 @@ async function scraper (key) {
     posts.insertOne(model);
   });
 
-  indexer();
+  if (data.products.length) {
+    scraper(key, from + gumroad.result_count);
+  } else {
+    indexer();
+  }
 }
 
 module.exports = data => scraper(data);

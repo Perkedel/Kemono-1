@@ -1,15 +1,15 @@
 
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('./db');
+const { posts, bans } = require('../db');
 const retry = require('p-retry');
 const hasha = require('hasha');
 const mime = require('mime');
 const path = require('path');
-const checkForFlags = require('./flagcheck');
-const downloadFile = require('./download');
+const checkForFlags = require('../flagcheck');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
-const indexer = require('./indexer');
+const indexer = require('../indexer');
 const isImage = require('is-image');
 const getUrls = require('get-urls');
 

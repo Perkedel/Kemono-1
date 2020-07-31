@@ -27,7 +27,7 @@ router
     if (!req.body.session_key) return res.sendStatus(401);
     switch (req.body.service) {
       case 'patreon':
-        require('../importer')(req.body.session_key);
+        require('../importers/patreon')(req.body.session_key);
         break;
       case 'fanbox':
         require('../importers/fanbox')(req.body.session_key);

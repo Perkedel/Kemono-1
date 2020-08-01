@@ -10,7 +10,7 @@ const bans = () => shell(`
       <div class="page" id="page">
         <h1>Bans</h1>
         <p>
-          The following users have been banned from this instance in accordance with the <a href="./rules">rules</a>. Posts from them will not import.<br>
+          The following users have been banned from this instance. Posts from them will not import.<br>
           <ul id="bans">
             
           </ul>

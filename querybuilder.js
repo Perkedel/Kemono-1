@@ -4,6 +4,7 @@ module.exports = (str) => {
   let query = {}; // mongodb query
   const tags = str.replace(/\s\s+/g, ' ').trim().split(' ');
   for (var i = 0; i < tags.length; i++) {
+    // TODO: Add negative queries
     // general tags
     if (!/:/.test(tags[i])) {
       query = merge(query, {

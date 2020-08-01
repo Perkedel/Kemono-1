@@ -98,9 +98,6 @@ const upload = props => shell(`
               id="token"
               required
             >
-            <small class="subtitle" style="margin-left: 5px;">This instance protects uploading behind tokens. ${process.env.SHARED_FILES_NOTE ? `
-              The admin says: "${process.env.SHARED_FILES_NOTE}"
-            ` : ''}</small>
           </div>
         ` : ''}
         <input type="submit"/>

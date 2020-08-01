@@ -10,10 +10,7 @@ const rules = () => shell(`
       <div class="page" id="page">
         <h1>Rules</h1>
         <p>
-          <ul>
-            <li>All forms of real porn (including NSFW ASMR and erotic cosplay) are not allowed here, and will be banned and purged on sight.</li>
-            <li>Do not attempt to import real child porn or animal abuse materials.</li>
-          </ul>
+          <span class="subtitle">ｷﾀ━━━(ﾟ∀ﾟ)━━━!!</span>
         </p>
       </div>
     </div>

@@ -137,6 +137,9 @@ express()
       ));
   })
   .get('/:service?/:entity/:id/rss', async (req, res) => {
+    const cache = await lookup.findOne({ id: req.params.id, service: req.params.service || 'patreon' });
+    if (!cache) return res.sendStatus(404);
+    
     const query = {};
     query[req.params.entity] = req.params.id;
     if (!req.params.service) {
@@ -152,7 +155,6 @@ express()
       .limit(10)
       .toArray();
 
-    const cache = await lookup.findOne({ id: req.params.id, service: req.params.service || 'patreon' });
     const feed = new Feed({
       title: cache.name,
       description: `Feed for posts from ${cache.name}.`,

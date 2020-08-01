@@ -8,23 +8,24 @@ module.exports = (str) => {
     if (!/:/.test(tags[i])) {
       query = merge(query, {
         'tags.general': {
-          $all: [tags[i].endsWith('*') ? { $regex: '^' + esc(tags[i].slice(0, -1)) } : tags[i]]
+          $all: [tags[i].endsWith('*') ? { $regex: '^' + esc(tags[i].slice(0, -1).replace(/_/, ' ')) } : tags[i].replace(/_/, ' ')]
         }
       });
       continue;
     }
 
     // metatags tags
-    const [namespace, tag] = tags[i].split(':');
+    const [namespace, pretag] = tags[i].split(':');
+    const tag = pretag.endsWith('*') ? { $regex: '^' + esc(pretag.slice(0, -1).replace(/_/, ' ')) } : pretag.replace(/_/, ' ')
     const metatags = ['id', 'user', 'service', 'added_at', 'published_at', 'edited_at'];
     if (metatags.includes(namespace)) {
-      query[namespace] = tag.endsWith('*') ? { $regex: '^' + esc(tag.slice(0, -1)) } : tag;
+      query[namespace] = tag;
       continue;
     }
 
     query = merge(query, {
       ['tags.' + namespace]: {
-        $all: [tag.endsWith('*') ? { $regex: '^' + esc(tag.slice(0, -1)) } : tag]
+        $all: [tag]
       }
     });
   }

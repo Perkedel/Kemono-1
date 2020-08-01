@@ -14,6 +14,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
 <details>
   <summary>Patch</summary>
 
+  - kemono.party-specific documentation has been moved out of the repo.
   - SubscribeStar dates and sorting now fixed; importer now stable
   - Pages are now server-side rendered for efficiency
   - Better handling for deleted/unavailable products in Gumroad importer

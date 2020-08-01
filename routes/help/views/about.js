@@ -10,7 +10,15 @@ const about = () => shell(`
       <div class="page" id="page">
         <h1>About</h1>
         <p>
-          <span class="subtitle">ｷﾀ━━━(ﾟ∀ﾟ)━━━!!</span>
+          Kemono is a website for the sharing of paywalled content.<br>
+          Key features include:<br>
+          <ul>
+            <li>Web interface significantly more performant than <a href="https://yiff.party">yiff.party</a>'s</li>
+            <li>Familiar booru-like UI</li>
+            <li>Pixiv Fanbox, Gumroad, Discord, SubscribeStar, and DLsite support</li>
+            <li>Support for post edits</li>
+            <li>Free and open-source codebase</li>
+          </ul>
         </p>
       </div>
     </div>

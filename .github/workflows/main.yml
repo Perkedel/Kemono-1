@@ -37,6 +37,11 @@ jobs:
             --output "type=image,push=true" \
             --tag openyiff/kemono:latest \
             --file ./Dockerfile .
+        env:
+          PUBLIC_ORIGIN: ${{ secrets.PUBLIC_ORIGIN }}
+          FANBOX_KEY: ${{ secrets.FANBOX_KEY }}
+          ADMIN_CAPCODE: ${{ secrets.ADMIN_CAPCODE }}
+          MASTER_KEY: ${{ secrets.MASTER_KEY }}
       - 
         name: Docker logout
         run: |

@@ -1,0 +1,23 @@
+version: '2'
+services:
+  kemono-db:
+    image: mongo
+    container_name: kemono-db
+    volumes:
+      - "${DATABASE_DIRECTORY}:/data/db"
+  kemono-app:
+    image: openyiff/kemono # Change this line
+    container_name: kemono
+    restart: unless-stopped
+    depends_on:
+      - "kemono-db"
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - "${STORAGE_DIRECTORY}:/storage"
+    environment:
+      - PUBLIC_ORIGIN
+      - FANBOX_KEY
+      - ADMIN_CAPCODE
+      - MASTER_KEY
+      - MONGO_URL: "mongodb://kemono-db:27017/kemonodb"

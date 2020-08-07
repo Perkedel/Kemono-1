@@ -1,7 +1,10 @@
 Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both development configuration and literal HTTP API.
 
 ### v2.0
-- *Breaking change:* Proxy support has been removed.
+*This update contains breaking changes*
+- This version uses a new post schema, which your database will automatically be migrated to when you run v2.0 for the first time. It isn't reverse compatible, so backup in case you wish to switch back.
+- Proxy support has been removed.
+#### Minor
 - Yiff.party support
 - Shared Files support
 - RSS feeds

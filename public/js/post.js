@@ -6,6 +6,10 @@ function attemptFlag (_, api) {
       });
   }
 }
+let flag = document.getElementById('flag-button');
+document.getElementById('flag-button').addEventListener('click', function (e) {
+  attemptFlag(e, flagApi);
+});
 
 (function () {
   const pathname = window.location.pathname.split('/');

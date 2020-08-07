@@ -1,12 +1,12 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../db');
+const { posts, bans } = require('../utils/db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
 const checkForFlags = require('../flagcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
-const indexer = require('../indexer');
+const indexer = require('../init/indexer');
 
 const apiOptions = key => {
   return {
@@ -65,18 +65,28 @@ async function scraper (key, from = 1) {
     if (postExists) return;
 
     const model = {
-      version: 2,
+      id: product.id,
+      user: userId,
       service: 'gumroad',
       title: product.title,
       content: '',
-      id: product.id,
-      user: userId,
-      post_type: 'image',
-      added_at: new Date().getTime(),
-      published_at: '',
-      post_file: {},
-      attachments: []
+      embed: {},
+      rating: 'explicit',
+      shared_file: false,
+      added_at: new Date().toISOString(),
+      published_at: null,
+      edited_at: null,
+      file: {},
+      attachments: [],
+      tags: {
+        artist: [],
+        character: [],
+        copyright: [],
+        meta: ['tagme'],
+        general: []
+      }
     };
+
     const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
     const productData = await scrapeIt.scrapeHTML(productPage, {
       contentUrl: {
@@ -124,8 +134,8 @@ async function scraper (key, from = 1) {
       }, {
         url: thumbnail
       });
-      model.post_file.name = filename;
-      model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
+      model.file.name = filename;
+      model.file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
     }
 
     await Promise.map(downloadData.data.files, async (file) => {

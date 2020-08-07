@@ -6,7 +6,7 @@ const preview = props => {
   // if you couldn't tell, i'm very bad at regex
   const inline = props.post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
   inline.reverse();
-  const href = props.post.service === 'patreon' || !props.post.service ? `/user/${props.post.user}/post/${props.post.id}` : `/${props.post.service}/user/${props.post.user}/post/${props.post.id}`;
+  const href = `/posts/${props.post.service}/${props.post.id}`;
   inline.forEach(url => {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(url) && (/\/inline\//i).test(url)) {
       parent = true;
@@ -30,7 +30,7 @@ const preview = props => {
     }
   });
   html += thumb({
-    src: props.post.post_type === 'image_file' || props.post.post_type === 'image' ? props.post.post_file.path : undefined,
+    src: (/\.(gif|jpe?g|png|webp)$/i).test(props.post.file.name) ? props.post.file.path : undefined,
     title: props.post.title,
     content: props.post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
     class: props.post.shared_file ? 'thumb-shared' : (parent ? 'thumb-parent' : undefined),

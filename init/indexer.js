@@ -2,10 +2,10 @@ const Promise = require('bluebird');
 const request = require('request-promise');
 const { unraw } = require('unraw');
 const cloudscraper = require('cloudscraper');
-const { posts, lookup } = require('./db');
+const { posts, lookup } = require('../utils/db');
 async function indexer () {
   const postsData = await posts
-    .find({ service: { $ne: 'discord' } })
+    .find({})
     .sort({ added_at: -1 })
     .limit(10000)
     .project({ version: 1, user: 1, service: 1 })

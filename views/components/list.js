@@ -5,7 +5,7 @@ const list = props => `
   <div class="vertical-views">
     <div class="paginator" id="paginator-top">
       ${paginator({
-        o: props.o,
+        query: props.query,
         url: props.url
       })}
     </div>
@@ -13,7 +13,7 @@ const list = props => `
       ${props.posts.length === 0 ? `
         <h1 class="subtitle">Nobody here but us chickens!</h1>
         <p class="subtitle">
-          There are either no more posts beyond this page, or this user hasn't been imported.
+          There are no more posts for your query.
         </p>
       ` : ''}
     </div>
@@ -22,7 +22,7 @@ const list = props => `
     </div>
     <div class="paginator" id="paginator-bottom">
       ${paginator({
-        o: props.o,
+        query: props.query,
         url: props.url
       })}
     </div>

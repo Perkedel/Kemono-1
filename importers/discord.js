@@ -1,4 +1,4 @@
-const { posts, lookup } = require('../db');
+const { discord, lookup } = require('../utils/db');
 const Promise = require('bluebird');
 const cloudscraper = require('cloudscraper');
 const nl2br = require('nl2br');
@@ -80,7 +80,7 @@ async function processChannel (id, server, key, before) {
   await Promise.mapSeries(messages, async (msg, i, len) => {
     if (i === len - 1) lastMessageId = msg.id;
     const attachmentsKey = `attachments/discord/${server}/${msg.channel_id}/${msg.id}`;
-    const existing = await posts.findOne({ id: msg.id, service: 'discord' });
+    const existing = await discord.findOne({ id: msg.id, service: 'discord' });
     if (existing) return;
     const model = {
       version: 3,
@@ -114,7 +114,7 @@ async function processChannel (id, server, key, before) {
       });
     });
 
-    await posts.insertOne(model);
+    await discord.insertOne(model);
   });
 
   if (messages.length === 50) {

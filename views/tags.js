@@ -1,3 +1,4 @@
+const { buildBooruQueryFromString } = require('../utils/builders')
 const { shell, header, subheader, list } = require('./components');
 
 const tags = props => shell(`
@@ -49,10 +50,13 @@ const tags = props => shell(`
             })()}
           </ul>
         </div>
+        <div id="additional-info">
+        </div>
         <div>
           <h5>Options</h5>
           <ul>
             <li><a href="/posts/random${props.query.tags ? `?tags=${props.query.tags}` : ''}">Random</a></li>
+            <li><a href="/posts/rss${props.query.tags ? `?tags=${props.query.tags}` : ''}">RSS</a></li>
           </ul>
         </div>
       </div>
@@ -65,7 +69,10 @@ const tags = props => shell(`
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
   <script src="/js/utils.js"></script>
-  <script src="/js/posts.js"></script>
-`);
+  <script src="/js/tags.js"></script>
+`, {
+  service: buildBooruQueryFromString(props.query.tags || '').service,
+  user: buildBooruQueryFromString(props.query.tags || '').user,
+});
 
 module.exports = { tags };

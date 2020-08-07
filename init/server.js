@@ -8,8 +8,11 @@ const express = require('express');
 const fs = require('fs-extra');
 const sharp = require('sharp');
 const path = require('path');
+const Promise = require('bluebird');
+const { Feed } = require('feed');
 const { artists, post, server, tags, upload, history } = require('../views');
 const { buildBooruQueryFromString } = require('../utils/builders');
+const urljoin = require('url-join');
 const esc = require('escape-string-regexp');
 sharp.cache(false);
 
@@ -85,16 +88,53 @@ module.exports = () => {
     })
     .get('/posts', async (req, res) => {
       const recentPosts = await posts.find(req.query.tags ? buildBooruQueryFromString(req.query.tags) : {})
-        .sort({ added_at: -1 })
+        .sort({ _id: -1 })
         .skip(Number(req.query.o) || 0)
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
         .toArray();
+      const uniqueCount = await posts.distinct('id', req.query.tags ? buildBooruQueryFromString(req.query.tags) : {});
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .send(tags({
           posts: recentPosts,
+          count: uniqueCount,
           query: req.query,
           url: req.path
         }));
+    })
+    .get('/posts/rss', async (req, res) => {
+      const recentPosts = await posts.find(req.query.tags ? buildBooruQueryFromString(req.query.tags) : {})
+        .sort({ _id: -1 })
+        .limit(10)
+        .toArray();
+      const feed = new Feed({
+        title: `Search for "${req.query.tags}"`,
+        description: `Feed for search "${req.query.tags}".`,
+        id: urljoin(process.env.PUBLIC_ORIGIN, `posts${req.query.tags ? `?tags=${req.query.tags}` : ''}`),
+        link: urljoin(process.env.PUBLIC_ORIGIN, `posts${req.query.tags ? `?tags=${req.query.tags}` : ''}`),
+        generator: 'Kemono',
+        ttl: 40
+      });
+      await Promise.map(recentPosts, post => {
+        const item = {
+          title: post.title,
+          id: urljoin(process.env.PUBLIC_ORIGIN, `posts${req.query.tags ? `?tags=${req.query.tags}` : ''}`),
+          link: urljoin(process.env.PUBLIC_ORIGIN, `posts${req.query.tags ? `?tags=${req.query.tags}` : ''}`),
+          description: post.content,
+          date: new Date(post.added_at)
+        };
+        if (Object.keys(post.file).length !== 0 && (/\.(gif|jpe?g|png|webp)$/i).test(post.file.name)) {
+          item.image = post.file.path;
+        }
+        feed.addItem({
+          title: post.title,
+          id: urljoin(process.env.PUBLIC_ORIGIN, `posts${req.query.tags ? `?tags=${req.query.tags}` : ''}`),
+          link: urljoin(process.env.PUBLIC_ORIGIN, `posts${req.query.tags ? `?tags=${req.query.tags}` : ''}`),
+          description: post.content,
+          date: new Date(post.added_at)
+        });
+      });
+      res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+        .send(feed.rss2());
     })
     .get('/posts/random', async (req, res) => {
       const postsCount = await posts.countDocuments(req.query.tags ? buildBooruQueryFromString(req.query.tags) : {});
@@ -129,7 +169,6 @@ module.exports = () => {
     .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
     .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
     .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
-    // to reimplement; rss
     .get('/discord/server/:id', (_, res) => res.send(server()))
     .listen(process.env.PORT || 8000);
 }

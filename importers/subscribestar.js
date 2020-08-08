@@ -90,7 +90,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
         general: []
       }
     };
-    
+
     if (model.title === 'Extend Subscription') return;
     if ((/This post belongs to a locked/i).test(model.content)) return;
     await Promise.mapSeries(post.attachments, async (attachment) => {

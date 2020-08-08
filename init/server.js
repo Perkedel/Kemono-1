@@ -143,7 +143,7 @@ module.exports = () => {
         .limit(1)
         .toArray();
       res.set('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
-        .redirect(path.join('/posts', random[0].service, random[0].id))
+        .redirect(path.join('/posts', random[0].service, random[0].id));
     })
     .get('/posts/:service/:id', async (req, res) => {
       const idPosts = await posts.find({ id: req.params.id, service: req.params.service }).toArray();
@@ -171,4 +171,4 @@ module.exports = () => {
     .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
     .get('/discord/server/:id', (_, res) => res.send(server()))
     .listen(process.env.PORT || 8000);
-}
+};

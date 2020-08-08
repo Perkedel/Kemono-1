@@ -1,5 +1,5 @@
 const { posts, discord } = require('../utils/db');
-const { to } = require('await-to-js')
+const { to } = require('await-to-js');
 module.exports = async () => {
   // v1.x -> v2.0
   // Introduces booru schema. Discord archives are moved to new collection to keep semantics separate.
@@ -32,10 +32,10 @@ module.exports = async () => {
         // tags
         tags: x.tags || {
           artist: [],
-	        character: [],
-	        copyright: [],
-	        meta: ['tagme'],
-	        general: []
+          character: [],
+          copyright: [],
+          meta: ['tagme'],
+          general: []
         }
       });
     }));
@@ -45,4 +45,4 @@ module.exports = async () => {
       posts.deleteOne({ _id: x._id });
       discord.save(x);
     }));
-}
+};

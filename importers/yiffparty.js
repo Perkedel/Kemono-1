@@ -3,7 +3,7 @@ const { posts, bans } = require('../utils/db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
-const downloadFile = require('../download');
+const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 const indexer = require('../init/indexer');
 

@@ -1,4 +1,4 @@
-const { buildBooruQueryFromString } = require('../utils/builders')
+const { buildBooruQueryFromString } = require('../utils/builders');
 const { shell, header, subheader, list } = require('./components');
 
 const tags = props => shell(`
@@ -9,7 +9,20 @@ const tags = props => shell(`
       <div class="sidebar">
         <div>
           <h5>Search</h5>
-          <form action="/posts" accept-charset="UTF-8" method="get">
+          <form
+            action="/posts"
+            accept-charset="UTF-8"
+            method="get"
+            style="display:flex; flex-direction:column"
+          >
+            <select id="sort_by" name="sort_by">
+              <option value="_id" ${props.query.sort_by === '_id' ? 'selected' : ''}>Sort by date added</option>
+              <option value="published" ${props.query.sort_by === 'published' ? 'selected' : ''}>Sort by date published</option>
+            </select>
+            <select name="order">
+              <option value="asc">Ascending</option>
+              <option value="desc" ${props.query.order === 'desc' ? 'selected' : ''}>Descending</option>
+            </select>
             <input
               type="text"
               name="tags"
@@ -24,7 +37,7 @@ const tags = props => shell(`
           <ul>
             ${(() => {
               let tags = '';
-              let combined = {
+              const combined = {
                 artist: [],
                 character: [],
                 copyright: [],
@@ -38,13 +51,13 @@ const tags = props => shell(`
                 post.tags.copyright.map(tag => combined.copyright.includes(tag) ? null : combined.copyright.push(tag));
                 post.tags.meta.map(tag => combined.meta.includes(tag) ? null : combined.meta.push(tag));
                 post.tags.general.map(tag => combined.general.includes(tag) ? null : combined.general.push(tag));
-              })
+              });
 
-              combined.artist.map(tag => tags += `<li class="tag-artist"><a title="artist:${tag.replace(/ +/g, '_')}" href="/posts?tags=artist%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`);
-              combined.character.map(tag => tags += `<li class="tag-character"><a title="character:${tag.replace(/ +/g, '_')}" href="/posts?tags=character%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`);
-              combined.copyright.map(tag => tags += `<li class="tag-copyright"><a title="copyright:${tag.replace(/ +/g, '_')}" href="/posts?tags=copyright%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`);
-              combined.meta.map(tag => tags += `<li class="tag-meta"><a title="meta:${tag.replace(/ +/g, '_')}" href="/posts?tags=meta%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`);
-              combined.general.map(tag => tags += `<li><a title="${tag.replace(/ +/g, '_')}" href="/posts?tags=${tag.replace(/ +/g, '_')}">${tag}</a></li>`);
+              combined.artist.map(tag => (tags += `<li class="tag-artist"><a title="artist:${tag.replace(/ +/g, '_')}" href="/posts?tags=artist%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`));
+              combined.character.map(tag => (tags += `<li class="tag-character"><a title="character:${tag.replace(/ +/g, '_')}" href="/posts?tags=character%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`));
+              combined.copyright.map(tag => (tags += `<li class="tag-copyright"><a title="copyright:${tag.replace(/ +/g, '_')}" href="/posts?tags=copyright%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`));
+              combined.meta.map(tag => (tags += `<li class="tag-meta"><a title="meta:${tag.replace(/ +/g, '_')}" href="/posts?tags=meta%3A${tag.replace(/ +/g, '_')}">${tag}</a></li>`));
+              combined.general.map(tag => (tags += `<li><a title="${tag.replace(/ +/g, '_')}" href="/posts?tags=${tag.replace(/ +/g, '_')}">${tag}</a></li>`));
 
               return tags;
             })()}
@@ -72,7 +85,7 @@ const tags = props => shell(`
   <script src="/js/tags.js"></script>
 `, {
   service: buildBooruQueryFromString(props.query.tags || '').service,
-  user: buildBooruQueryFromString(props.query.tags || '').user,
+  user: buildBooruQueryFromString(props.query.tags || '').user
 });
 
 module.exports = { tags };

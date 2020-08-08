@@ -6,7 +6,6 @@ const mime = require('mime');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 const indexer = require('../init/indexer');
-const isImage = require('is-image');
 
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
@@ -73,7 +72,7 @@ async function scraper (users) {
           general: []
         }
       };
-      
+
       if (Object.keys(post.embed || {}).length) {
         model.embed.subject = post.embed.subject;
         model.embed.description = post.embed.description;

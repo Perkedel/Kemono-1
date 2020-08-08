@@ -1,15 +1,13 @@
 const {
   bans,
   posts,
-  flags, 
+  flags,
   lookup,
   revisions
 } = require('../utils/db');
 const { ObjectID } = require('mongodb');
 const upload = require('./upload');
-const fs = require('fs-extra');
-const path = require('path');
-const { parseBooruString, stringifyBooruObject } = require('../utils/builders')
+const { parseBooruString, stringifyBooruObject, buildBooruQueryFromString } = require('../utils/builders');
 const esc = require('escape-string-regexp');
 
 const express = require('express');
@@ -19,7 +17,7 @@ router
   .use('/upload', upload)
   .post('/edit_rating', async (req, res) => {
     if (!req.body.rating) return res.sendStatus(400);
-    let ratings = ['safe', 'questionable', 'explicit'];
+    const ratings = ['safe', 'questionable', 'explicit'];
     if (!ratings.includes(req.body.rating)) return res.sendStatus(400);
 
     await posts.updateMany({
@@ -33,7 +31,7 @@ router
     const post = await posts.findOne({
       id: req.body.id,
       service: req.body.service
-    })
+    });
     await revisions.insertOne({
       id: req.body.id,
       date: new Date().toISOString(),
@@ -57,7 +55,7 @@ router
     const post = await posts.findOne({
       id: req.body.id,
       service: req.body.service
-    })
+    });
     await revisions.insertOne({
       id: req.body.id,
       date: new Date().toISOString(),
@@ -65,12 +63,12 @@ router
       rating: post.rating,
       tags: req.body.tags
     });
-    
+
     res.redirect('back');
   })
   .post('/revert', async (req, res) => {
     if (!req.body._id) return res.sendStatus(400);
-    const revision = await revisions.findOne({ _id: new ObjectID(req.body._id) })
+    const revision = await revisions.findOne({ _id: new ObjectID(req.body._id) });
     await posts.updateMany({
       id: revision.id,
       service: revision.service
@@ -177,6 +175,6 @@ router
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index);
-  })
+  });
 
 module.exports = router;

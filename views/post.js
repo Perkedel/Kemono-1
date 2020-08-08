@@ -1,4 +1,4 @@
-const { stringifyBooruObject } = require('../utils/builders')
+const { stringifyBooruObject } = require('../utils/builders');
 const { shell, header, subheader } = require('./components');
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
@@ -48,9 +48,9 @@ const post = props => shell(`
             <li>Added: <a href="/posts?tags=added%3A${props.posts[0].added}" title="The date this post was imported.">${props.posts[0].added}</a></li>
             ${props.posts[0].published ? `<li>Published: <a href="/posts?tags=published%3A${props.posts[0].published}" title="The date this post was published to the paysite.">${props.posts[0].published}</a></li>` : ''}
             <li>Rating: ${({
-              safe: `<a href="/posts?tags=rating%3Asafe" title="This post is safe for public viewing.">Safe</a>`,
-              questionable: `<a href="/posts?tags=rating%3Aquestionable" title="This post contains risky/ecchi elements.">Questionable</a>`,
-              explicit: `<a href="/posts?tags=rating%3Aexplicit" title="(¬‿¬ )">Explicit</a>`
+              safe: '<a href="/posts?tags=rating%3Asafe" title="This post is safe for public viewing.">Safe</a>',
+              questionable: '<a href="/posts?tags=rating%3Aquestionable" title="This post contains risky/ecchi elements.">Questionable</a>',
+              explicit: '<a href="/posts?tags=rating%3Aexplicit" title="(¬‿¬ )">Explicit</a>'
             })[props.posts[0].rating]}</li>
             <li>${({
               patreon: `<a href="https://www.patreon.com/posts/${props.posts[0].id}">Source</a>`,
@@ -64,7 +64,7 @@ const post = props => shell(`
             <h5>Options</h5>
             <li><a href="#edit">Edit</a></li>
             <li>
-              ${props.flag ? '<span class="subtitle">Already flagged.</span>': `
+              ${props.flag ? '<span class="subtitle">Already flagged.</span>' : `
                 <form method="post" action="/api/flag" onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted">
                   <input type="hidden" name="id" value="${props.posts[0].id}">
                   <input type="hidden" name="service" value="${props.posts[0].service}">  

@@ -11,5 +11,5 @@ module.exports = {
   upload,
   server,
   tags,
-  post,
+  post
 };

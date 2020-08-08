@@ -2,12 +2,9 @@ const { shell, header, subheader } = require('./components');
 
 const history = props => shell(`
   <div class="main">
-    ${header({ currentPage: 'board' })}
-    ${subheader({ currentPage: 'board' })}
+    ${header({ currentPage: 'posts' })}
+    ${subheader({ currentPage: 'posts' })}
     <div class="page" id="page">
-      <p>
-        <span class="subtitle">Index is limited to 25 posts.</span>
-      </p>
       <table class="search-results" width="100%">
         <thead>
           <tr>

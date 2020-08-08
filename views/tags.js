@@ -9,7 +9,20 @@ const tags = props => shell(`
       <div class="sidebar">
         <div>
           <h5>Search</h5>
-          <form action="/posts" accept-charset="UTF-8" method="get">
+          <form
+            action="/posts"
+            accept-charset="UTF-8"
+            method="get"
+            style="display:flex; flex-direction:column"
+          >
+            <select id="sort_by" name="sort_by">
+              <option value="_id" ${props.query.sort_by === '_id' ? 'selected' : ''}>Sort by date added</option>
+              <option value="published" ${props.query.sort_by === 'published' ? 'selected' : ''}>Sort by date published</option>
+            </select>
+            <select name="order">
+              <option value="asc">Ascending</option>
+              <option value="desc" ${props.query.order === 'desc' ? 'selected' : ''}>Descending</option>
+            </select>
             <input
               type="text"
               name="tags"

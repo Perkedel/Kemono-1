@@ -87,8 +87,10 @@ module.exports = () => {
         }));
     })
     .get('/posts', async (req, res) => {
+      const sort = {};
+      if (req.query.sort_by) sort[req.query.sort_by] = req.query.order === 'asc' ? 1 : -1;
       const recentPosts = await posts.find(req.query.tags ? buildBooruQueryFromString(req.query.tags) : {})
-        .sort({ _id: -1 })
+        .sort(sort)
         .skip(Number(req.query.o) || 0)
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50)
         .toArray();

@@ -4,8 +4,8 @@ const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
-const checkForFlags = require('../flagcheck');
-const downloadFile = require('../download');
+const checkForFlags = require('../utils/flag-check');
+const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 const indexer = require('../init/indexer');
 

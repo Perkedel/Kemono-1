@@ -45,8 +45,8 @@ const post = props => shell(`
                 })[props.posts[0].service]}
               </a>
             </li>
-            <li>Added: <a href="/posts?tags=added%3A${props.posts[0].added}" title="The date this post was imported.">${props.posts[0].added}</a></li>
-            ${props.posts[0].published ? `<li>Published: <a href="/posts?tags=published%3A${props.posts[0].published}" title="The date this post was published to the paysite.">${props.posts[0].published}</a></li>` : ''}
+            <li>Added: <a href="/posts?tags=added%3A${encodeURIComponent(props.posts[0].added)}" title="The date this post was imported.">${props.posts[0].added}</a></li>
+            ${props.posts[0].published ? `<li>Published: <a href="/posts?tags=published%3A${encodeURIComponent(props.posts[0].published)}" title="The date this post was published to the paysite.">${props.posts[0].published}</a></li>` : ''}
             <li>Rating: ${({
               safe: '<a href="/posts?tags=rating%3Asafe" title="This post is safe for public viewing.">Safe</a>',
               questionable: '<a href="/posts?tags=rating%3Aquestionable" title="This post contains risky/ecchi elements.">Questionable</a>',

@@ -1,7 +1,7 @@
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
-const { lookup } = require('../utils/db');
+const { lookup } = require('../db');
 const getUrls = require('get-urls');
 
 const express = require('express');

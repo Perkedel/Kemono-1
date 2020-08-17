@@ -1,13 +1,13 @@
-const { posts, bans } = require('../utils/db');
+const { posts, bans } = require('../db');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flagcheck');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 
 const requestOptions = (key, jp) => {
   return {
@@ -42,26 +42,17 @@ async function scraper (importData, page = 1) {
     if (postExists) return;
 
     const model = {
-      id: work.workno,
-      user: work.maker_id,
+      version: 2,
       service: 'dlsite',
       title: work.work_name || work.work_name_kana,
       content: '',
-      embed: {},
-      rating: 'explicit',
-      shared_file: false,
-      added_at: new Date().toISOString(),
+      id: work.workno,
+      user: work.maker_id,
+      post_type: 'image',
+      added_at: new Date().getTime(),
       published_at: new Date(Date.parse(work.regist_date)).toISOString(),
-      edited_at: null,
-      file: {},
-      attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
+      post_file: {},
+      attachments: []
     };
 
     const { data, response } = await scrapeIt(`https://www.dlsite.com/${importData.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
@@ -77,8 +68,8 @@ async function scraper (importData, page = 1) {
         url: work.work_files.main || work.work_files['sam@3x'] || work.work_files['sam@2x'] || work.work_files.sam || work.work_files.mini
       })
         .then(res => {
-          model.file.name = res.filename;
-          model.file.path = `/files/dlsite/${work.maker_id}/${work.workno}/${res.filename}`;
+          model.post_file.name = res.filename;
+          model.post_file.path = `/files/dlsite/${work.maker_id}/${work.workno}/${res.filename}`;
         });
     }
 

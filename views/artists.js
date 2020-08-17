@@ -60,7 +60,7 @@ const artists = data => shell(`
           >
           <small class="subtitle" style="margin-left: 5px;">Up to 250, default 50</small>
         </div>
-        <input type="submit" name="commit" value="Search">
+        <input type="submit" name="commit" value="Search" data-disable-with="Search">
       </form>
       <table class="search-results" width="100%">
         <thead>
@@ -86,11 +86,14 @@ const artists = data => shell(`
                 <div class="user-icon" data-user="${artist.id}" data-service="${artist.service}"></div>
               </td>
               <td>
-                ${artist.service === 'discord' ? `
-                  <a href="/discord/server/${artist.id}">${artist.name}</a>
-                ` : `
-                  <a href="/posts?tags=user%3A${artist.id}+service%3A${artist.service}">${artist.name}</a>
-                `}
+                ${({
+                  patreon: `<a href="/user/${artist.id}">${artist.name}</a>`,
+                  fanbox: `<a href="/fanbox/user/${artist.id}">${artist.name}</a>`,
+                  subscribestar: `<a href="/subscribestar/user/${artist.id}">${artist.name}</a>`,
+                  gumroad: `<a href="/gumroad/user/${artist.id}">${artist.name}</a>`,
+                  discord: `<a href="/discord/server/${artist.id}">${artist.name}</a>`,
+                  dlsite: `<a href="/dlsite/user/${artist.id}">${artist.name}</a>`
+                })[artist.service]}
               </td>
               <td>
                 <div>${transliterate(artist.name) !== artist.name ? transliterate(artist.name) : '<span class="subtitle">(N/A)</span>'}</div>

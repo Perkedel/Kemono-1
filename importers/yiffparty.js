@@ -1,11 +1,12 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../utils/db');
+const { posts, bans } = require('../db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
-const downloadFile = require('../utils/download');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
+const isImage = require('is-image');
 
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
@@ -51,26 +52,18 @@ async function scraper (users) {
       if (postExists) return;
 
       const model = {
-        id: String(post.id),
-        user: user,
+        version: 2,
         service: 'patreon',
         title: post.title || '',
         content: await sanitizePostContent(post.body),
-        embed: {},
-        rating: 'explicit',
-        shared_file: false,
-        added_at: new Date().toISOString(),
+        id: String(post.id),
+        user: user,
+        post_type: 'text_only',
         published_at: new Date(post.created * 1000).toISOString(),
-        edited_at: null,
-        file: {},
-        attachments: [],
-        tags: {
-          artist: [],
-          character: [],
-          copyright: [],
-          meta: ['tagme'],
-          general: []
-        }
+        added_at: new Date().getTime(),
+        embed: {},
+        post_file: {},
+        attachments: []
       };
 
       if (Object.keys(post.embed || {}).length) {
@@ -87,8 +80,9 @@ async function scraper (users) {
           url: post.post_file.file_url
         })
           .then(res => {
-            model.file.name = res.filename;
-            model.file.path = `/files/${user}/${post.id}/${res.filename}`;
+            model.post_type = isImage(res.filename) ? 'image' : model.post_type;
+            model.post_file.name = res.filename;
+            model.post_file.path = `/files/${user}/${post.id}/${res.filename}`;
           });
       }
 
@@ -101,6 +95,7 @@ async function scraper (users) {
         })
           .then(res => {
             model.attachments.push({
+              id: attachment.id,
               name: res.filename,
               path: `/attachments/${user}/${post.id}/${res.filename}`
             });

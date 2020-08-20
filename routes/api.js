@@ -3,8 +3,7 @@ const {
   posts,
   flags,
   lookup,
-  revisions,
-  discord
+  revisions
 } = require('../utils/db');
 const { ObjectID } = require('mongodb');
 const upload = require('./upload');
@@ -164,15 +163,6 @@ router
       .toArray();
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index);
-  })
-  .get('/discord/channel/:id', async (req, res) => {
-    const userPosts = await discord.find({ channel: req.params.id })
-      .sort({ published_at: -1 })
-      .skip(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
-      .toArray();
-    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.json(userPosts);
   })
   .get('/discord/channels/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);

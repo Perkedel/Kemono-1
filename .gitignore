@@ -1,11 +1,7 @@
 .DS_Store
 *.db
-files/
-attachments/
-inline/
-board/
+storage/
 !/routes/board
-threads/
 node_modules/
 .env
 yarn-error.log

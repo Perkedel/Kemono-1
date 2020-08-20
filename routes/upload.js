@@ -1,6 +1,6 @@
 const { slugify } = require('transliteration');
 const auth = require('express-basic-auth');
-const { posts } = require('../utils/db');
+const { posts } = require('../db');
 const multer = require('multer');
 const crypto = require('crypto');
 const fs = require('fs-extra');

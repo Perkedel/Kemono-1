@@ -1,14 +1,14 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../utils/db');
+const { posts, bans } = require('../db');
 const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
 const path = require('path');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 const ellipsize = require('ellipsize');
 const { unraw } = require('unraw');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flagcheck');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
   const subscribestar = await cloudscraper.get(uri, {
@@ -69,28 +69,18 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     if (postExists) return;
 
     const model = {
-      id: post.id,
-      user: post.user,
+      version: 2,
       service: 'subscribestar',
       title: ellipsize(striptags(post.content), 60),
       content: post.content,
-      embed: {},
-      rating: 'explicit',
-      shared_file: false,
-      added_at: new Date().toISOString(),
+      id: post.id,
+      user: post.user,
+      post_type: 'text_only',
+      added_at: new Date().getTime(),
       published_at: new Date(Date.parse(post.published_at)).toISOString(),
-      edited_at: null,
-      file: {},
-      attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
+      post_file: {},
+      attachments: []
     };
-
     if (model.title === 'Extend Subscription') return;
     if ((/This post belongs to a locked/i).test(model.content)) return;
     await Promise.mapSeries(post.attachments, async (attachment) => {
@@ -100,8 +90,8 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
         url: attachment.url
       })
         .then(res => {
-          if (!Object.keys(model.file).length) {
-            model.file.path = `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`;
+          if (!Object.keys(model.post_file).length) {
+            model.post_file.path = `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`;
             model.post_type = attachment.type;
           } else {
             model.attachments.push({

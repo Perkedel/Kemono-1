@@ -1,12 +1,12 @@
-const { posts, bans } = require('../utils/db');
+const { posts, bans } = require('../db');
 const request = require('request-promise');
 const retry = require('p-retry');
 const path = require('path');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 const { unraw } = require('unraw');
 const nl2br = require('nl2br');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flagcheck');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 
 const requestOptions = (key) => {
@@ -47,39 +47,31 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
     if (postExists) return;
 
     const model = {
-      id: post.id,
-      user: post.user.userId,
+      version: 2,
       service: 'fanbox',
       title: unraw(post.title),
       content: nl2br(unraw(await parseBody(post.body, key, {
         id: post.id,
         user: post.user.userId
       }), true)),
-      embed: {},
-      rating: 'explicit',
-      shared_file: false,
-      added_at: new Date().toISOString(),
+      id: post.id,
+      user: post.user.userId,
+      post_type: post.type, // image, article, embed, or file
       published_at: post.publishedDatetime,
-      edited_at: null,
-      file: {},
-      attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
+      added_at: new Date().getTime(),
+      embed: {},
+      post_file: {},
+      attachments: []
     };
 
     const filesLocation = '/files/fanbox';
     const attachmentsLocation = '/attachments/fanbox';
     if (post.body.images) {
       await Promise.mapSeries(post.body.images, async (image, index) => {
-        const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
-        const store = index === 0 && !model.file.name ? fn => {
-          model.file.name = `${image.id}.${image.extension}`;
-          model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
+        const location = index === 0 && !model.post_file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !model.post_file.name ? fn => {
+          model.post_file.name = `${image.id}.${image.extension}`;
+          model.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
         } : fn => {
           model.attachments.push({
             id: image.id,
@@ -99,10 +91,10 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
 
     if (post.body.files) {
       await Promise.mapSeries(post.body.files, async (file, index) => {
-        const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
-        const store = index === 0 && !model.file.name ? fn => {
-          model.file.name = `${file.name}.${file.extension}`;
-          model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
+        const location = index === 0 && !model.post_file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !model.post_file.name ? fn => {
+          model.post_file.name = `${file.name}.${file.extension}`;
+          model.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
         } : fn => {
           model.attachments.push({
             id: file.id,

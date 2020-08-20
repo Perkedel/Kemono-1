@@ -1,11 +1,11 @@
-const { discord, lookup } = require('../utils/db');
+const { posts, lookup } = require('../db');
 const Promise = require('bluebird');
 const cloudscraper = require('cloudscraper');
 const nl2br = require('nl2br');
 const retry = require('p-retry');
 const isImage = require('is-image');
 const path = require('path');
-const downloadFile = require('../utils/download');
+const downloadFile = require('../download');
 const random = (min, max) => Math.floor(Math.random() * (max - min) + min);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const cloudscraperWithRateLimits = (url, opts) => {
@@ -80,7 +80,7 @@ async function processChannel (id, server, key, before) {
   await Promise.mapSeries(messages, async (msg, i, len) => {
     if (i === len - 1) lastMessageId = msg.id;
     const attachmentsKey = `attachments/discord/${server}/${msg.channel_id}/${msg.id}`;
-    const existing = await discord.findOne({ id: msg.id, service: 'discord' });
+    const existing = await posts.findOne({ id: msg.id, service: 'discord' });
     if (existing) return;
     const model = {
       version: 3,
@@ -114,7 +114,7 @@ async function processChannel (id, server, key, before) {
       });
     });
 
-    await discord.insertOne(model);
+    await posts.insertOne(model);
   });
 
   if (messages.length === 50) {

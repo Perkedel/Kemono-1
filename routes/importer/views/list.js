@@ -47,7 +47,7 @@ const list = () => shell(`
           <input type="submit"/>
         </form>
         <p>
-          <a href="/importer/tutorial">Learn how to get your session key.</a><br>
+          <a href="./tutorial.html">Learn how to get your session key.</a><br>
           Make sure you are familiar with <a href="/help/rules">the rules</a> before importing.
           <h2>Important information</h2>
           Your session key is used to scrape paid posts from your feed. After downloading missing posts, the key is immediately discarded and never stored.

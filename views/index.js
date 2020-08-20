@@ -1,15 +1,15 @@
 const { artists } = require('./artists');
-const { history } = require('./history');
 const { upload } = require('./upload');
 const { server } = require('./server');
-const { tags } = require('./tags');
+const { recent } = require('./recent');
 const { post } = require('./post');
+const { user } = require('./user');
 
 module.exports = {
   artists,
-  history,
   upload,
   server,
-  tags,
-  post
+  recent,
+  post,
+  user
 };

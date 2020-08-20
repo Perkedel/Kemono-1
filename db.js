@@ -4,9 +4,7 @@ const db = {
   lookup: mongo.collection('lookup'),
   flags: mongo.collection('flags'),
   bans: mongo.collection('bans'),
-  board: mongo.collection('board'),
-  revisions: mongo.collection('revisions'),
-  discord: mongo.collection('discord')
+  board: mongo.collection('board')
 };
 
 module.exports = db;

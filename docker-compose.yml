@@ -23,6 +23,7 @@ services:
       # Optional
       # - ADMIN_CAPCODE= # Set a tripcode for adminposting in the board
       # - MASTER_KEY= # If set, enables shared file upload protection
+      # - DISABLE_THUMBNAILS=true # Uncomment to disable thumbnail generation. Do this if you are encountering memory issues and/or sudden crashes.
 volumes:
   # If you need to store your volumes manually, uncomment the "driver_opts" lines and specify your "device" location.
   db-data:

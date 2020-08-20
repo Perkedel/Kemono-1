@@ -21,14 +21,12 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 - MongoDB
 
 ### Running
-- [Download the latest release.](https://github.com/OpenYiff/Kemono/releases/latest)
-- Install dependencies (`yarn`)
-- Copy `.env.example` to `.env` and configure
-- Start the development server. (`yarn run dev`) 
+- `git clone https://github.com/OpenYiff/Kemono`
+- Configure `docker-compose.yml`
+- `docker-compose build`
+- `docker-compose up -d`
 
 Your instance should now be running [here](http://localhost:8000).
-
-For production, [Dokku](http://dokku.viewdocs.io/dokku/) is highly recommended for zero-friction deployment.
 
 ### FAQ
 #### Where did the test scripts go?

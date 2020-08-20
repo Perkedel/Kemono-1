@@ -1,8 +1,7 @@
 {
   "private": true,
   "engines": {
-    "node": "~8.17",
-    "yarn": "~1.22"
+    "node": "~8.17"
   },
   "scripts": {
     "dev": "supervisor -i node_modules,public -n error server.js",

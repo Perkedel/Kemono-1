@@ -1,0 +1,39 @@
+version: '2'
+services:
+  kemono-db:
+    image: mongo
+    container_name: kemono-db
+    volumes:
+      - db-data:/data/db
+  kemono-app:
+    build: .
+    container_name: kemono
+    restart: unless-stopped
+    depends_on:
+      - "kemono-db"
+    ports:
+      - 8000:8000
+    volumes:
+      - data:/storage
+    environment:
+      - MONGO_URL=mongodb://kemono-db:27017/kemonodb
+      # Mandatory config
+      - PUBLIC_ORIGIN= # Where your server is publicly reachable
+      - FANBOX_KEY= # Fanbox token, to bypass R18 block for proxy functions
+      # Optional
+      # - ADMIN_CAPCODE= # Set a tripcode for adminposting in the board
+      # - MASTER_KEY= # If set, enables shared file upload protection
+volumes:
+  # If you need to store your volumes manually, uncomment the "driver_opts" lines and specify your "device" location.
+  db-data:
+    driver: local
+    # driver_opts:
+    #   type: 'none'
+    #   o: 'bind'
+    #   device: "/mnt/slab1/kemono-db"
+  data:
+    driver: local
+    # driver_opts:
+    #   type: 'none'
+    #   o: 'bind'
+    #   device: "/mnt/slab1/kemono"

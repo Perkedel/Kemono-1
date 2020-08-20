@@ -1,4 +1,4 @@
-const { flags, posts } = require('./db');
+const { flags, posts } = require('./utils/db');
 const path = require('path');
 const fs = require('fs-extra');
 /**

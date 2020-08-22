@@ -17,18 +17,18 @@ const post = props => shell(`
         ${props.posts.map(post => {
           let previews = '';
           let attachments = '';
-          if (Object.keys(post.post_file).length !== 0) {
-            post.post_type === 'image_file' || post.post_type === 'image' ? previews += `
-              <a class="fileThumb" href="${post.post_file.path}">
+          if (Object.keys(post.file).length !== 0) {
+            (/\.(gif|jpe?g|png|webp)$/i).test(post.file.name) ? previews += `
+              <a class="fileThumb" href="${post.file.path}">
                 <img
-                  data-src="/thumbnail${post.post_file.path.replace('https://kemono.party', '')}"
-                  src="/thumbnail${post.post_file.path.replace('https://kemono.party', '')}"
+                  data-src="/thumbnail${post.file.path.replace('https://kemono.party', '')}"
+                  src="/thumbnail${post.file.path.replace('https://kemono.party', '')}"
                 >
               </a>
               <br>
             ` : attachments += `
-              <a href="${post.post_file.path}" target="_blank">
-                Download ${post.post_file.name}
+              <a href="${post.file.path}" target="_blank">
+                Download ${post.file.name}
               </a>
               <br>
             `;

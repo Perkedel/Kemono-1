@@ -1,6 +1,6 @@
 const { slugify } = require('transliteration');
 const auth = require('express-basic-auth');
-const { posts } = require('../db');
+const { db } = require('../db');
 const multer = require('multer');
 const crypto = require('crypto');
 const fs = require('fs-extra');
@@ -66,24 +66,22 @@ router
 
     if (!service) return res.sendStatus(400);
 
-    await posts.insertOne({
-      version: 2,
-      shared_file: true,
+    await db('booru_posts').insert({
+      id: req.id,
+      user: xss(req.body.user),
       service: service,
       title: xss(req.body.title),
       content: xss(req.body.content || ''),
-      id: req.id,
-      user: xss(req.body.user),
-      post_type: (/\.(gif|jpe?g|png|webp)$/i).test(req.file.originalname) ? 'image' : 'text_only',
-      published_at: new Date().toISOString(),
-      added_at: new Date().getTime(),
       embed: {},
-      post_file: {
+      shared_file: true,
+      published: new Date().toISOString(),
+      edited: null,
+      file: {
         name: req.file.originalname,
         path: path.join('/files', req.body.service === 'patreon' ? '' : req.body.service, req.body.user, req.id, req.file.filename)
       },
       attachments: []
-    });
+    })
 
     res.redirect(path.join('/', req.body.service === 'patreon' ? '' : req.body.service, 'user', req.body.user));
   })

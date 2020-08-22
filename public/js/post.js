@@ -13,8 +13,8 @@ function attemptFlag (_, api) {
   let cacheApi, flagApi;
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon': {
-      cacheApi = `/api/lookup/cache/${pathname[2]}?service=patreon`;
-      flagApi = `/api/user/${pathname[2]}/post/${pathname[4]}/flag`;
+      cacheApi = `/api/lookup/cache/${pathname[3]}?service=patreon`;
+      flagApi = `/api/patreon/user/${pathname[3]}/post/${pathname[5]}/flag`;
       break;
     }
     case 'gumroad': {
@@ -41,6 +41,7 @@ function attemptFlag (_, api) {
   fetch(cacheApi)
     .then(function (data) { return data.json(); })
     .then(function (cache) {
+      console.log(cache)
       resultsView.innerHTML += `
         <li>
           User: <a href="../">${cache.name}</a>
@@ -49,10 +50,10 @@ function attemptFlag (_, api) {
           ID: <a href="">${document.getElementsByName('id')[0].content}</a>
         </li>
         <li>
-          Published at: ${document.getElementsByName('published_at')[0].content}
+          Published at: ${new Date(document.getElementsByName('published')[0].content).toISOString()}
         </li>
         <li>
-          Added at: ${new Date(Number(document.getElementsByName('added_at')[0].content)).toISOString()}
+          Added at: ${new Date(document.getElementsByName('added')[0].content).toISOString()}
         </li>
       `;
     })

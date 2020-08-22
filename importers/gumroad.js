@@ -1,8 +1,8 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../db');
+const { db } = require('../db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
-const checkForFlags = require('../flagcheck');
+const checkForFlags = require('../flag-check');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
@@ -53,30 +53,32 @@ async function scraper (key, from = 1) {
   });
   await Promise.map(data.products, async (product) => {
     const userId = new URL(product.userHref).pathname.replace('/', '');
-    const banExists = await bans.findOne({ id: userId, service: 'gumroad' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
+    if (banExists.length) return;
     await checkForFlags({
       service: 'gumroad',
       entity: 'user',
       entityId: userId,
       id: product.id
     });
-    const postExists = await posts.findOne({ id: product.id, service: 'gumroad' });
-    if (postExists) return;
+    const postExists = await await db('booru_posts').where({ id: product.id, service: 'gumroad' });
+    if (postExists.length) return;
 
     const model = {
-      version: 2,
+      id: product.id,
+      user: userId,
       service: 'gumroad',
       title: product.title,
       content: '',
-      id: product.id,
-      user: userId,
-      post_type: 'image',
-      added_at: new Date().getTime(),
-      published_at: '',
-      post_file: {},
+      embed: {},
+      shared_file: false,
+      added: new Date().toISOString(),
+      published: null,
+      edited: null,
+      file: {},
       attachments: []
     };
+
     const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
     const productData = await scrapeIt.scrapeHTML(productPage, {
       contentUrl: {
@@ -124,8 +126,8 @@ async function scraper (key, from = 1) {
       }, {
         url: thumbnail
       });
-      model.post_file.name = filename;
-      model.post_file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
+      model.file.name = filename;
+      model.file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
     }
 
     await Promise.map(downloadData.data.files, async (file) => {
@@ -143,7 +145,7 @@ async function scraper (key, from = 1) {
         });
     });
 
-    posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (data.products.length) {

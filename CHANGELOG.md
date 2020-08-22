@@ -1,16 +1,21 @@
 Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both development configuration and literal HTTP API.
 
 ### v2.0
-- *Breaking change:* Proxy support has been removed.
-- Yiff.party support
-- Shared Files support
-- RSS feeds
-- DLsite support
-- "Artists" tab
-- Board functionality
-- New and improved Fanbox importer; stable and (mostly) API complete
-- Missing content indicator for Patreon users
-- New unified downloader with integrity checking and failure resistance
+- Kemono now uses Postgres. See the README on how to migrate.
+- Proxy support has been removed.
+<details>
+  <summary>Minor</summary>
+
+  - Yiff.party support
+  - Shared Files support
+  - RSS feeds
+  - DLsite support
+  - "Artists" tab
+  - Board functionality
+  - New and improved Fanbox importer; stable and (mostly) API complete
+  - Missing content indicator for Patreon users
+  - New unified downloader with integrity checking and failure resistance
+</details>
 <details>
   <summary>Patch</summary>
 

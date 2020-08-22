@@ -8,7 +8,7 @@ const express = require('express');
 const router = express.Router();
 
 router
-  .get('/user/:id', (req, res) => {
+  .get('/patreon/user/:id', (req, res) => {
     const api = 'https://www.patreon.com/api/user';
     const options = cloudscraper.defaultParams;
     options.json = true;

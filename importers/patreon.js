@@ -1,6 +1,6 @@
 
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../db');
+const { db } = require('../db');
 const retry = require('p-retry');
 const hasha = require('hasha');
 const mime = require('mime');
@@ -55,8 +55,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
 
-    const banExists = await bans.findOne({ id: rel.user.data.id, service: 'patreon' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: rel.user.data.id, service: 'patreon' });
+    if (banExists.length) return;
 
     await checkForFlags({
       service: 'patreon',
@@ -64,36 +64,29 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       entityId: rel.user.data.id,
       id: post.id
     });
-    const existingPosts = await posts.find({
-      id: post.id,
-      $or: [
-        { service: 'patreon' },
-        { service: null }
-      ]
-    }).toArray();
-    if (existingPosts.length && (existingPosts[0].version === 1 || existingPosts[0].version === 2)) {
+    const existingPosts = await db('booru_posts').where({ id: post.id, service: 'patreon' })
+    if (existingPosts.length && !existingPosts[0].edited) {
       return;
-    } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited_at === attr.edited_at) {
+    } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited_at > attr.edited_at) {
       return;
-    } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited_at !== attr.edited_at) {
+    } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited_at < attr.edited_at) {
       fileKey = `files/edits/${rel.user.data.id}/${post.id}/${hasha(attr.edited_at)}`;
       attachmentsKey = `files/edits/${rel.user.data.id}/${post.id}/${hasha(attr.edited_at)}`;
     }
 
-    const postDb = {
-      version: 3,
+    const model = {
+      id: post.id,
+      user: rel.user.data.id,
       service: 'patreon',
       title: attr.title || '',
       content: await sanitizePostContent(attr.content),
-      id: post.id,
-      user: rel.user.data.id,
-      post_type: attr.post_type,
-      published_at: attr.published_at,
-      edited_at: attr.edited_at,
-      added_at: new Date().getTime(),
       embed: {},
-      post_file: {},
-      attachments: []
+      shared_file: false,
+      added: new Date().toISOString(),
+      published: attr.published_at,
+      edited: attr.edited_at,
+      file: {},
+      attachments: [],
     };
 
     if (attr.post_file) {
@@ -104,15 +97,15 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         url: attr.post_file.url
       })
         .then(res => {
-          postDb.post_file.name = attr.post_file.name;
-          postDb.post_file.path = `/${fileKey}/${res.filename}`;
+          model.file.name = attr.post_file.name;
+          model.file.path = `/${fileKey}/${res.filename}`;
         });
     }
 
     if (attr.embed) {
-      postDb.embed.subject = attr.embed.subject;
-      postDb.embed.description = attr.embed.description;
-      postDb.embed.url = attr.embed.url;
+      model.embed.subject = attr.embed.subject;
+      model.embed.description = attr.embed.description;
+      model.embed.url = attr.embed.url;
     }
 
     await Promise.map(rel.attachments.data, async (attachment) => {
@@ -134,7 +127,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         url: res.headers.location
       })
         .then(res => {
-          postDb.attachments.push({
+          model.attachments.push({
             id: attachment.id,
             name: res.filename,
             path: `/${attachmentsKey}/${res.filename}`
@@ -153,7 +146,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     });
 
     await Promise.map(postData.body.included, async (includedFile, i) => {
-      if (i === 0 && JSON.stringify(postDb.post_file) !== '{}') return;
+      if (i === 0 && JSON.stringify(model.file) !== '{}') return;
       await downloadFile({
         ddir: path.join(process.env.DB_ROOT, attachmentsKey),
         name: includedFile.attributes.file_name
@@ -161,14 +154,14 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         url: includedFile.attributes.download_url
       })
         .then(res => {
-          postDb.attachments.push({
+          model.attachments.push({
             name: res.filename,
             path: `/${attachmentsKey}/${res.filename}`
           });
         });
     }).catch(() => {});
 
-    await posts.insertOne(postDb);
+    await db('booru_posts').insert(model)
   });
 
   if (patreon.body.links.next) {

@@ -1,4 +1,4 @@
-const { flags, posts } = require('./db');
+const { db } = require('./db');
 const path = require('path');
 const fs = require('fs-extra');
 /**
@@ -12,23 +12,15 @@ const fs = require('fs-extra');
  * @param {String} data.id - The ID of the post being checked
  */
 module.exports = async (data) => {
-  const query = { id: data.id, service: data.service };
-  query[data.entity] = data.entityId;
-  const flagExists = await flags.findOne(query);
-  if (!flagExists) return;
+  const flagExists = await db('booru_flags').where({ id: data.id, user: data.entityId, service: data.service });
+  if (!flagExists.length) return;
 
-  await flags.deleteOne(query);
-  const postQuery = { id: data.id };
-  postQuery[data.entity] = data.entityId;
-  if (data.service === 'patreon') {
-    postQuery.$or = [
-      { service: 'patreon' },
-      { service: { $exists: false } }
-    ];
-  } else {
-    postQuery.service = data.service;
-  }
-  await posts.deleteMany(postQuery);
+  await db('booru_flags')
+    .where({ id: data.id, user: data.entityId, service: data.service })
+    .del();
+  await db('booru_posts')
+    .where({ id: data.id, user: data.entityId, service: data.service })
+    .del();
   await fs.remove(path.join(
     process.env.DB_ROOT,
     'attachments',

@@ -1,11 +1,11 @@
-const { posts, bans } = require('../db');
+const { db } = require('../db');
 const request = require('request-promise');
 const retry = require('p-retry');
 const path = require('path');
 const indexer = require('../indexer');
 const { unraw } = require('unraw');
 const nl2br = require('nl2br');
-const checkForFlags = require('../flagcheck');
+const checkForFlags = require('../flag-check');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 
@@ -33,8 +33,8 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
   const fanbox = await retry(() => request.get(url, requestOptions(key)));
   Promise.map(fanbox.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
-    const banExists = await bans.findOne({ id: post.user.userId, service: 'fanbox' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
+    if (banExists.length) return;
 
     await checkForFlags({
       service: 'fanbox',
@@ -43,24 +43,24 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       id: post.id
     });
 
-    const postExists = await posts.findOne({ id: post.id, service: 'fanbox' });
-    if (postExists) return;
+    const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
+    if (postExists.length) return;
 
     const model = {
-      version: 2,
+      id: post.id,
+      user: post.user.userId,
       service: 'fanbox',
       title: unraw(post.title),
       content: nl2br(unraw(await parseBody(post.body, key, {
         id: post.id,
         user: post.user.userId
       }), true)),
-      id: post.id,
-      user: post.user.userId,
-      post_type: post.type, // image, article, embed, or file
-      published_at: post.publishedDatetime,
-      added_at: new Date().getTime(),
       embed: {},
-      post_file: {},
+      shared_file: false,
+      added: new Date().toISOString(),
+      published: post.publishedDatetime,
+      edited: null,
+      file: {},
       attachments: []
     };
 
@@ -68,10 +68,10 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
     const attachmentsLocation = '/attachments/fanbox';
     if (post.body.images) {
       await Promise.mapSeries(post.body.images, async (image, index) => {
-        const location = index === 0 && !model.post_file.name ? filesLocation : attachmentsLocation;
-        const store = index === 0 && !model.post_file.name ? fn => {
-          model.post_file.name = `${image.id}.${image.extension}`;
-          model.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
+        const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !model.file.name ? fn => {
+          model.file.name = `${image.id}.${image.extension}`;
+          model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
         } : fn => {
           model.attachments.push({
             id: image.id,
@@ -91,10 +91,10 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
 
     if (post.body.files) {
       await Promise.mapSeries(post.body.files, async (file, index) => {
-        const location = index === 0 && !model.post_file.name ? filesLocation : attachmentsLocation;
-        const store = index === 0 && !model.post_file.name ? fn => {
-          model.post_file.name = `${file.name}.${file.extension}`;
-          model.post_file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
+        const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !model.file.name ? fn => {
+          model.file.name = `${file.name}.${file.extension}`;
+          model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
         } : fn => {
           model.attachments.push({
             id: file.id,
@@ -112,7 +112,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       });
     }
 
-    await posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (fanbox.body.nextUrl) {

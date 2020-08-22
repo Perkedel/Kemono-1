@@ -16,12 +16,13 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 
 ### Running
 - Install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) if you don't have them installed already.
-- `git clone https://github.com/OpenYiff/Kemono`
-- Configure `docker-compose.yml`
+- `git clone https://github.com/OpenYiff/Kemono && cd Kemono`
+- Copy `.env.example` to `.env` and configure
 - `docker-compose build`
 - `docker-compose up -d`
-
-Your instance should now be running [here](http://localhost:8000).
+- Your instance should now be running [here](http://localhost:8000).
+#### Migrating from v1.x -> v2.0
+Kemono v2.0 uses Postgres for speed, along with a new unified schema. Ensure your instance is up with the database ports exposed, and run `node migrate-1.x-to-2.0.js <mongo connection url>`.
 
 ### FAQ
 #### Where did the test scripts go?

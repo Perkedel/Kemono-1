@@ -40,7 +40,6 @@ const artists = data => shell(`
         <div>
           <label for="sort_by">Sort by</label>
           <select id="sort_by" name="sort_by">
-            <option value="_id" ${data.query.sort_by === '_id' ? 'selected' : ''}>Date Indexed</option>
             <option value="name" ${data.query.sort_by === 'name' ? 'selected' : ''}>Alphabetical Order</option>
             <option value="service" ${data.query.sort_by === 'service' ? 'selected' : ''}>Service</option>
           </select>
@@ -86,14 +85,7 @@ const artists = data => shell(`
                 <div class="user-icon" data-user="${artist.id}" data-service="${artist.service}"></div>
               </td>
               <td>
-                ${({
-                  patreon: `<a href="/user/${artist.id}">${artist.name}</a>`,
-                  fanbox: `<a href="/fanbox/user/${artist.id}">${artist.name}</a>`,
-                  subscribestar: `<a href="/subscribestar/user/${artist.id}">${artist.name}</a>`,
-                  gumroad: `<a href="/gumroad/user/${artist.id}">${artist.name}</a>`,
-                  discord: `<a href="/discord/server/${artist.id}">${artist.name}</a>`,
-                  dlsite: `<a href="/dlsite/user/${artist.id}">${artist.name}</a>`
-                })[artist.service]}
+                <a href="/${artist.service}/user/${artist.id}">${artist.name}</a>
               </td>
               <td>
                 <div>${transliterate(artist.name) !== artist.name ? transliterate(artist.name) : '<span class="subtitle">(N/A)</span>'}</div>

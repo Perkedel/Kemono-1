@@ -2,28 +2,26 @@ const Promise = require('bluebird');
 const request = require('request-promise');
 const { unraw } = require('unraw');
 const cloudscraper = require('cloudscraper');
-const { posts, lookup } = require('./db');
+const { db } = require('./db');
 async function indexer () {
-  const postsData = await posts
-    .find({ service: { $ne: 'discord' } })
-    .sort({ added_at: -1 })
-    .limit(10000)
-    .project({ version: 1, user: 1, service: 1 })
-    .toArray();
+  const postsData = await db
+    .select('user', 'service')
+    .from('booru_posts')
+    .limit(10000);
   Promise.mapSeries(postsData, async (post) => {
-    const indexExists = await lookup.findOne({ id: post.user, service: post.service || 'patreon' });
-    if (indexExists) return;
+    const indexExists = await db('lookup').where({ id: post.user, service: post.service });
+    if (indexExists.length) return;
 
     switch (post.service) {
       case 'patreon': {
         const api = 'https://www.patreon.com/api/user';
         const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
-        await lookup.insertOne({
-          version: post.version,
-          service: 'patreon',
-          id: post.user,
-          name: user.data.attributes.vanity || user.data.attributes.full_name
-        });
+        await db('lookup')
+          .insert({
+            id: post.user,
+            name: user.data.attributes.vanity || user.data.attributes.full_name,
+            service: 'patreon'
+          })
         break;
       }
       case 'fanbox': {
@@ -34,56 +32,46 @@ async function indexer () {
             origin: 'https://fanbox.cc'
           }
         });
-        await lookup.insertOne({
-          version: post.version,
-          service: 'fanbox',
-          id: post.user,
-          name: unraw(user.body.user.name)
-        });
+        await db('lookup')
+          .insert({
+            id: post.user,
+            name: unraw(user.body.user.name),
+            service: 'fanbox'
+          });
         break;
       }
       case 'gumroad': {
         const api = `${process.env.ORIGIN}/proxy/gumroad/user`;
         const user = await request.get(`${api}/${post.user}`, { json: true });
-        await lookup.insertOne({
-          version: post.version,
-          service: 'gumroad',
-          id: post.user,
-          name: user.name
-        });
+        await db('lookup')
+          .insert({
+            id: post.user,
+            name: user.name,
+            service: 'gumroad'
+          });
         break;
       }
       case 'subscribestar': {
         const api = `${process.env.ORIGIN}/proxy/subscribestar/user`;
         const user = await request.get(`${api}/${post.user}`, { json: true });
-        await lookup.insertOne({
-          version: post.version,
-          service: 'subscribestar',
-          id: post.user,
-          name: user.name
-        });
+        await db('lookup')
+          .insert({
+            id: post.user,
+            name: user.name,
+            service: 'subscribestar'
+          });
         break;
       }
       case 'dlsite': {
         const api = `${process.env.ORIGIN}/proxy/dlsite/user`;
         const user = await request.get(`${api}/${post.user}`, { json: true });
-        await lookup.insertOne({
-          version: post.version,
-          service: 'dlsite',
-          id: post.user,
-          name: user.name
-        });
+        await db('lookup')
+          .insert({
+            id: post.user,
+            name: user.name,
+            service: 'dlsite'
+          });
         break;
-      }
-      default: {
-        const api = 'https://www.patreon.com/api/user';
-        const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
-        await lookup.insertOne({
-          version: post.version,
-          service: 'patreon',
-          id: post.user,
-          name: user.data.attributes.vanity || user.data.attributes.full_name
-        });
       }
     }
   });

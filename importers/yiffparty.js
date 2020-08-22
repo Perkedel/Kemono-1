@@ -1,12 +1,11 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../db');
+const { db } = require('../db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 const indexer = require('../indexer');
-const isImage = require('is-image');
 
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
@@ -39,30 +38,23 @@ async function scraper (users) {
     }));
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
-      const banExists = await bans.findOne({ id: post.id, service: 'patreon' });
-      if (banExists) return;
+      const banExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
+      if (banExists.length) return;
 
-      const postExists = await posts.findOne({
-        id: String(post.id),
-        $or: [
-          { service: 'patreon' },
-          { service: null }
-        ]
-      });
-      if (postExists) return;
+      const postExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
+      if (postExists.length) return;
 
       const model = {
-        version: 2,
+        id: String(post.id),
+        user: user,
         service: 'patreon',
         title: post.title || '',
         content: await sanitizePostContent(post.body),
-        id: String(post.id),
-        user: user,
-        post_type: 'text_only',
-        published_at: new Date(post.created * 1000).toISOString(),
-        added_at: new Date().getTime(),
         embed: {},
-        post_file: {},
+        shared_file: false,
+        published: new Date(post.created * 1000).toISOString(),
+        edited: null,
+        file: {},
         attachments: []
       };
 
@@ -80,9 +72,8 @@ async function scraper (users) {
           url: post.post_file.file_url
         })
           .then(res => {
-            model.post_type = isImage(res.filename) ? 'image' : model.post_type;
-            model.post_file.name = res.filename;
-            model.post_file.path = `/files/${user}/${post.id}/${res.filename}`;
+            model.file.name = res.filename;
+            model.file.path = `/files/${user}/${post.id}/${res.filename}`;
           });
       }
 
@@ -95,14 +86,13 @@ async function scraper (users) {
         })
           .then(res => {
             model.attachments.push({
-              id: attachment.id,
               name: res.filename,
               path: `/attachments/${user}/${post.id}/${res.filename}`
             });
           });
       });
 
-      posts.insertOne(model);
+      await db('booru_posts').insert(model)
     });
   });
 

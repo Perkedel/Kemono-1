@@ -10,7 +10,7 @@ function loadQuery () {
   const contentView = document.getElementById('content');
   contentView.innerHTML = '';
   const api = ({
-    patreon: `/api/user/${pathname[2]}/lookup?q=${query}`,
+    patreon: `/api/patreon/user/${pathname[3]}/lookup?q=${query}`,
     fanbox: `/api/fanbox/user/${pathname[3]}/lookup?q=${query}`,
     gumroad: `/api/gumroad/user/${pathname[3]}/lookup?q=${query}`,
     subscribestar: `/api/subscribestar/user/${pathname[3]}/lookup?q=${query}`,
@@ -33,9 +33,9 @@ function loadQuery () {
   switch (document.getElementsByName('service')[0].content) {
     case 'patreon':
       service = 'Patreon';
-      api = `/api/lookup/cache/${pathname[2]}?service=patreon`;
-      proxy = `/proxy/user/${pathname[2]}`;
-      href = `https://www.patreon.com/user?u=${pathname[2]}`;
+      api = `/api/lookup/cache/${pathname[3]}?service=patreon`;
+      proxy = `/proxy/patreon/user/${pathname[3]}`;
+      href = `https://www.patreon.com/user?u=${pathname[3]}`;
       break;
     case 'fanbox':
       service = 'Fanbox';

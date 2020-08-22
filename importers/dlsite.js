@@ -1,10 +1,10 @@
-const { posts, bans } = require('../db');
+const { db } = require('../db');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
-const checkForFlags = require('../flagcheck');
+const checkForFlags = require('../flag-check');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 const indexer = require('../indexer');
@@ -28,8 +28,8 @@ async function scraper (importData, page = 1) {
   const key = auth.sid;
   const dlsite = await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key)));
   Promise.map(dlsite.works, async (work) => {
-    const banExists = await bans.findOne({ id: work.maker_id, service: 'dlsite' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: work.maker_id, service: 'dlsite' });
+    if (banExists.length) return;
 
     await checkForFlags({
       service: 'dlsite',
@@ -38,21 +38,22 @@ async function scraper (importData, page = 1) {
       id: work.workno
     });
 
-    const postExists = await posts.findOne({ id: work.workno, service: 'dlsite' });
-    if (postExists) return;
+    const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
+    if (postExists.length) return;
 
     const model = {
-      version: 2,
+      id: work.workno,
+      user: work.maker_id,
       service: 'dlsite',
       title: work.work_name || work.work_name_kana,
       content: '',
-      id: work.workno,
-      user: work.maker_id,
-      post_type: 'image',
-      added_at: new Date().getTime(),
-      published_at: new Date(Date.parse(work.regist_date)).toISOString(),
-      post_file: {},
-      attachments: []
+      embed: {},
+      shared_file: false,
+      added: new Date().toISOString(),
+      published: new Date(Date.parse(work.regist_date)).toISOString(),
+      edited: null,
+      file: {},
+      attachments: [],
     };
 
     const { data, response } = await scrapeIt(`https://www.dlsite.com/${importData.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
@@ -68,8 +69,8 @@ async function scraper (importData, page = 1) {
         url: work.work_files.main || work.work_files['sam@3x'] || work.work_files['sam@2x'] || work.work_files.sam || work.work_files.mini
       })
         .then(res => {
-          model.post_file.name = res.filename;
-          model.post_file.path = `/files/dlsite/${work.maker_id}/${work.workno}/${res.filename}`;
+          model.file.name = res.filename;
+          model.file.path = `/files/dlsite/${work.maker_id}/${work.workno}/${res.filename}`;
         });
     }
 
@@ -120,7 +121,7 @@ async function scraper (importData, page = 1) {
       }
     }
 
-    posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (dlsite.works.length) {

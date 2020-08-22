@@ -1,12 +1,12 @@
-const { posts, bans } = require('../utils/db');
+const { db } = require('../db');
 const request = require('request-promise');
 const retry = require('p-retry');
 const path = require('path');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 const { unraw } = require('unraw');
 const nl2br = require('nl2br');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flag-check');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 
 const requestOptions = (key) => {
@@ -33,8 +33,8 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
   const fanbox = await retry(() => request.get(url, requestOptions(key)));
   Promise.map(fanbox.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
-    const banExists = await bans.findOne({ id: post.user.userId, service: 'fanbox' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
+    if (banExists.length) return;
 
     await checkForFlags({
       service: 'fanbox',
@@ -43,8 +43,8 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       id: post.id
     });
 
-    const postExists = await posts.findOne({ id: post.id, service: 'fanbox' });
-    if (postExists) return;
+    const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
+    if (postExists.length) return;
 
     const model = {
       id: post.id,
@@ -56,20 +56,12 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
         user: post.user.userId
       }), true)),
       embed: {},
-      rating: 'explicit',
       shared_file: false,
-      added_at: new Date().toISOString(),
-      published_at: post.publishedDatetime,
-      edited_at: null,
+      added: new Date().toISOString(),
+      published: post.publishedDatetime,
+      edited: null,
       file: {},
-      attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
+      attachments: []
     };
 
     const filesLocation = '/files/fanbox';
@@ -120,7 +112,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       });
     }
 
-    await posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (fanbox.body.nextUrl) {

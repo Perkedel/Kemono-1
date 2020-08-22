@@ -1,15 +1,15 @@
 
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../utils/db');
+const { db } = require('../db');
 const retry = require('p-retry');
 const hasha = require('hasha');
 const mime = require('mime');
 const path = require('path');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flagcheck');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 const isImage = require('is-image');
 const getUrls = require('get-urls');
 
@@ -55,8 +55,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
 
-    const banExists = await bans.findOne({ id: rel.user.data.id, service: 'patreon' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: rel.user.data.id, service: 'patreon' });
+    if (banExists.length) return;
 
     await checkForFlags({
       service: 'patreon',
@@ -64,8 +64,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       entityId: rel.user.data.id,
       id: post.id
     });
-    const existingPosts = await posts.find({ id: post.id, service: 'patreon' }).toArray();
-    if (existingPosts.length && !existingPosts[0].edited_at) {
+    const existingPosts = await db('booru_posts').where({ id: post.id, service: 'patreon' })
+    if (existingPosts.length && !existingPosts[0].edited) {
       return;
     } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited_at > attr.edited_at) {
       return;
@@ -81,20 +81,12 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       title: attr.title || '',
       content: await sanitizePostContent(attr.content),
       embed: {},
-      rating: 'explicit',
       shared_file: false,
-      added_at: new Date().toISOString(),
-      published_at: attr.published_at,
-      edited_at: attr.edited_at,
+      added: new Date().toISOString(),
+      published: attr.published_at,
+      edited: attr.edited_at,
       file: {},
       attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
     };
 
     if (attr.post_file) {
@@ -169,7 +161,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         });
     }).catch(() => {});
 
-    await posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (patreon.body.links.next) {

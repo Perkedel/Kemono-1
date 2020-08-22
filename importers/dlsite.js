@@ -1,13 +1,13 @@
-const { posts, bans } = require('../utils/db');
+const { db } = require('../db');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flag-check');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 
 const requestOptions = (key, jp) => {
   return {
@@ -28,8 +28,8 @@ async function scraper (importData, page = 1) {
   const key = auth.sid;
   const dlsite = await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key)));
   Promise.map(dlsite.works, async (work) => {
-    const banExists = await bans.findOne({ id: work.maker_id, service: 'dlsite' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: work.maker_id, service: 'dlsite' });
+    if (banExists.length) return;
 
     await checkForFlags({
       service: 'dlsite',
@@ -38,8 +38,8 @@ async function scraper (importData, page = 1) {
       id: work.workno
     });
 
-    const postExists = await posts.findOne({ id: work.workno, service: 'dlsite' });
-    if (postExists) return;
+    const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
+    if (postExists.length) return;
 
     const model = {
       id: work.workno,
@@ -48,20 +48,12 @@ async function scraper (importData, page = 1) {
       title: work.work_name || work.work_name_kana,
       content: '',
       embed: {},
-      rating: 'explicit',
       shared_file: false,
-      added_at: new Date().toISOString(),
-      published_at: new Date(Date.parse(work.regist_date)).toISOString(),
-      edited_at: null,
+      added: new Date().toISOString(),
+      published: new Date(Date.parse(work.regist_date)).toISOString(),
+      edited: null,
       file: {},
       attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
     };
 
     const { data, response } = await scrapeIt(`https://www.dlsite.com/${importData.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
@@ -129,7 +121,7 @@ async function scraper (importData, page = 1) {
       }
     }
 
-    posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (dlsite.works.length) {

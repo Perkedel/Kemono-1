@@ -1,11 +1,11 @@
-const { discord, lookup } = require('../utils/db');
+const { db } = require('../db');
 const Promise = require('bluebird');
 const cloudscraper = require('cloudscraper');
 const nl2br = require('nl2br');
 const retry = require('p-retry');
 const isImage = require('is-image');
 const path = require('path');
-const downloadFile = require('../utils/download');
+const downloadFile = require('../download');
 const random = (min, max) => Math.floor(Math.random() * (max - min) + min);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const cloudscraperWithRateLimits = (url, opts) => {
@@ -33,9 +33,9 @@ async function scraper (key, channels) {
       }
     });
     if (channelData.statusCode !== 200) return;
-    const channelExists = await lookup.findOne({ id: channelData.body.id, service: 'discord-channel' });
-    if (!channelExists) {
-      await lookup.insertOne({
+    const channelExists = await db('lookup').where({ id: channelData.body.id, service: 'discord-channel' });
+    if (!channelExists.length) {
+      await db('lookup').insert({
         version: 3,
         service: 'discord-channel',
         name: channelData.body.name,
@@ -54,9 +54,9 @@ async function scraper (key, channels) {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.305 Chrome/69.0.3497.128 Electron/4.0.8 Safari/537.36'
       }
     });
-    const indexExists = await lookup.findOne({ id: serverData.body.id, service: 'discord' });
+    const indexExists = await db('lookup').insert({ id: serverData.body.id, service: 'discord' });
     if (!indexExists) {
-      await lookup.insertOne({
+      await db('lookup').insert({
         version: 3,
         service: 'discord',
         id: serverData.body.id,
@@ -80,21 +80,18 @@ async function processChannel (id, server, key, before) {
   await Promise.mapSeries(messages, async (msg, i, len) => {
     if (i === len - 1) lastMessageId = msg.id;
     const attachmentsKey = `attachments/discord/${server}/${msg.channel_id}/${msg.id}`;
-    const existing = await discord.findOne({ id: msg.id, service: 'discord' });
-    if (existing) return;
+    const existing = await db('discord_posts').where({ id: msg.id, service: 'discord' });
+    if (existing.length) return;
     const model = {
-      version: 3,
-      service: 'discord',
-      content: nl2br(msg.content),
       id: msg.id,
       author: msg.author,
-      user: server,
+      server: server,
       channel: id,
-      published_at: msg.timestamp,
-      edited_at: msg.edited_timestamp,
-      added_at: new Date().getTime(),
-      mentions: msg.mentions,
+      content: nl2br(msg.content),
+      published: msg.timestamp,
+      edited: msg.edited_timestamp,
       embeds: [],
+      mentions: msg.mentions,
       attachments: []
     };
 
@@ -114,7 +111,7 @@ async function processChannel (id, server, key, before) {
       });
     });
 
-    await discord.insertOne(model);
+    db('discord_posts').insert(model);
   });
 
   if (messages.length === 50) {

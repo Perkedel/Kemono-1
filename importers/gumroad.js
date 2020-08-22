@@ -1,12 +1,12 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../utils/db');
+const { db } = require('../db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flag-check');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 
 const apiOptions = key => {
   return {
@@ -53,16 +53,16 @@ async function scraper (key, from = 1) {
   });
   await Promise.map(data.products, async (product) => {
     const userId = new URL(product.userHref).pathname.replace('/', '');
-    const banExists = await bans.findOne({ id: userId, service: 'gumroad' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
+    if (banExists.length) return;
     await checkForFlags({
       service: 'gumroad',
       entity: 'user',
       entityId: userId,
       id: product.id
     });
-    const postExists = await posts.findOne({ id: product.id, service: 'gumroad' });
-    if (postExists) return;
+    const postExists = await await db('booru_posts').where({ id: product.id, service: 'gumroad' });
+    if (postExists.length) return;
 
     const model = {
       id: product.id,
@@ -71,20 +71,12 @@ async function scraper (key, from = 1) {
       title: product.title,
       content: '',
       embed: {},
-      rating: 'explicit',
       shared_file: false,
-      added_at: new Date().toISOString(),
-      published_at: null,
-      edited_at: null,
+      added: new Date().toISOString(),
+      published: null,
+      edited: null,
       file: {},
-      attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
+      attachments: []
     };
 
     const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
@@ -153,7 +145,7 @@ async function scraper (key, from = 1) {
         });
     });
 
-    posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (data.products.length) {

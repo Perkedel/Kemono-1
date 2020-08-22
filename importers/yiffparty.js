@@ -1,11 +1,11 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../utils/db');
+const { db } = require('../db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
-const downloadFile = require('../utils/download');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
@@ -38,17 +38,11 @@ async function scraper (users) {
     }));
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
-      const banExists = await bans.findOne({ id: post.id, service: 'patreon' });
-      if (banExists) return;
+      const banExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
+      if (banExists.length) return;
 
-      const postExists = await posts.findOne({
-        id: String(post.id),
-        $or: [
-          { service: 'patreon' },
-          { service: null }
-        ]
-      });
-      if (postExists) return;
+      const postExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
+      if (postExists.length) return;
 
       const model = {
         id: String(post.id),
@@ -57,20 +51,11 @@ async function scraper (users) {
         title: post.title || '',
         content: await sanitizePostContent(post.body),
         embed: {},
-        rating: 'explicit',
         shared_file: false,
-        added_at: new Date().toISOString(),
-        published_at: new Date(post.created * 1000).toISOString(),
-        edited_at: null,
+        published: new Date(post.created * 1000).toISOString(),
+        edited: null,
         file: {},
-        attachments: [],
-        tags: {
-          artist: [],
-          character: [],
-          copyright: [],
-          meta: ['tagme'],
-          general: []
-        }
+        attachments: []
       };
 
       if (Object.keys(post.embed || {}).length) {
@@ -107,7 +92,7 @@ async function scraper (users) {
           });
       });
 
-      posts.insertOne(model);
+      await db('booru_posts').insert(model)
     });
   });
 

@@ -1,14 +1,14 @@
 const cloudscraper = require('cloudscraper');
-const { posts, bans } = require('../utils/db');
+const { db } = require('../db');
 const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
 const path = require('path');
-const indexer = require('../init/indexer');
+const indexer = require('../indexer');
 const ellipsize = require('ellipsize');
 const { unraw } = require('unraw');
-const checkForFlags = require('../utils/flag-check');
-const downloadFile = require('../utils/download');
+const checkForFlags = require('../flag-check');
+const downloadFile = require('../download');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
   const subscribestar = await cloudscraper.get(uri, {
@@ -56,8 +56,8 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
   });
 
   Promise.map(data.posts, async (post) => {
-    const banExists = await bans.findOne({ id: post.user, service: 'subscribestar' });
-    if (banExists) return;
+    const banExists = await db('dnp').where({ id: post.user, service: 'subscribestar' });
+    if (banExists.length) return;
 
     await checkForFlags({
       service: 'subscribestar',
@@ -65,8 +65,8 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       entityId: post.user,
       id: post.id
     });
-    const postExists = await posts.findOne({ id: post.id, service: 'subscribestar' });
-    if (postExists) return;
+    const postExists = await db('booru_posts').where({ id: post.id, service: 'subscribestar' });
+    if (postExists.length) return;
 
     const model = {
       id: post.id,
@@ -75,20 +75,12 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       title: ellipsize(striptags(post.content), 60),
       content: post.content,
       embed: {},
-      rating: 'explicit',
       shared_file: false,
-      added_at: new Date().toISOString(),
-      published_at: new Date(Date.parse(post.published_at)).toISOString(),
-      edited_at: null,
+      added: new Date().toISOString(),
+      published: new Date(Date.parse(post.published_at)).toISOString(),
+      edited: null,
       file: {},
-      attachments: [],
-      tags: {
-        artist: [],
-        character: [],
-        copyright: [],
-        meta: ['tagme'],
-        general: []
-      }
+      attachments: []
     };
 
     if (model.title === 'Extend Subscription') return;
@@ -113,7 +105,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
         });
     });
 
-    posts.insertOne(model);
+    await db('booru_posts').insert(model)
   });
 
   if (data.next_url) {

@@ -19,7 +19,8 @@ const { to } = require('await-to-js');
     board: mongo.collection('board')
   };
 
-  await to(db.posts.find({
+  let err;
+  [err] = await to(db.posts.find({
     service: { $ne: 'discord' }
   })
     .forEach(x => {
@@ -39,7 +40,7 @@ const { to } = require('await-to-js');
       }).asCallback(() => {});
     }));
 
-  await to(db.bans.find({})
+  [err] = await to(db.bans.find({})
     .forEach(x => {
       postgres('dnp').insert({
         id: x.id,
@@ -47,7 +48,7 @@ const { to } = require('await-to-js');
       }).asCallback(() => {});
     }));
 
-  await to(db.posts.find({ service: 'discord' })
+  [err] = await to(db.posts.find({ service: 'discord' })
     .forEach(x => {
       postgres('discord_posts').insert({
         id: x.id,
@@ -64,7 +65,7 @@ const { to } = require('await-to-js');
       }).asCallback(() => {});
     }));
 
-  await to(db.flags.find({})
+  [err] = await to(db.flags.find({})
     .forEach(x => {
       postgres('booru_flags').insert({
         id: x.id,
@@ -73,7 +74,7 @@ const { to } = require('await-to-js');
       }).asCallback(() => {});
     }));
 
-  await to(db.lookup.find({})
+  [err] = await to(db.lookup.find({})
     .forEach(x => {
       postgres('lookup').insert({
         id: x.id,
@@ -82,11 +83,13 @@ const { to } = require('await-to-js');
       }).asCallback(() => {});
     }));
 
-  await to(db.board.find({})
+  [err] = await to(db.board.find({})
     .forEach(x => {
       postgres('board_replies').insert({
         reply: x.reply,
         in: x.in
       }).asCallback(() => {});
     }));
+    
+  if (err) throw err;
 })();

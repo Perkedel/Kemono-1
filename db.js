@@ -17,6 +17,7 @@ module.exports = {
       user: process.env.PGUSER,
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE
-    }
+    },
+    pool: { min: 2, max: 50 }
   })
 };

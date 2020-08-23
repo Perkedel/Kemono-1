@@ -85,7 +85,7 @@ const artists = data => shell(`
                 <div class="user-icon" data-user="${artist.id}" data-service="${artist.service}"></div>
               </td>
               <td>
-                <a href="/${artist.service}/${artist.service === 'discord' ? 'user' : 'server'}/${artist.id}">${artist.name}</a>
+                <a href="/${artist.service}/${artist.service === 'discord' ? 'server' : 'user'}/${artist.id}">${artist.name}</a>
               </td>
               <td>
                 <div>${transliterate(artist.name) !== artist.name ? transliterate(artist.name) : '<span class="subtitle">(N/A)</span>'}</div>

@@ -57,6 +57,7 @@
   "devDependencies": {
     "mongo-lazy-connect": "^2.3.0",
     "mongodb": "^3.3.3",
+    "p-queue": "^6.6.1",
     "semistandard": "*",
     "snazzy": "^8.0.0",
     "supervisor": "^0.12.0"

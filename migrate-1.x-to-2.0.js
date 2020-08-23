@@ -1,7 +1,10 @@
-const { to } = require('await-to-js');
-
+const MongoClient = require('mongodb').MongoClient;
+const { default: pq } = require('p-queue');
+const queue = new pq({concurrency: 10});
 (async () => {
-  const mongo = require('mongo-lazy-connect')(process.argv[2], { useUnifiedTopology: true });
+  // const mongo = require('mongo-lazy-connect')(process.argv[2], { useUnifiedTopology: true });
+  const mongo = await MongoClient.connect(process.argv[2]).catch(err => console.error(err));
+  const database = mongo.db();
   const postgres = require('knex')({
     client: 'pg',
     connection: {
@@ -9,36 +12,37 @@ const { to } = require('await-to-js');
       password: 'shinonome',
       database: 'kemonodb',
       host: 'localhost'
-    }
+    },
+    pool: { min: 2, max: 99 }
   });
   const db = {
-    posts: mongo.collection('posts'),
-    lookup: mongo.collection('lookup'),
-    flags: mongo.collection('flags'),
-    bans: mongo.collection('bans'),
-    board: mongo.collection('board')
+    posts: database.collection('posts'),
+    lookup: database.collection('lookup'),
+    flags: database.collection('flags'),
+    bans: database.collection('bans'),
+    board: database.collection('board')
   };
 
-  await to(db.posts.find({
+  await db.posts.find({
     service: { $ne: 'discord' }
   })
     .forEach(x => {
-      postgres('booru_posts').where({
-        id: x.id,
-        user: x.user,
-        service: x.service || 'patreon',
-        title: x.title || '',
-        content: x.content || '',
-        embed: x.embed || {},
-        shared_file: x.shared_file || false,
-        added: new Date(x.added_at).toISOString(),
-        published: x.published_at || null,
-        edited: x.edited_at || null,
-        file: x.post_file || {},
-        attachments: x.attachments || []
-      }).asCallback((err, rows) => {
-        if (err) return console.error(err);
-        if (!rows.length) return;
+      queue.add(async () => {
+        const rows = await postgres('booru_posts').where({
+          id: x.id,
+          user: x.user,
+          service: x.service || 'patreon',
+          title: x.title || '',
+          content: x.content || '',
+          embed: x.embed || {},
+          shared_file: x.shared_file || false,
+          added: new Date(x.added_at).toISOString(),
+          published: x.published_at ? new Date(x.published_at).toISOString() : null,
+          edited: x.edited_at || null,
+          file: x.post_file || {},
+          attachments: x.attachments || []
+        })
+        if (rows.length) return;
         postgres('booru_posts').insert({
           id: x.id,
           user: x.user,
@@ -48,47 +52,28 @@ const { to } = require('await-to-js');
           embed: x.embed || {},
           shared_file: x.shared_file || false,
           added: new Date(x.added_at).toISOString(),
-          published: x.published_at || null,
+          published: x.published_at ? new Date(x.published_at).toISOString() : null,
           edited: x.edited_at || null,
           file: x.post_file || {},
           attachments: x.attachments || []
-        }).asCallback(() => {});
+        }).asCallback(() => {})
       })
-    }));
+    })
 
-  await to(db.bans.find({})
+  await db.bans.find({})
     .forEach(x => {
-      postgres('dnp').where({
-        id: x.id,
-        service: x.service
-      }).asCallback((err, rows) => {
-        if (err) return console.error(err);
-        if (!rows.length) return;
-        postgres('dnp').insert({
+      queue.add(async () => {
+        await postgres('dnp').insert({
           id: x.id,
           service: x.service
-        }).asCallback(() => {});
+        })
       })
-    }));
+    })
 
-  await to(db.posts.find({ service: 'discord' })
+  await db.posts.find({ service: 'discord' })
     .forEach(x => {
-      postgres('discord_posts').where({
-        id: x.id,
-        author: x.author,
-        server: x.user,
-        channel: x.channel,
-        content: x.content,
-        added: new Date().toISOString(),
-        published: new Date(x.published_at).toISOString(),
-        edited: x.edited_at || null,
-        embeds: x.embeds,
-        mentions: x.mentions,
-        attachments: x.attachments
-      }).asCallback((err, rows) => {
-        if (err) return console.error(err);
-        if (!rows.length) return;
-        postgres('discord_posts').insert({
+      queue.add(async () => {
+        await postgres('discord_posts').insert({
           id: x.id,
           author: x.author,
           server: x.user,
@@ -100,56 +85,40 @@ const { to } = require('await-to-js');
           embeds: x.embeds,
           mentions: x.mentions,
           attachments: x.attachments
-        }).asCallback(() => {});
-      });
-    }));
+        })
+      })
+    })
 
-  await to(db.flags.find({})
+  await db.flags.find({})
     .forEach(x => {
-      postgres('booru_flags').where({
-        id: x.id,
-        user: x.user,
-        service: x.service
-      }).asCallback((err, rows) => {
-        if (err) return console.error(err);
-        if (!rows.length) return;
-        postgres('booru_flags').insert({
+      queue.add(async () => {
+        await postgres('booru_flags').insert({
           id: x.id,
           user: x.user,
           service: x.service
-        }).asCallback(() => {});
-      });
-    }));
+        })
+      })
+    });
 
-  await to(db.lookup.find({})
+  await db.lookup.find({})
     .forEach(x => {
-      postgres('lookup').where({
-        id: x.id,
-        name: x.name,
-        service: x.service
-      }).asCallback((err, rows) => {
-        if (err) return console.error(err);
-        if (!rows.length) return;
-        postgres('lookup').insert({
+      queue.add(async () => {
+        await postgres('lookup').insert({
           id: x.id,
           name: x.name,
           service: x.service
-        }).asCallback(() => {});
-      });
-    }));
+        })
+      })
+    });
 
-  await to(db.board.find({})
+  await db.board.find({})
     .forEach(x => {
-      postgres('board_replies').where({
-        reply: x.reply,
-        in: x.in
-      }).asCallback((err, rows) => {
-        if (err) return console.error(err);
-        if (!rows.length) return;
-        postgres('board_replies').insert({
+      queue.add(async () => {
+        await postgres('board_replies').insert({
           reply: x.reply,
           in: x.in
-        }).asCallback(() => {});
-      });
-    }));
+        })
+      })
+    });
+
 })();

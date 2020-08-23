@@ -25,8 +25,7 @@ CREATE INDEX IF NOT EXISTS published_idx ON booru_posts USING btree ("published"
 -- Booru bans
 CREATE TABLE IF NOT EXISTS dnp (
   "id" varchar(255) NOT NULL,
-  "service" varchar(20) NOT NULL,
-  PRIMARY KEY ("id")
+  "service" varchar(20) NOT NULL
 );
 
 -- Posts (Discord)
@@ -43,7 +42,7 @@ CREATE TABLE IF NOT EXISTS discord_posts (
   "mentions" jsonb[] NOT NULL,
   "attachments" jsonb[] NOT NULL
 );
-CREATE INDEX IF NOT EXISTS id_idx ON discord_posts USING hash ("id");
+CREATE INDEX IF NOT EXISTS discord_id_idx ON discord_posts USING hash ("id");
 CREATE INDEX IF NOT EXISTS server_idx ON discord_posts USING hash ("server");
 CREATE INDEX IF NOT EXISTS channel_idx ON discord_posts USING hash ("channel");
 
@@ -51,8 +50,7 @@ CREATE INDEX IF NOT EXISTS channel_idx ON discord_posts USING hash ("channel");
 CREATE TABLE IF NOT EXISTS booru_flags (
   "id" varchar(255) NOT NULL,
   "user" varchar(255) NOT NULL,
-  "service" varchar(20) NOT NULL,
-  PRIMARY KEY ("id")
+  "service" varchar(20) NOT NULL
 );
 
 -- Lookup

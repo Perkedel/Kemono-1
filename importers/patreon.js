@@ -64,7 +64,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       entityId: rel.user.data.id,
       id: post.id
     });
-    const existingPosts = await db('booru_posts').where({ id: post.id, service: 'patreon' })
+    const existingPosts = await db('booru_posts').where({ id: post.id, service: 'patreon' });
     if (existingPosts.length && !existingPosts[0].edited) {
       return;
     } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited_at > attr.edited_at) {
@@ -86,7 +86,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       published: attr.published_at,
       edited: attr.edited_at,
       file: {},
-      attachments: [],
+      attachments: []
     };
 
     if (attr.post_file) {
@@ -161,7 +161,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         });
     }).catch(() => {});
 
-    await db('booru_posts').insert(model)
+    await db('booru_posts').insert(model);
   });
 
   if (patreon.body.links.next) {

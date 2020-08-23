@@ -112,7 +112,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       });
     }
 
-    await db('booru_posts').insert(model)
+    await db('booru_posts').insert(model);
   });
 
   if (fanbox.body.nextUrl) {

@@ -53,7 +53,7 @@ async function scraper (importData, page = 1) {
       published: new Date(Date.parse(work.regist_date)).toISOString(),
       edited: null,
       file: {},
-      attachments: [],
+      attachments: []
     };
 
     const { data, response } = await scrapeIt(`https://www.dlsite.com/${importData.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
@@ -121,7 +121,7 @@ async function scraper (importData, page = 1) {
       }
     }
 
-    await db('booru_posts').insert(model)
+    await db('booru_posts').insert(model);
   });
 
   if (dlsite.works.length) {

@@ -9,7 +9,7 @@ const router = express.Router();
 router
   .use('/upload', upload)
   .get('/bans', async (_, res) => {
-    const userBans = await db('dnp').select('*')
+    const userBans = await db('dnp').select('*');
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userBans);
   })
@@ -67,7 +67,7 @@ router
       .select('*')
       .where(req.query.service ? { service: req.query.service } : {})
       .where('name', 'ILIKE', '%' + req.query.q + '%')
-      .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index.map(user => user.id));
   })
@@ -94,7 +94,7 @@ router
       .whereRaw('to_tsvector(content || title) @@ to_tsquery(?)', [req.query.q])
       .orderBy('published', 'desc')
       .offset(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
@@ -120,13 +120,13 @@ router
   .get('/:service/user/:id/post/:post', async (req, res) => {
     const userPosts = await db('booru_posts')
       .where({ id: req.params.post, user: req.params.id, service: req.params.service })
-      .orderBy('added', 'asc')
+      .orderBy('added', 'asc');
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
   .get('/:service/user/:id/post/:post/flag', async (req, res) => {
     res.setHeader('Cache-Control', 'max-age=60, public, no-cache');
-    const flags = await db('booru_flags').where({ id: req.params.post, user: req.params.id, service: req.params.service })
+    const flags = await db('booru_flags').where({ id: req.params.post, user: req.params.id, service: req.params.service });
     return flags.length ? res.sendStatus(200) : res.sendStatus(404);
   })
   .post('/:service/user/:id/post/:post/flag', async (req, res) => {
@@ -154,7 +154,7 @@ router
       .where({ user: req.params.id, service: req.params.service })
       .orderBy('published', 'desc')
       .offset(Number(req.query.skip) || 0)
-      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   });

@@ -92,7 +92,7 @@ async function scraper (users) {
           });
       });
 
-      await db('booru_posts').insert(model)
+      await db('booru_posts').insert(model);
     });
   });
 

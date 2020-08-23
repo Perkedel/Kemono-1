@@ -10,7 +10,7 @@ const logfmt = str => str.trim();
   console.log('\nｷﾀ━━━(ﾟ∀ﾟ)━━━!!');
 
   console.log(logfmt('Preparing database...'));
-  await db.raw(await fs.readFile(path.join(__dirname, 'database.sql'), 'utf8'))
+  await db.raw(await fs.readFile(path.join(__dirname, 'database.sql'), 'utf8'));
 
   console.log('Building lookup index...');
   indexer();

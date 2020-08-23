@@ -1,5 +1,3 @@
-const { to } = require('await-to-js')
-
 (async () => {
   const mongo = require('mongo-lazy-connect')(process.argv[2], { useUnifiedTopology: true });
   const postgres = require('knex')({
@@ -10,7 +8,7 @@ const { to } = require('await-to-js')
       database: 'kemonodb',
       host: 'localhost'
     }
-  })
+  });
   const db = {
     posts: mongo.collection('posts'),
     lookup: mongo.collection('lookup'),
@@ -19,7 +17,7 @@ const { to } = require('await-to-js')
     board: mongo.collection('board')
   };
 
-  await to(db.posts.find({
+  db.posts.find({
     service: { $ne: 'discord' }
   })
     .forEach(x => {
@@ -35,19 +33,19 @@ const { to } = require('await-to-js')
         published: x.published_at || null,
         edited: x.edited_at || null,
         file: x.post_file || {},
-        attachments: x.attachments || [],
-      });
-    }));
+        attachments: x.attachments || []
+      }).asCallback(() => {});
+    });
 
-  await to(db.bans.find({})
+  db.bans.find({})
     .forEach(x => {
       postgres('dnp').insert({
         id: x.id,
-        service: x.service,
-      });
-    }));
-  
-  await to(db.posts.find({ service: 'discord' })
+        service: x.service
+      }).asCallback(() => {});
+    });
+
+  db.posts.find({ service: 'discord' })
     .forEach(x => {
       postgres('discord_posts').insert({
         id: x.id,
@@ -61,32 +59,32 @@ const { to } = require('await-to-js')
         embeds: x.embeds,
         mentions: x.mentions,
         attachments: x.attachments
-      });
-    }));
+      }).asCallback(() => {});
+    });
 
-  await to(db.flags.find({})
+  db.flags.find({})
     .forEach(x => {
       postgres('booru_flags').insert({
         id: x.id,
         user: x.user,
         service: x.service
-      });
-    }));
+      }).asCallback(() => {});
+    });
 
-  await to(db.lookup.find({})
+  db.lookup.find({})
     .forEach(x => {
       postgres('lookup').insert({
         id: x.id,
         name: x.name,
         service: x.service
-      });
-    }));
+      }).asCallback(() => {});
+    });
 
-  await to(db.board.find({})
+  db.board.find({})
     .forEach(x => {
       postgres('board_replies').insert({
         reply: x.reply,
         in: x.in
-      });
-    }));
-})()
+      }).asCallback(() => {});
+    });
+})();

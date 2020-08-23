@@ -105,7 +105,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
         });
     });
 
-    await db('booru_posts').insert(model)
+    await db('booru_posts').insert(model);
   });
 
   if (data.next_url) {

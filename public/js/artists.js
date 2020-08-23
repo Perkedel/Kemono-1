@@ -2,7 +2,7 @@ window.onload = () => {
   Array.from(document.querySelectorAll('.user-icon')).forEach(icon => {
     switch (icon.getAttribute('data-service')) {
       case 'patreon': {
-        fetch(`/proxy/user/${icon.getAttribute('data-user')}`)
+        fetch(`/proxy/patreon/user/${icon.getAttribute('data-user')}`)
           .then(res => res.json())
           .then(user => {
             const avatar = user.included ? user.included[0].attributes.avatar_photo_url : user.data.attributes.image_url;

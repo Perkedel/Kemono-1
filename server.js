@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { api, proxy, board, importer, help } = require('./routes');
-const { db } = require('./db');
+const { db, queue } = require('./db');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
@@ -61,19 +61,21 @@ module.exports = () => {
     .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
     .get('/artists', async (req, res) => {
       if (!req.query.commit) return res.send(artists({ results: [], query: req.query }));
-      const index = await db('lookup')
-        .select('*')
-        .where(req.query.service ? { service: req.query.service } : {})
-        .where('name', 'ILIKE', '%' + req.query.q + '%')
-        .whereNot('service', 'discord-channel')
-        .orderBy(({
-          name: 'name',
-          service: 'service'
-        })[req.query.sort_by], ({
-          asc: 'asc',
-          desc: 'desc'
-        })[req.query.order])
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50);
+      const index = await queue.add(() => {
+        return db('lookup')
+          .select('*')
+          .where(req.query.service ? { service: req.query.service } : {})
+          .where('name', 'ILIKE', '%' + req.query.q + '%')
+          .whereNot('service', 'discord-channel')
+          .orderBy(({
+            name: 'name',
+            service: 'service'
+          })[req.query.sort_by], ({
+            asc: 'asc',
+            desc: 'desc'
+          })[req.query.order])
+          .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50)
+      }, { priority: 1 });
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(artists({
@@ -83,11 +85,13 @@ module.exports = () => {
         }));
     })
     .get('/posts', async (req, res) => {
-      const recentPosts = await db('booru_posts')
-        .select('*')
-        .orderBy('added', 'desc')
-        .offset(Number(req.query.o) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);
+      const recentPosts = await queue.add(() => {
+        return db('booru_posts')
+          .select('*')
+          .orderBy('added', 'desc')
+          .offset(Number(req.query.o) || 0)
+          .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);
+      }, { priority: 1 });
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(recent({
@@ -103,11 +107,13 @@ module.exports = () => {
     .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
     .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
     .get('/random', async (_, res) => {
-      const postsCount = await db('booru_posts').count({ count: '*' });
-      const random = await db('booru_posts')
-        .select('*')
-        .offset(Math.round(Math.random() * Number(postsCount[0].count)))
-        .limit(1);
+      const postsCount = await queue.add(() => db('booru_posts').count('*'), { priority: 1 });
+      const random = await queue.add(() => {
+        return db('booru_posts')
+          .select('*')
+          .offset(Math.round(Math.random() * Number(postsCount[0].count)))
+          .limit(1);
+      }, { priority: 1 })
       if (!random.length) return res.redirect('back');
       res.set('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
         .redirect(path.join(
@@ -118,13 +124,18 @@ module.exports = () => {
         ));
     })
     .get('/:service/user/:id/rss', async (req, res) => {
-      const cache = await db('lookup').where({ id: req.params.id, service: req.params.service });
+      const cache = await queue.add(() => db('lookup').where({
+        id: req.params.id,
+        service: req.params.service
+      }), { priority: 1 });
       if (!cache.length) return res.sendStatus(404);
 
-      const userPosts = await db('booru_posts')
-        .where({ user: req.params.id, service: req.params.service })
-        .orderBy('added', 'desc')
-        .limit(10);
+      const userPosts = await queue.add(() => {
+        return db('booru_posts')
+          .where({ user: req.params.id, service: req.params.service })
+          .orderBy('added', 'desc')
+          .limit(10);
+      }, { priority: 1 })
 
       const feed = new Feed({
         title: cache[0].name,
@@ -160,12 +171,17 @@ module.exports = () => {
     .get('/user/:id/post/:post', (req, res) => res.redirect(path.join('/patreon/user/', req.params.id, 'post', req.params.post)))
     .get('/:service/user/:id', async (req, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-      const userPosts = await db('booru_posts')
-        .where({ user: req.params.id, service: req.params.service })
-        .orderBy('published', 'desc')
-        .offset(Number(req.query.o) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
-      const userUniqueIds = await db('booru_posts').distinct('id');
+      const userPosts = await queue.add(() => {
+        return db('booru_posts')
+          .where({ user: req.params.id, service: req.params.service })
+          .orderBy('published', 'desc')
+          .offset(Number(req.query.o) || 0)
+          .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
+      }, { priority: 1 });
+      const userUniqueIds = await queue.add(() => db('booru_posts').where({
+        user: req.params.id,
+        service: req.params.service
+      }).distinct('id'), { priority: 1 });
       res.type('html')
         .send(user({
           count: userUniqueIds.length,
@@ -182,9 +198,11 @@ module.exports = () => {
         .send(server());
     })
     .get('/:service/:type/:id/post/:post', async (req, res) => {
-      const userPosts = await db('booru_posts')
-        .where({ id: req.params.post, user: req.params.id, service: req.params.service })
-        .orderBy('added', 'asc');
+      const userPosts = await queue.add(() => {
+        return db('booru_posts')
+          .where({ id: req.params.post, user: req.params.id, service: req.params.service })
+          .orderBy('added', 'asc');
+      }, { priority: 1 })
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(post({

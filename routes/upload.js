@@ -1,6 +1,6 @@
 const { slugify } = require('transliteration');
 const auth = require('express-basic-auth');
-const { db } = require('../db');
+const { db, queue } = require('../db');
 const multer = require('multer');
 const crypto = require('crypto');
 const fs = require('fs-extra');
@@ -66,7 +66,7 @@ router
 
     if (!service) return res.sendStatus(400);
 
-    await db('booru_posts').insert({
+    await queue.add(() => db('booru_posts').insert({
       id: req.id,
       user: xss(req.body.user),
       service: service,
@@ -81,7 +81,7 @@ router
         path: path.join('/files', req.body.service === 'patreon' ? '' : req.body.service, req.body.user, req.id, req.file.filename)
       },
       attachments: []
-    });
+    }), { priority: 1 });
 
     res.redirect(path.join('/', req.body.service === 'patreon' ? '' : req.body.service, 'user', req.body.user));
   })

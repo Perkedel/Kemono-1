@@ -36,7 +36,8 @@ const { to } = require('await-to-js');
         edited: x.edited_at || null,
         file: x.post_file || {},
         attachments: x.attachments || []
-      }).asCallback((_, rows) => {
+      }).asCallback((err, rows) => {
+        if (err) return console.error(err);
         if (!rows.length) return;
         postgres('booru_posts').insert({
           id: x.id,
@@ -60,7 +61,8 @@ const { to } = require('await-to-js');
       postgres('dnp').where({
         id: x.id,
         service: x.service
-      }).asCallback((_, rows) => {
+      }).asCallback((err, rows) => {
+        if (err) return console.error(err);
         if (!rows.length) return;
         postgres('dnp').insert({
           id: x.id,
@@ -83,7 +85,8 @@ const { to } = require('await-to-js');
         embeds: x.embeds,
         mentions: x.mentions,
         attachments: x.attachments
-      }).asCallback((_, rows) => {
+      }).asCallback((err, rows) => {
+        if (err) return console.error(err);
         if (!rows.length) return;
         postgres('discord_posts').insert({
           id: x.id,
@@ -107,7 +110,8 @@ const { to } = require('await-to-js');
         id: x.id,
         user: x.user,
         service: x.service
-      }).asCallback((_, rows) => {
+      }).asCallback((err, rows) => {
+        if (err) return console.error(err);
         if (!rows.length) return;
         postgres('booru_flags').insert({
           id: x.id,
@@ -123,7 +127,8 @@ const { to } = require('await-to-js');
         id: x.id,
         name: x.name,
         service: x.service
-      }).asCallback((_, rows) => {
+      }).asCallback((err, rows) => {
+        if (err) return console.error(err);
         if (!rows.length) return;
         postgres('lookup').insert({
           id: x.id,
@@ -138,7 +143,8 @@ const { to } = require('await-to-js');
       postgres('board_replies').where({
         reply: x.reply,
         in: x.in
-      }).asCallback((_, rows) => {
+      }).asCallback((err, rows) => {
+        if (err) return console.error(err);
         if (!rows.length) return;
         postgres('board_replies').insert({
           reply: x.reply,

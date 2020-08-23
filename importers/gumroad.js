@@ -1,5 +1,5 @@
 const cloudscraper = require('cloudscraper');
-const { db } = require('../db');
+const { db, queue } = require('../db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
 const checkForFlags = require('../flagcheck');
@@ -53,7 +53,7 @@ async function scraper (key, from = 1) {
   });
   await Promise.map(data.products, async (product) => {
     const userId = new URL(product.userHref).pathname.replace('/', '');
-    const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
+    const banExists = await queue.add(() => db('dnp').where({ id: userId, service: 'gumroad' }));
     if (banExists.length) return;
     await checkForFlags({
       service: 'gumroad',
@@ -61,7 +61,7 @@ async function scraper (key, from = 1) {
       entityId: userId,
       id: product.id
     });
-    const postExists = await await db('booru_posts').where({ id: product.id, service: 'gumroad' });
+    const postExists = await queue.add(() => db('booru_posts').where({ id: product.id, service: 'gumroad' }));
     if (postExists.length) return;
 
     const model = {
@@ -145,7 +145,7 @@ async function scraper (key, from = 1) {
         });
     });
 
-    await db('booru_posts').insert(model);
+    await queue.add(() => db('booru_posts').insert(model));
   });
 
   if (data.products.length) {

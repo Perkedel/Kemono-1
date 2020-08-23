@@ -33,7 +33,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
   const fanbox = await retry(() => request.get(url, requestOptions(key)));
   Promise.map(fanbox.body.items, async (post) => {
     if (!post.body) return; // locked content; nothing to do
-    const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
+    const banExists = await queue.add(() => db('dnp').where({ id: post.user.userId, service: 'fanbox' }));
     if (banExists.length) return;
 
     await checkForFlags({
@@ -43,7 +43,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       id: post.id
     });
 
-    const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
+    const postExists = await queue.add(() => db('booru_posts').where({ id: post.id, service: 'fanbox' }));
     if (postExists.length) return;
 
     const model = {
@@ -112,7 +112,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       });
     }
 
-    await db('booru_posts').insert(model);
+    await queue.add(() => db('booru_posts').insert(model));
   });
 
   if (fanbox.body.nextUrl) {

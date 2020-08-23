@@ -1,4 +1,4 @@
-const { db } = require('./db');
+const { db, queue } = require('./db');
 const path = require('path');
 const fs = require('fs-extra');
 /**
@@ -12,15 +12,19 @@ const fs = require('fs-extra');
  * @param {String} data.id - The ID of the post being checked
  */
 module.exports = async (data) => {
-  const flagExists = await db('booru_flags').where({ id: data.id, user: data.entityId, service: data.service });
+  const flagExists = await queue.add(() => db('booru_flags').where({ id: data.id, user: data.entityId, service: data.service }));
   if (!flagExists.length) return;
 
-  await db('booru_flags')
-    .where({ id: data.id, user: data.entityId, service: data.service })
-    .del();
-  await db('booru_posts')
-    .where({ id: data.id, user: data.entityId, service: data.service })
-    .del();
+  await queue.add(() => {
+    return db('booru_flags')
+      .where({ id: data.id, user: data.entityId, service: data.service })
+      .del();
+  })
+  await queue.add(() => {
+    return db('booru_posts')
+      .where({ id: data.id, user: data.entityId, service: data.service })
+      .del();
+  })
   await fs.remove(path.join(
     process.env.DB_ROOT,
     'attachments',

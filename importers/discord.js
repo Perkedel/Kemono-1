@@ -1,4 +1,4 @@
-const { db } = require('../db');
+const { db, queue } = require('../db');
 const Promise = require('bluebird');
 const cloudscraper = require('cloudscraper');
 const nl2br = require('nl2br');
@@ -33,7 +33,7 @@ async function scraper (key, channels) {
       }
     });
     if (channelData.statusCode !== 200) return;
-    const channelExists = await db('lookup').where({ id: channelData.body.id, service: 'discord-channel' });
+    const channelExists = await queue.add(() => db('lookup').where({ id: channelData.body.id, service: 'discord-channel' }));
     if (!channelExists.length) {
       await db('lookup').insert({
         version: 3,
@@ -54,8 +54,8 @@ async function scraper (key, channels) {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.305 Chrome/69.0.3497.128 Electron/4.0.8 Safari/537.36'
       }
     });
-    const indexExists = await db('lookup').insert({ id: serverData.body.id, service: 'discord' });
-    if (!indexExists) {
+    const indexExists = await queue.add(() => db('lookup').insert({ id: serverData.body.id, service: 'discord' }));
+    if (!indexExists.length) {
       await db('lookup').insert({
         version: 3,
         service: 'discord',
@@ -80,7 +80,7 @@ async function processChannel (id, server, key, before) {
   await Promise.mapSeries(messages, async (msg, i, len) => {
     if (i === len - 1) lastMessageId = msg.id;
     const attachmentsKey = `attachments/discord/${server}/${msg.channel_id}/${msg.id}`;
-    const existing = await db('discord_posts').where({ id: msg.id, service: 'discord' });
+    const existing = await queue.add(() => db('discord_posts').where({ id: msg.id, service: 'discord' }));
     if (existing.length) return;
     const model = {
       id: msg.id,
@@ -111,7 +111,7 @@ async function processChannel (id, server, key, before) {
       });
     });
 
-    db('discord_posts').insert(model);
+    queue.add(() => db('discord_posts').insert(model));
   });
 
   if (messages.length === 50) {

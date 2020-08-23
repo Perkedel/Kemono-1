@@ -18,6 +18,6 @@ module.exports = {
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE
     },
-    pool: { min: 2, max: 50 }
+    pool: { min: 2, max: 100 }
   })
 };

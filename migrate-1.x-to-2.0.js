@@ -1,3 +1,5 @@
+const { to } = require('await-to-js');
+
 (async () => {
   const mongo = require('mongo-lazy-connect')(process.argv[2], { useUnifiedTopology: true });
   const postgres = require('knex')({
@@ -17,7 +19,8 @@
     board: mongo.collection('board')
   };
 
-  db.posts.find({
+  let err;
+  [err] = await to(db.posts.find({
     service: { $ne: 'discord' }
   })
     .forEach(x => {
@@ -35,17 +38,17 @@
         file: x.post_file || {},
         attachments: x.attachments || []
       }).asCallback(() => {});
-    });
+    }));
 
-  db.bans.find({})
+  [err] = await to(db.bans.find({})
     .forEach(x => {
       postgres('dnp').insert({
         id: x.id,
         service: x.service
       }).asCallback(() => {});
-    });
+    }));
 
-  db.posts.find({ service: 'discord' })
+  [err] = await to(db.posts.find({ service: 'discord' })
     .forEach(x => {
       postgres('discord_posts').insert({
         id: x.id,
@@ -60,31 +63,33 @@
         mentions: x.mentions,
         attachments: x.attachments
       }).asCallback(() => {});
-    });
+    }));
 
-  db.flags.find({})
+  [err] = await to(db.flags.find({})
     .forEach(x => {
       postgres('booru_flags').insert({
         id: x.id,
         user: x.user,
         service: x.service
       }).asCallback(() => {});
-    });
+    }));
 
-  db.lookup.find({})
+  [err] = await to(db.lookup.find({})
     .forEach(x => {
       postgres('lookup').insert({
         id: x.id,
         name: x.name,
         service: x.service
       }).asCallback(() => {});
-    });
+    }));
 
-  db.board.find({})
+  [err] = await to(db.board.find({})
     .forEach(x => {
       postgres('board_replies').insert({
         reply: x.reply,
         in: x.in
       }).asCallback(() => {});
-    });
+    }));
+    
+  if (err) throw err;
 })();

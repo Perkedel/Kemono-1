@@ -9,6 +9,7 @@
     "lint": "semistandard --fix --verbose | snazzy"
   },
   "dependencies": {
+    "await-to-js": "^2.1.1",
     "bluebird": "^3.7.2",
     "brotli": "^1.3.2",
     "cloudscraper": "git+https://git@github.com/bestplay9384/cloudscraper.git",
@@ -54,11 +55,11 @@
     "xss": "^1.0.7"
   },
   "devDependencies": {
+    "mongo-lazy-connect": "^2.3.0",
+    "mongodb": "^3.3.3",
     "semistandard": "*",
     "snazzy": "^8.0.0",
-    "supervisor": "^0.12.0",
-    "mongo-lazy-connect": "^2.3.0",
-    "mongodb": "^3.3.3"
+    "supervisor": "^0.12.0"
   },
   "semistandard": {
     "globals": [

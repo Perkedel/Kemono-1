@@ -8,7 +8,7 @@
       database: 'kemonodb',
       host: 'localhost'
     }
-  })
+  });
   const db = {
     posts: mongo.collection('posts'),
     lookup: mongo.collection('lookup'),
@@ -33,18 +33,18 @@
         published: x.published_at || null,
         edited: x.edited_at || null,
         file: x.post_file || {},
-        attachments: x.attachments || [],
+        attachments: x.attachments || []
       }).asCallback(() => {});
     });
-    
+
   db.bans.find({})
     .forEach(x => {
       postgres('dnp').insert({
         id: x.id,
-        service: x.service,
-      }).asCallback(() => {});;
+        service: x.service
+      }).asCallback(() => {});
     });
-  
+
   db.posts.find({ service: 'discord' })
     .forEach(x => {
       postgres('discord_posts').insert({
@@ -87,4 +87,4 @@
         in: x.in
       }).asCallback(() => {});
     });
-})()
+})();

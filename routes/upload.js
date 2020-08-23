@@ -81,7 +81,7 @@ router
         path: path.join('/files', req.body.service === 'patreon' ? '' : req.body.service, req.body.user, req.id, req.file.filename)
       },
       attachments: []
-    })
+    });
 
     res.redirect(path.join('/', req.body.service === 'patreon' ? '' : req.body.service, 'user', req.body.user));
   })

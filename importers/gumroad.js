@@ -145,7 +145,7 @@ async function scraper (key, from = 1) {
         });
     });
 
-    await db('booru_posts').insert(model)
+    await db('booru_posts').insert(model);
   });
 
   if (data.products.length) {

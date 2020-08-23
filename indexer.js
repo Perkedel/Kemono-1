@@ -21,7 +21,7 @@ async function indexer () {
             id: post.user,
             name: user.data.attributes.vanity || user.data.attributes.full_name,
             service: 'patreon'
-          })
+          });
         break;
       }
       case 'fanbox': {

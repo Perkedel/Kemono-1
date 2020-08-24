@@ -1,4 +1,4 @@
-const { db } = require('../db');
+const { db, queue } = require('../db');
 const request = require('request-promise');
 const retry = require('p-retry');
 const path = require('path');

@@ -10,5 +10,5 @@ module.exports = {
     },
     pool: { min: 2, max: 99 }
   }),
-  queue: new pq({ concurrency: 50 })
+  queue: new pq({ concurrency: 99 })
 };

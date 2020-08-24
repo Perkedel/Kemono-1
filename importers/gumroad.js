@@ -43,6 +43,14 @@ async function scraper (key, from = 1) {
           selector: '.description-container .js-creator-profile-link',
           attr: 'href'
         },
+        userId: {
+          selector: '.preview-container',
+          attr: 'data-asset-previews',
+          convert: x => {
+            const numberArr = x.match(/\d+/g).filter(el => el.length === 13);
+            return numberArr[0];
+          }
+        },
         previews: {
           selector: '.preview-container',
           attr: 'data-asset-previews',
@@ -51,8 +59,8 @@ async function scraper (key, from = 1) {
       }
     }
   });
-  await Promise.map(data.products, async (product) => {
-    const userId = new URL(product.userHref).pathname.replace('/', '');
+  Promise.map(data.products, async (product) => {
+    const userId = product.userId;
     const banExists = await queue.add(() => db('dnp').where({ id: userId, service: 'gumroad' }));
     if (banExists.length) return;
     await checkForFlags({

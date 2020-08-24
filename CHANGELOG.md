@@ -25,6 +25,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   - Better handling for deleted/unavailable products in Gumroad importer
   - Gumroad importer is now properly recursive
   - Thumbnail scraping improved in Gumroad importer
+  - Gumroad scraper can now handle users without a creator page
   - Discord importer now uses main download instead of proxy (which is usually lower quality)
   - Changes in thumbnail generator for reduced resource usage
   - Minor UI fixes

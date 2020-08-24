@@ -93,8 +93,8 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       })
         .then(res => {
           if (!Object.keys(model.file).length) {
+            model.file.name = res.filename;
             model.file.path = `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`;
-            model.post_type = attachment.type;
           } else {
             model.attachments.push({
               id: String(attachment.id),

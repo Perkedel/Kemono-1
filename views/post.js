@@ -18,7 +18,7 @@ const post = props => shell(`
           let previews = '';
           let attachments = '';
           if (Object.keys(post.file).length !== 0) {
-            (/\.(gif|jpe?g|png|webp)$/i).test(post.file.name) ? previews += `
+            (/\.(gif|jpe?g|png|webp)$/i).test(post.file.path) ? previews += `
               <a class="fileThumb" href="${post.file.path}">
                 <img
                   data-src="/thumbnail${post.file.path.replace('https://kemono.party', '')}"

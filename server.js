@@ -107,11 +107,10 @@ module.exports = () => {
     .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
     .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
     .get('/random', async (_, res) => {
-      const postsCount = await queue.add(() => db('booru_posts').count('*'), { priority: 1 });
       const random = await queue.add(() => {
         return db('booru_posts')
           .select('*')
-          .offset(Math.round(Math.random() * Number(postsCount[0].count)))
+          .orderByRaw('random()')
           .limit(1);
       }, { priority: 1 })
       if (!random.length) return res.redirect('back');

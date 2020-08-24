@@ -2,7 +2,7 @@ const { db, queue } = require('../db');
 const upload = require('./upload');
 const fs = require('fs-extra');
 const path = require('path');
-
+const Promise = require('bluebird');
 const express = require('express');
 const router = express.Router();
 
@@ -76,13 +76,30 @@ router
     res.json(index.map(user => user.id));
   })
   .get('/discord/channels/lookup', async (req, res) => {
-    if (req.query.q.length > 35) return res.sendStatus(400);
-    const index = await queue.add(() => db('lookup').where({
-      service: 'discord-channel',
-      server: req.query.q
-    }), { priority: 1 })
+    const index = await queue.add(() => {
+      return db('discord_posts')
+        .distinct('channel')
+        .where({ server: req.query.q })
+    }, { priority: 1 })
+    const channels = await Promise.map(index, async (x) => {
+      const lookup = await queue.add(() => db('lookup').where({ service: 'discord-channel', id: x.channel}), { priority: 1 })
+      return {
+        id: x.channel,
+        name: lookup[0].name
+      };
+    })
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-    res.json(index);
+    res.json(channels);
+  })
+  .get('/discord/channel/:id', async (req, res) => {
+    const posts = await queue.add(() => {
+      return db('discord_posts')
+        .where({ channel: req.params.id })
+        .orderBy('published', 'desc')
+        .offset(Number(req.query.skip) || 0)
+    }, { priority: 1 })
+    res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
+    res.json(posts);
   })
   .get('/lookup/cache/:id', async (req, res) => {
     const cache = await queue.add(() => db('lookup').where({ id: req.params.id, service: req.query.service }), { priority: 1 });

@@ -41,7 +41,7 @@ const loadMessages = async (channelId, skip = 0) => {
         <div style="display:inline-block">
           <div class="message-header">
             <b><p>${msg.author.username}</p></b>
-            <p style="color:#757575">${msg.published_at}</p>
+            <p style="color:#757575">${msg.published}</p>
           </div>
           <p>${msg.content}</p>
           ${dls}

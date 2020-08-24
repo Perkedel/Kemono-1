@@ -30,7 +30,7 @@ const preview = props => {
     }
   });
   html += thumb({
-    src: (/\.(gif|jpe?g|png|webp)$/i).test(props.post.file.name) ? props.post.file.path : undefined,
+    src: (/\.(gif|jpe?g|png|webp)$/i).test(props.post.file.path) ? props.post.file.path : undefined,
     title: props.post.title,
     content: props.post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
     class: props.post.shared_file ? 'thumb-shared' : (parent ? 'thumb-parent' : undefined),

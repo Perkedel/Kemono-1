@@ -87,8 +87,7 @@ module.exports = () => {
     .get('/artists/updated', async (req, res) => {
       const recentUsers = await queue.add(() => {
         return db('booru_posts')
-          .distinct('user')
-          .select('service')
+          .select('user', 'service')
           .max('added')
           .groupBy('user', 'service')
           .orderByRaw('max(added) desc')

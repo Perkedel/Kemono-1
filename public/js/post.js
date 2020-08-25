@@ -50,10 +50,10 @@ function attemptFlag (_, api) {
           ID: <a href="">${document.getElementsByName('id')[0].content}</a>
         </li>
         <li>
-          Published at: ${new Date(document.getElementsByName('published')[0].content).toISOString()}
+          ${document.getElementsByName('published')[0].content ? `Published at: ${new Date(document.getElementsByName('published')[0].content).toISOString()}` : ''}
         </li>
         <li>
-          Added at: ${new Date(document.getElementsByName('added')[0].content).toISOString()}
+          ${document.getElementsByName('added')[0].content ? `Added at: ${new Date(document.getElementsByName('added')[0].content).toISOString()}` : ''}
         </li>
       `;
     })

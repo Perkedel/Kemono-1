@@ -64,6 +64,6 @@ CREATE INDEX IF NOT EXISTS name_idx ON lookup USING btree ("name");
 
 -- Board
 CREATE TABLE IF NOT EXISTS board_replies (
-  "reply" varchar(255) NOT NULL,
-  "in" varchar(255) NOT NULL
+  "reply" integer NOT NULL,
+  "in" integer NOT NULL
 );

@@ -286,10 +286,6 @@ input[type="submit"] {
   border-bottom: 2px solid #111;
 }
 
-.search-results tbody tr {
-  border-bottom: 1px solid #111;
-}
-
 .search-results tbody td {
   height: 2.25em;
 }

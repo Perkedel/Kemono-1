@@ -94,7 +94,7 @@ router
     if (!threadExists) return res.sendStatus(404);
     res.set('Cache-Control', 's-maxage=31557600, no-cache')
       .type('html')
-      .send(thread(await fs.readFile(threadFile), { id: req.params.id }));
+      .send(thread(await fs.readFile(threadFile, 'utf8'), { id: req.params.id }));
   })
   .post('/thread/:id/reply', upload.single('image'), async (req, res) => {
     const thread = path.join(process.env.DB_ROOT, 'board', 'threads', `${req.params.id}.html`);

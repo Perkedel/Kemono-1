@@ -4,6 +4,7 @@ const form = props => `
     action="${props.action}"
     enctype="multipart/form-data"
     method="post"
+    onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"
   >
     <div>
       <label for="name">Name</label>

@@ -277,6 +277,10 @@ input[type="submit"] {
   font-weight: 700;
 }
 
+.search-form small {
+  display: block;
+}
+
 /* search results */
 .search-results {
   border-collapse: collapse;

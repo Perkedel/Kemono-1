@@ -2,6 +2,7 @@ require('dotenv').config();
 const { db } = require('./db');
 const fs = require('fs-extra');
 const path = require('path');
+const isInstalled = require('prgm-installed');
 const indexer = require('./indexer');
 const server = require('./server');
 
@@ -14,6 +15,9 @@ const logfmt = str => str.trim();
 
   console.log('Building lookup index...');
   indexer();
+
+  console.log('Checking for external dependencies...')
+  process.stdout.write(isInstalled('inkscape') ? '' : '[!] Inkscape is not installed. Gumroad watermark removal will be disabled.\n');
 
   console.log('Starting webserver...');
   server();

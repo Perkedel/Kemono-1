@@ -6,6 +6,7 @@ const checkForFlags = require('../flagcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
+const isInstalled = require('prgm-installed');
 const indexer = require('../indexer');
 
 const apiOptions = key => {
@@ -146,6 +147,10 @@ async function scraper (key, from = 1) {
         url: 'https://gumroad.com' + downloadData.data.download_info[file.id].download_url
       }, scrapeOptions(key)))
         .then(res => {
+          if (file.extension === 'PDF' && isInstalled('inkscape')) await scrubGumroadWatermarks(
+            path.join(process.env.DB_ROOT, `/attachments/gumroad/${userId}/${product.id}`),
+            res.filename
+          );
           model.attachments.push({
             name: res.filename,
             path: `/attachments/gumroad/${userId}/${product.id}/${res.filename}`

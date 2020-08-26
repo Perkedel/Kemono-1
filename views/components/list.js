@@ -6,7 +6,8 @@ const list = props => `
     <div class="paginator" id="paginator-top">
       ${paginator({
         o: props.o,
-        url: props.url
+        url: props.url,
+        count: props.count
       })}
     </div>
     <div id="no-posts">
@@ -23,7 +24,8 @@ const list = props => `
     <div class="paginator" id="paginator-bottom">
       ${paginator({
         o: props.o,
-        url: props.url
+        url: props.url,
+        count: props.count
       })}
     </div>
   </div> 

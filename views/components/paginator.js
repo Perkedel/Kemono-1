@@ -4,7 +4,7 @@ const paginator = props => {
     <menu>
       ${skip >= 50 ? `<li><a href="${props.url}?o=${skip - 50}" title="-50">«</a></li>` : '<li class="subtitle">«</li>'}
       ${skip >= 25 ? `<li><a href="${props.url}?o=${skip - 25}" title="-25">‹</a></li>` : '<li class="subtitle">‹</li>'}
-      <li>offset: ${skip}</li>
+      <li>offset: ${skip}${props.count ? `/${props.count}` : ''}</li>
       <li><a href="${props.url}?o=${skip + 25}" title="+25">›</a></li>
       <li><a href="${props.url}?o=${skip + 50}" title="+50">»</a></li>
     </menu>

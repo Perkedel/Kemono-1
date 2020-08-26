@@ -32,7 +32,8 @@ const user = props => shell(`
       ${list({
         o: props.query.o,
         url: props.url,
-        posts: props.posts
+        posts: props.posts,
+        count: props.count
       })}
     </div>
   </div>

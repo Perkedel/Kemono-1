@@ -13,6 +13,7 @@ const artists = data => shell(`
         action="/artists"
         accept-charset="UTF-8"
         method="get"
+        onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"
       >
         <div>
           <label for="q">Name</label>

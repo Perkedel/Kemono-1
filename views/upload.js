@@ -14,6 +14,7 @@ const upload = props => shell(`
         action="/api/upload"
         enctype="multipart/form-data"
         method="post"
+        onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"
       >
         ${props.query.service ? `
           <div>

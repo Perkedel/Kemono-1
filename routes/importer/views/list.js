@@ -14,6 +14,7 @@ const list = () => shell(`
           action="/api/import"
           enctype="application/x-www-form-urlencoded"
           method="post"
+          onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"
         >
           <select id="service" name="service">
             <option value="patreon" selected>Patreon</option>

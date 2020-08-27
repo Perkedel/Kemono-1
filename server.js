@@ -77,7 +77,7 @@ module.exports = () => {
             asc: 'asc',
             desc: 'desc'
           })[req.query.order])
-          .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50);
+          .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50)
       }, { priority: 1 });
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
@@ -94,7 +94,7 @@ module.exports = () => {
           .max('added')
           .groupBy('user', 'service')
           .orderByRaw('max(added) desc')
-          .limit(50);
+          .limit(50)
       }, { priority: 1 });
 
       const index = await Promise.mapSeries(recentUsers, async (user) => {
@@ -106,14 +106,14 @@ module.exports = () => {
           service: user.service,
           updated: user.max
         };
-      });
+      })
 
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(updated({
           results: index,
           query: req.query,
-          url: req.originalUrl
+          url: req.originalUrl,
         }));
     })
     .get('/posts', async (req, res) => {
@@ -144,7 +144,7 @@ module.exports = () => {
           .select('*')
           .orderByRaw('random()')
           .limit(1);
-      }, { priority: 1 });
+      }, { priority: 1 })
       if (!random.length) return res.redirect('back');
       res.set('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
         .redirect(path.join(
@@ -166,7 +166,7 @@ module.exports = () => {
           .where({ user: req.params.id, service: req.params.service })
           .orderBy('added', 'desc')
           .limit(10);
-      }, { priority: 1 });
+      }, { priority: 1 })
 
       const feed = new Feed({
         title: cache[0].name,
@@ -207,7 +207,7 @@ module.exports = () => {
           .where({ user: req.params.id, service: req.params.service })
           .orderBy('published', 'desc')
           .offset(Number(req.query.o) || 0)
-          .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
+          .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25)
       }, { priority: 1 });
       const userUniqueIds = await queue.add(() => db('booru_posts').where({
         user: req.params.id,
@@ -233,7 +233,7 @@ module.exports = () => {
         return db('booru_posts')
           .where({ id: req.params.post, user: req.params.id, service: req.params.service })
           .orderBy('added', 'asc');
-      }, { priority: 1 });
+      }, { priority: 1 })
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(post({

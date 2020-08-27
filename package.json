@@ -72,9 +72,6 @@
       "debounce",
       "confirm",
       "self"
-    ],
-    "ignore": [
-      "cache.js"
     ]
   }
 }

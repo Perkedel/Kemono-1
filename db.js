@@ -1,4 +1,4 @@
-const { default: Pq } = require('p-queue');
+const { default: pq } = require('p-queue');
 module.exports = {
   db: require('knex')({
     client: 'pg',
@@ -10,5 +10,5 @@ module.exports = {
     },
     pool: { min: 2, max: 200 }
   }),
-  queue: new Pq({ concurrency: 100 })
+  queue: new pq({ concurrency: 100 })
 };

@@ -19,12 +19,12 @@ module.exports = async (data) => {
     return db('booru_flags')
       .where({ id: data.id, user: data.entityId, service: data.service })
       .del();
-  });
+  })
   await queue.add(() => {
     return db('booru_posts')
       .where({ id: data.id, user: data.entityId, service: data.service })
       .del();
-  });
+  })
   await fs.remove(path.join(
     process.env.DB_ROOT,
     'attachments',

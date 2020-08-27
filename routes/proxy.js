@@ -102,7 +102,7 @@ router
     const index = await queue.add(() => {
       return db('lookup')
         .select('name')
-        .where({ service: 'discord', id: req.params.id });
+        .where({ service: 'discord', id: req.params.id })
     }, { priority: 1 });
     res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
     res.json(index);

@@ -1,6 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
-const { default: Pq } = require('p-queue');
-const queue = new Pq({ concurrency: 10 });
+const { default: pq } = require('p-queue');
+const queue = new pq({concurrency: 10});
 (async () => {
   // const mongo = require('mongo-lazy-connect')(process.argv[2], { useUnifiedTopology: true });
   const mongo = await MongoClient.connect(process.argv[2]).catch(err => console.error(err));
@@ -41,7 +41,7 @@ const queue = new Pq({ concurrency: 10 });
           edited: x.edited_at || null,
           file: x.post_file || {},
           attachments: x.attachments || []
-        });
+        })
         if (rows.length) return;
         postgres('booru_posts').insert({
           id: x.id,
@@ -56,9 +56,9 @@ const queue = new Pq({ concurrency: 10 });
           edited: x.edited_at || null,
           file: x.post_file || {},
           attachments: x.attachments || []
-        }).asCallback(() => {});
-      });
-    });
+        }).asCallback(() => {})
+      })
+    })
 
   await db.bans.find({})
     .forEach(x => {
@@ -66,9 +66,9 @@ const queue = new Pq({ concurrency: 10 });
         await postgres('dnp').insert({
           id: x.id,
           service: x.service
-        });
-      });
-    });
+        })
+      })
+    })
 
   await db.posts.find({ service: 'discord' })
     .forEach(x => {
@@ -85,9 +85,9 @@ const queue = new Pq({ concurrency: 10 });
           embeds: x.embeds,
           mentions: x.mentions,
           attachments: x.attachments
-        });
-      });
-    });
+        })
+      })
+    })
 
   await db.flags.find({})
     .forEach(x => {
@@ -96,8 +96,8 @@ const queue = new Pq({ concurrency: 10 });
           id: x.id,
           user: x.user,
           service: x.service
-        });
-      });
+        })
+      })
     });
 
   await db.lookup.find({})
@@ -107,8 +107,8 @@ const queue = new Pq({ concurrency: 10 });
           id: x.id,
           name: x.name,
           service: x.service
-        });
-      });
+        })
+      })
     });
 
   await db.board.find({})
@@ -117,7 +117,8 @@ const queue = new Pq({ concurrency: 10 });
         await postgres('board_replies').insert({
           reply: x.reply,
           in: x.in
-        });
-      });
+        })
+      })
     });
+
 })();

@@ -67,9 +67,9 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     const existingPosts = await queue.add(() => db('booru_posts').where({ id: post.id, service: 'patreon' }));
     if (existingPosts.length && !existingPosts[0].edited) {
       return;
-    } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited >= attr.edited) {
+    } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() >= new Date(attr.edited).getTime()) {
       return;
-    } else if (existingPosts.length && existingPosts[existingPosts.length - 1].edited < attr.edited) {
+    } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() < new Date(attr.edited).getTime()) {
       fileKey = `files/edits/${rel.user.data.id}/${post.id}/${hasha(attr.edited)}`;
       attachmentsKey = `files/edits/${rel.user.data.id}/${post.id}/${hasha(attr.edited)}`;
     }

@@ -4,7 +4,7 @@ const { unraw } = require('unraw');
 const cloudscraper = require('cloudscraper');
 const { db, queue } = require('./db');
 async function indexer () {
-  const postsData = await queue.add(() => db('booru_posts').select('user', 'service'))
+  const postsData = await queue.add(() => db('booru_posts').select('user', 'service'));
   Promise.mapSeries(postsData, async (post) => {
     const indexExists = await queue.add(() => db('lookup').where({ id: post.user, service: post.service }), {
       priority: 0
@@ -21,7 +21,7 @@ async function indexer () {
               id: post.user,
               name: user.data.attributes.vanity || user.data.attributes.full_name,
               service: 'patreon'
-            })
+            });
         });
         break;
       }
@@ -39,7 +39,7 @@ async function indexer () {
               id: post.user,
               name: unraw(user.body.user.name),
               service: 'fanbox'
-            })
+            });
         });
         break;
       }
@@ -52,7 +52,7 @@ async function indexer () {
               id: post.user,
               name: user.name,
               service: 'gumroad'
-            })
+            });
         });
         break;
       }
@@ -65,7 +65,7 @@ async function indexer () {
               id: post.user,
               name: user.name,
               service: 'subscribestar'
-            })
+            });
         });
         break;
       }
@@ -78,7 +78,7 @@ async function indexer () {
               id: post.user,
               name: user.name,
               service: 'dlsite'
-            })
+            });
         });
         break;
       }

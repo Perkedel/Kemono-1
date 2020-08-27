@@ -1,6 +1,7 @@
 -- TODO: Implement tagging/ratings/revisions
 -- Goal for now is just to get Kemono working in SQL.
 
+ALTER SYSTEM SET max_connections = '200';
 -- Posts
 CREATE TABLE IF NOT EXISTS booru_posts (
   "id" varchar(255) NOT NULL,

@@ -11,7 +11,6 @@ const path = require('path');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
 const { artists, post, user, server, recent, upload, updated } = require('./views');
-const OutputCache = require('./cache');
 const indexer = require('./indexer');
 const urljoin = require('url-join');
 indexer();
@@ -22,9 +21,7 @@ const staticOpts = {
 };
 
 module.exports = () => {
-  const cache = new OutputCache({});
   express()
-    .use(cache.middleware)
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(express.static('public', {

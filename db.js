@@ -8,7 +8,7 @@ module.exports = {
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE
     },
-    pool: { min: 2, max: 99 }
+    pool: { min: 2, max: 200 }
   }),
-  queue: new pq({ concurrency: 50 })
+  queue: new pq({ concurrency: 100 })
 };

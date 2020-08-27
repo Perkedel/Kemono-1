@@ -13,7 +13,6 @@ const { Feed } = require('feed');
 const { artists, post, user, server, recent, upload, updated } = require('./views');
 const indexer = require('./indexer');
 const urljoin = require('url-join');
-indexer();
 
 const staticOpts = {
   dotfiles: 'allow',
@@ -21,6 +20,8 @@ const staticOpts = {
 };
 
 module.exports = () => {
+  indexer();
+  sharp.cache(false);
   express()
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())

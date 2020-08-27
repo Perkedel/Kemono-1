@@ -21,7 +21,7 @@ router
         .orderBy('added', 'desc')
         .offset(Number(req.query.skip) || 0)
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);
-    }, { priority: 1 })
+    }, { priority: 1 });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
@@ -71,7 +71,7 @@ router
         .where(req.query.service ? { service: req.query.service } : {})
         .where('name', 'ILIKE', '%' + req.query.q + '%')
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50);
-    }, { priority: 1 })
+    }, { priority: 1 });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index.map(user => user.id));
   })
@@ -79,15 +79,15 @@ router
     const index = await queue.add(() => {
       return db('discord_posts')
         .distinct('channel')
-        .where({ server: req.query.q })
-    }, { priority: 1 })
+        .where({ server: req.query.q });
+    }, { priority: 1 });
     const channels = await Promise.map(index, async (x) => {
-      const lookup = await queue.add(() => db('lookup').where({ service: 'discord-channel', id: x.channel}), { priority: 1 })
+      const lookup = await queue.add(() => db('lookup').where({ service: 'discord-channel', id: x.channel }), { priority: 1 });
       return {
         id: x.channel,
         name: lookup[0].name
       };
-    })
+    });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(channels);
   })
@@ -97,8 +97,8 @@ router
         .where({ channel: req.params.id })
         .orderBy('published', 'desc')
         .offset(Number(req.query.skip) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 25)
-    }, { priority: 1 })
+        .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 25);
+    }, { priority: 1 });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(posts);
   })
@@ -116,7 +116,7 @@ router
         .orderBy('published', 'desc')
         .offset(Number(req.query.skip) || 0)
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
-    }, { priority: 1 })
+    }, { priority: 1 });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
@@ -144,7 +144,7 @@ router
       return db('booru_posts')
         .where({ id: req.params.post, user: req.params.id, service: req.params.service })
         .orderBy('added', 'asc');
-    }, { priority: 1 })
+    }, { priority: 1 });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
@@ -172,7 +172,7 @@ router
       id: req.params.post,
       user: req.params.id,
       service: req.params.service
-    }), { priority: 1 })
+    }), { priority: 1 });
     res.end();
   })
   .get('/:service?/:entity/:id', async (req, res) => {
@@ -182,7 +182,7 @@ router
         .orderBy('published', 'desc')
         .offset(Number(req.query.skip) || 0)
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
-    }, { priority: 1 })
+    }, { priority: 1 });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   });

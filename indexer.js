@@ -4,8 +4,13 @@ const { unraw } = require('unraw');
 const cloudscraper = require('cloudscraper');
 const { db, queue } = require('./db');
 async function indexer () {
-  const postsData = await queue.add(() => db('booru_posts').select('user', 'service'));
-  Promise.mapSeries(postsData, async (post) => {
+  const postsData = await queue.add(() => {
+    return db('booru_posts')
+      .select('user', 'service')
+      .orderBy('added', 'desc')
+      .limit(5000)
+  });
+  await Promise.mapSeries(postsData, async (post) => {
     const indexExists = await queue.add(() => db('lookup').where({ id: post.user, service: post.service }), {
       priority: 0
     });
@@ -84,6 +89,7 @@ async function indexer () {
       }
     }
   });
+  postsData = null;
 }
 
 module.exports = () => indexer();

@@ -116,7 +116,7 @@ router
         body: url2a(greentext(await quotes(xss(req.body.body))))
       }));
 
-    db('board_replies').insert({ reply: Number(nextId), in: Number(req.params.id) }).asCallback(() => {});
+    queue.add(() => db('board_replies').insert({ reply: Number(nextId), in: Number(req.params.id) }));
 
     res.redirect(`/board/thread/${req.params.id}`);
   })

@@ -207,10 +207,12 @@ module.exports = () => {
           .offset(Number(req.query.o) || 0)
           .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
       }, { priority: 1 });
-      const userUniqueIds = await queue.add(() => db('booru_posts').where({
-        user: req.params.id,
-        service: req.params.service
-      }).distinct('id'), { priority: 1 });
+      const userUniqueIds = await queue.add(() => {
+        return db('booru_posts')
+          .select('id')
+          .where({ user: req.params.id, service: req.params.service })
+          .groupBy('id')
+      }, { priority: 1 });
       res.type('html')
         .send(user({
           count: userUniqueIds.length,

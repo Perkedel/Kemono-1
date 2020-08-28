@@ -38,7 +38,7 @@ async function scraper (users) {
     }));
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
-      const banExists = await queue.add(() => db('booru_posts').where({ id: String(post.id), service: 'patreon' }));
+      const banExists = await queue.add(() => db('dnp').where({ id: String(post.id), service: 'patreon' }));
       if (banExists.length) return;
 
       const postExists = await queue.add(() => db('booru_posts').where({ id: String(post.id), service: 'patreon' }));

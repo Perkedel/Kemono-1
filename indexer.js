@@ -89,7 +89,6 @@ async function indexer () {
       }
     }
   });
-  postsData = null;
 }
 
 module.exports = () => indexer();

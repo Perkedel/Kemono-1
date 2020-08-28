@@ -226,7 +226,7 @@ module.exports = () => {
       res.type('html')
         .send(server());
     })
-    .get('/:service/:type/:id/post/:post', async (req, res) => {
+    .get('/:service/user/:id/post/:post', async (req, res) => {
       const userPosts = await queue.add(() => {
         return db('booru_posts')
           .where({ id: req.params.post, user: req.params.id, service: req.params.service })

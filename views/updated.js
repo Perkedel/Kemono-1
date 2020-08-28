@@ -26,7 +26,7 @@ const updated = data => shell(`
               <td></td>
             </tr>
           ` : ''}
-          ${data.results.map(artist => `
+          ${data.results.map(artist => artist ? `
             <tr class="artist-row">
               <td>
                 <div class="user-icon" data-user="${artist.id}" data-service="${artist.service}"></div>
@@ -51,7 +51,7 @@ const updated = data => shell(`
                 ${artist.updated}
               </td>
             </tr>
-          `).join('')}
+          ` : '').join('')}
         </tbody>
       </table>
     </div>

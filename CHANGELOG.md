@@ -7,9 +7,9 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   <summary>Minor</summary>
 
   - Yiff.party support
-  - Shared Files support
-  - RSS feeds
   - DLsite support
+  - Shared Files
+  - RSS feeds
   - "Artists" tab
   - Board functionality
   - New and improved Fanbox importer; stable and (mostly) API complete
@@ -19,17 +19,17 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
 <details>
   <summary>Patch</summary>
 
-  - kemono.party-specific documentation has been moved out of the repo.
+  - kemono.party-specific things (documentation, rules, donation button, etc.) have been moved to the `party` branch.
   - SubscribeStar dates and sorting now fixed; importer now stable
   - Pages are now server-side rendered for efficiency
   - Better handling for deleted/unavailable products in Gumroad importer
   - Gumroad importer is now properly recursive
+  - Gumroad importer now uses 13-digit creator IDs instead of usernames
   - Thumbnail scraping improved in Gumroad importer
   - Gumroad scraper can now handle users without a creator page
   - Discord importer now uses main download instead of proxy (which is usually lower quality)
   - Changes in thumbnail generator for reduced resource usage
   - Minor UI fixes
-  - Better query indexing
   - Thumbnail generator now directly checks file contents instead of relying on naming
   - Fixed existing post query and version checking in Patreon importer
   - Whitespace is now removed from Discord channel ID string

@@ -17,10 +17,11 @@ CREATE TABLE IF NOT EXISTS booru_posts (
   "attachments" jsonb[] NOT NULL
 );
 CREATE INDEX IF NOT EXISTS id_idx ON booru_posts USING hash ("id");
-CREATE INDEX IF NOT EXISTS user_idx ON booru_posts USING hash ("user");
-CREATE INDEX IF NOT EXISTS service_idx ON booru_posts USING hash ("service");
+CREATE INDEX IF NOT EXISTS user_idx ON booru_posts USING btree ("user");
+CREATE INDEX IF NOT EXISTS service_idx ON booru_posts USING btree ("service");
 CREATE INDEX IF NOT EXISTS added_idx ON booru_posts USING btree ("added");
 CREATE INDEX IF NOT EXISTS published_idx ON booru_posts USING btree ("published");
+CREATE INDEX IF NOT EXISTS updated_idx ON booru_posts USING btree ("user", "service", "added");
 
 -- Booru bans
 CREATE TABLE IF NOT EXISTS dnp (

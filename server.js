@@ -139,8 +139,8 @@ module.exports = () => {
     .get('/random', async (_, res) => {
       const random = await queue.add(() => {
         return db('booru_posts')
-          .select('*')
-          .orderByRaw('random()')
+          .select('service', 'user', 'id')
+          .whereRaw('random() < 0.01')
           .limit(1);
       }, { priority: 1 });
       if (!random.length) return res.redirect('back');

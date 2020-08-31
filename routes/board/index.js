@@ -33,7 +33,7 @@ const upload = multer({
 });
 
 const getLatestModifiedFiles = async (dir) => {
-  const files = await Promise.mapSeries(await fs.readdir(dir), async (filename) => {
+  const files = await Promise.map(await fs.readdir(dir), async (filename) => {
     const stat = await fs.stat(path.join(dir, filename));
     return {
       name: filename.replace('.html', ''),
@@ -70,7 +70,7 @@ router
   .get('/', async (_, res) => {
     await fs.ensureDir(path.join(process.env.DB_ROOT, 'board', 'threads'));
     const latest = await getLatestModifiedFiles(path.join(process.env.DB_ROOT, 'board', 'threads'));
-    const latestData = await Promise.mapSeries(latest.slice(0, 25), async (threadId) => {
+    const latestData = await Promise.map(latest.slice(0, 25), async (threadId) => {
       const threadHtml = await fs.readFile(path.join(process.env.DB_ROOT, 'board', 'threads', `${threadId}.html`), 'utf8');
       return scrapeIt.scrapeHTML(threadHtml, {
         no: {

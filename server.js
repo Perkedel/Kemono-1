@@ -95,7 +95,7 @@ module.exports = () => {
           .limit(50);
       }, { priority: 1 });
 
-      const index = await Promise.mapSeries(recentUsers, async (user) => {
+      const index = await Promise.map(recentUsers, async (user) => {
         const cache = await queue.add(() => db('lookup').where({ id: user.user, service: user.service }), { priority: 1 });
         if (!cache.length) return;
         return {

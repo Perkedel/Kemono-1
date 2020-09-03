@@ -75,7 +75,6 @@ router
     const index = await db('discord_posts')
       .distinct('channel')
       .where({ server: req.query.q });
-    }, { priority: 1 });
     const channels = await Promise.map(index, async (x) => {
       const lookup = await db('lookup').where({ service: 'discord-channel', id: x.channel });
       return {

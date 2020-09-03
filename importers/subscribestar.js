@@ -1,5 +1,5 @@
 const cloudscraper = require('cloudscraper');
-const { db, queue } = require('../db');
+const { db } = require('../db');
 const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
@@ -56,7 +56,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
   });
 
   Promise.map(data.posts, async (post) => {
-    const banExists = await queue.add(() => db('dnp').where({ id: post.user, service: 'subscribestar' }));
+    const banExists = await db('dnp').where({ id: post.user, service: 'subscribestar' });
     if (banExists.length) return;
 
     await checkForFlags({
@@ -65,7 +65,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       entityId: post.user,
       id: post.id
     });
-    const postExists = await queue.add(() => db('booru_posts').where({ id: post.id, service: 'subscribestar' }));
+    const postExists = await db('booru_posts').where({ id: post.id, service: 'subscribestar' });
     if (postExists.length) return;
 
     const model = {
@@ -105,7 +105,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
         });
     });
 
-    await queue.add(() => db('booru_posts').insert(model));
+    await db('booru_posts').insert(model);
   });
 
   if (data.next_url) {

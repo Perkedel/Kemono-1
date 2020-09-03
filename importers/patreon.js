@@ -1,6 +1,6 @@
 
 const cloudscraper = require('cloudscraper');
-const { db, queue } = require('../db');
+const { db } = require('../db');
 const retry = require('p-retry');
 const crypto = require('crypto');
 const mime = require('mime');
@@ -55,7 +55,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
 
-    const banExists = await queue.add(() => db('dnp').where({ id: rel.user.data.id, service: 'patreon' }));
+    const banExists = await db('dnp').where({ id: rel.user.data.id, service: 'patreon' });
     if (banExists.length) return;
 
     await checkForFlags({
@@ -64,7 +64,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       entityId: rel.user.data.id,
       id: post.id
     });
-    const existingPosts = await queue.add(() => db('booru_posts').where({ id: post.id, service: 'patreon' }));
+    const existingPosts = await db('booru_posts').where({ id: post.id, service: 'patreon' });
     if (existingPosts.length && !existingPosts[0].edited) {
       return;
     } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() >= new Date(attr.edited_at).getTime()) {
@@ -161,7 +161,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         });
     }).catch(() => {});
 
-    await queue.add(() => db('booru_posts').insert(model));
+    await db('booru_posts').insert(model);
   });
 
   if (patreon.body.links.next) {

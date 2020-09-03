@@ -18,6 +18,9 @@ module.exports = {
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE
     },
-    pool: { min: 2, max: 100 }
+    pool: {
+      acquireTimeoutMillis: 1000000, // never timeout
+      max: 10
+    }
   })
 };

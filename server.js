@@ -66,6 +66,7 @@ module.exports = () => {
         .where('name', 'ILIKE', '%' + req.query.q + '%')
         .whereNot('service', 'discord-channel')
         .orderBy(({
+          indexed: 'indexed',
           name: 'name',
           service: 'service'
         })[req.query.sort_by], ({

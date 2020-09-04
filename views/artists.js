@@ -41,6 +41,7 @@ const artists = data => shell(`
         <div>
           <label for="sort_by">Sort by</label>
           <select id="sort_by" name="sort_by">
+            <option value="indexed" ${data.query.sort_by === 'indexed' ? 'selected' : ''}>Date Indexed</option>
             <option value="name" ${data.query.sort_by === 'name' ? 'selected' : ''}>Alphabetical Order</option>
             <option value="service" ${data.query.sort_by === 'service' ? 'selected' : ''}>Service</option>
           </select>

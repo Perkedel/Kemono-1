@@ -20,7 +20,7 @@ module.exports = {
     },
     pool: {
       acquireTimeoutMillis: 1000000, // never timeout
-      max: 10
+      max: 100
     }
   })
 };

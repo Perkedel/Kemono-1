@@ -11,7 +11,6 @@ const path = require('path');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
 const { artists, post, user, server, recent, upload, updated } = require('./views');
-const indexer = require('./indexer');
 const urljoin = require('url-join');
 
 const staticOpts = {
@@ -20,7 +19,6 @@ const staticOpts = {
 };
 
 module.exports = () => {
-  indexer();
   sharp.cache(false);
   express()
     .use(bodyParser.urlencoded({ extended: false }))
@@ -84,17 +82,15 @@ module.exports = () => {
         }));
     })
     .get('/artists/updated', async (req, res) => {
-      const recentUsers = await queue.add(() => {
-        return db('booru_posts')
-          .select('user', 'service')
-          .max('added')
-          .groupBy('user', 'service')
-          .orderByRaw('max(added) desc')
-          .limit(50);
-      }, { priority: 1 });
+      const recentUsers = await db('booru_posts')
+        .select('user', 'service')
+        .max('added')
+        .groupBy('user', 'service')
+        .orderByRaw('max(added) desc')
+        .limit(50);
 
       const index = await Promise.map(recentUsers, async (user) => {
-        const cache = await queue.add(() => db('lookup').where({ id: user.user, service: user.service }), { priority: 1 });
+        const cache = await db('lookup').where({ id: user.user, service: user.service });
         if (!cache.length) return;
         return {
           id: user.user,

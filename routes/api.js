@@ -86,13 +86,11 @@ router
     res.json(channels);
   })
   .get('/discord/channel/:id', async (req, res) => {
-    const posts = await queue.add(() => {
-      return db('discord_posts')
-        .where({ channel: req.params.id })
-        .orderBy('published', 'desc')
-        .offset(Number(req.query.skip) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 25);
-    }, { priority: 1 });
+    const posts = await db('discord_posts')
+      .where({ channel: req.params.id })
+      .orderBy('published', 'desc')
+      .offset(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 25);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(posts);
   })

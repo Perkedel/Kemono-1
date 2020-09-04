@@ -1,4 +1,4 @@
-const { db, queue } = require('../db');
+const { db } = require('../db');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
@@ -28,7 +28,7 @@ async function scraper (importData, page = 1) {
   const key = auth.sid;
   const dlsite = await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key)));
   Promise.map(dlsite.works, async (work) => {
-    const banExists = await queue.add(() => db('dnp').where({ id: work.maker_id, service: 'dlsite' }));
+    const banExists = await db('dnp').where({ id: work.maker_id, service: 'dlsite' });
     if (banExists.length) return;
 
     await checkForFlags({
@@ -38,7 +38,7 @@ async function scraper (importData, page = 1) {
       id: work.workno
     });
 
-    const postExists = await queue.add(() => db('booru_posts').where({ id: work.workno, service: 'dlsite' }));
+    const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
     if (postExists.length) return;
 
     const model = {
@@ -121,7 +121,7 @@ async function scraper (importData, page = 1) {
       }
     }
 
-    await queue.add(() => db('booru_posts').insert(model));
+    await db('booru_posts').insert(model);
   });
 
   if (dlsite.works.length) {

@@ -1,5 +1,5 @@
 const cloudscraper = require('cloudscraper');
-const { db, queue } = require('../db');
+const { db } = require('../db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
@@ -38,10 +38,10 @@ async function scraper (users) {
     }));
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
-      const banExists = await queue.add(() => db('dnp').where({ id: String(post.id), service: 'patreon' }));
+      const banExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
       if (banExists.length) return;
 
-      const postExists = await queue.add(() => db('booru_posts').where({ id: String(post.id), service: 'patreon' }));
+      const postExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
       if (postExists.length) return;
 
       const model = {
@@ -92,7 +92,7 @@ async function scraper (users) {
           });
       });
 
-      await queue.add(() => db('booru_posts').insert(model));
+      await db('booru_posts').insert(model);
     });
   });
 

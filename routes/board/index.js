@@ -6,7 +6,7 @@ const tripgen = require('tripcode');
 const Promise = require('bluebird');
 const { slugify } = require('transliteration');
 const scrapeIt = require('scrape-it');
-const { db, queue } = require('../../db');
+const { db } = require('../../db');
 const multer = require('multer');
 const fs = require('fs-extra');
 const path = require('path');
@@ -54,7 +54,7 @@ const quotes = str => replace(str, /&gt;&gt;\d+/g, async (match) => {
   const no = match.substring(8);
   const threadExists = await fs.pathExists(path.join(process.env.DB_ROOT, 'board', 'threads', `${no}.html`));
   if (threadExists) return `<a href="/board/thread/${no}">${match}</a>`;
-  const reply = await queue.add(() => db('board_replies').where({ reply: Number(no) }));
+  const reply = await db('board_replies').where({ reply: Number(no) });
   if (reply.length) return `<a href="/board/thread/${reply[0].in}#${no}">${match}</a>`;
   return '';
 });
@@ -116,7 +116,9 @@ router
         body: url2a(greentext(await quotes(xss(req.body.body))))
       }));
 
-    queue.add(() => db('board_replies').insert({ reply: Number(nextId), in: Number(req.params.id) }));
+    db('board_replies')
+      .insert({ reply: Number(nextId), in: Number(req.params.id) })
+      .asCallback(() => {});
 
     res.redirect(`/board/thread/${req.params.id}`);
   })

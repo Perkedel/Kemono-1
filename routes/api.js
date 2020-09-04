@@ -1,4 +1,4 @@
-const { db, queue } = require('../db');
+const { db } = require('../db');
 const upload = require('./upload');
 const fs = require('fs-extra');
 const path = require('path');
@@ -14,14 +14,12 @@ router
     res.json(userBans);
   })
   .get('/recent', async (req, res) => {
-    const recentPosts = await queue.add(() => {
-      return db
-        .select('*')
-        .from('booru_posts')
-        .orderBy('added', 'desc')
-        .offset(Number(req.query.skip) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);
-    }, { priority: 1 });
+    const recentPosts = await db
+      .select('*')
+      .from('booru_posts')
+      .orderBy('added', 'desc')
+      .offset(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
@@ -65,24 +63,20 @@ router
   })
   .get('/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);
-    const index = await queue.add(() => {
-      return db('lookup')
-        .select('*')
-        .where(req.query.service ? { service: req.query.service } : {})
-        .where('name', 'ILIKE', '%' + req.query.q + '%')
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50);
-    }, { priority: 1 });
+    const index = await db('lookup')
+      .select('*')
+      .where(req.query.service ? { service: req.query.service } : {})
+      .where('name', 'ILIKE', '%' + req.query.q + '%')
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 50);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(index.map(user => user.id));
   })
   .get('/discord/channels/lookup', async (req, res) => {
-    const index = await queue.add(() => {
-      return db('discord_posts')
-        .distinct('channel')
-        .where({ server: req.query.q });
-    }, { priority: 1 });
+    const index = await db('discord_posts')
+      .distinct('channel')
+      .where({ server: req.query.q });
     const channels = await Promise.map(index, async (x) => {
-      const lookup = await queue.add(() => db('lookup').where({ service: 'discord-channel', id: x.channel }), { priority: 1 });
+      const lookup = await db('lookup').where({ service: 'discord-channel', id: x.channel });
       return {
         id: x.channel,
         name: lookup[0].name
@@ -92,38 +86,34 @@ router
     res.json(channels);
   })
   .get('/discord/channel/:id', async (req, res) => {
-    const posts = await queue.add(() => {
-      return db('discord_posts')
-        .where({ channel: req.params.id })
-        .orderBy('published', 'desc')
-        .offset(Number(req.query.skip) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 25);
-    }, { priority: 1 });
+    const posts = await db('discord_posts')
+      .where({ channel: req.params.id })
+      .orderBy('published', 'desc')
+      .offset(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 150 ? Number(req.query.limit) : 25);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(posts);
   })
   .get('/lookup/cache/:id', async (req, res) => {
-    const cache = await queue.add(() => db('lookup').where({ id: req.params.id, service: req.query.service }), { priority: 1 });
+    const cache = await db('lookup').where({ id: req.params.id, service: req.query.service });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json({ name: cache.length ? cache[0].name : '' });
   })
   .get('/:service/user/:id/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);
-    const userPosts = await queue.add(() => {
-      return db('booru_posts')
-        .where({ user: req.params.id, service: req.params.service })
-        .whereRaw('to_tsvector(content || title) @@ to_tsquery(?)', [req.query.q])
-        .orderBy('published', 'desc')
-        .offset(Number(req.query.skip) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
-    }, { priority: 1 });
+    const userPosts = await db('booru_posts')
+      .where({ user: req.params.id, service: req.params.service })
+      .whereRaw('to_tsvector(content || title) @@ to_tsquery(?)', [req.query.q])
+      .orderBy('published', 'desc')
+      .offset(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
   .get('/:service/user/:id/purge', async (req, res) => {
-    const banExists = await queue.add(() => db('dnp').where({ id: req.params.id, service: req.params.service }), { priority: 1 });
+    const banExists = await db('dnp').where({ id: req.params.id, service: req.params.service });
     if (!banExists.length) return res.status(403).send('A user must be banned to purge their files.');
-    await queue.add(() => db('booru_posts').where({ user: req.params.id, service: req.params.service }).del(), { priority: 1 });
+    await db('booru_posts').where({ user: req.params.id, service: req.params.service }).del();
     await fs.remove(path.join(
       process.env.DB_ROOT,
       'files',
@@ -140,49 +130,43 @@ router
     res.send('Purged!'); // THOTFAGS BTFO
   })
   .get('/:service/user/:id/post/:post', async (req, res) => {
-    const userPosts = await queue.add(() => {
-      return db('booru_posts')
-        .where({ id: req.params.post, user: req.params.id, service: req.params.service })
-        .orderBy('added', 'asc');
-    }, { priority: 1 });
+    const userPosts = await db('booru_posts')
+      .where({ id: req.params.post, user: req.params.id, service: req.params.service })
+      .orderBy('added', 'asc');
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   })
   .get('/:service/user/:id/post/:post/flag', async (req, res) => {
     res.setHeader('Cache-Control', 'max-age=60, public, no-cache');
-    const flags = await queue.add(() => db('booru_flags').where({ id: req.params.post, user: req.params.id, service: req.params.service }), {
-      priority: 1
-    });
+    const flags = await db('booru_flags').where({ id: req.params.post, user: req.params.id, service: req.params.service });
     return flags.length ? res.sendStatus(200) : res.sendStatus(404);
   })
   .post('/:service/user/:id/post/:post/flag', async (req, res) => {
-    const postExists = await queue.add(() => db('booru_posts').where({
+    const postExists = await db('booru_posts').where({
       id: req.params.post,
       user: req.params.id,
       service: req.params.service
-    }), { priority: 1 });
+    });
     if (!postExists.length) return res.sendStatus(404);
-    const flagExists = await queue.add(() => db('booru_flags').where({
+    const flagExists = await db('booru_flags').where({
       id: req.params.post,
       user: req.params.id,
       service: req.params.service
-    }), { priority: 1 });
+    });
     if (flagExists.length) return res.sendStatus(409); // flag already exists
-    await queue.add(() => db('booru_flags').insert({
+    await db('booru_flags').insert({
       id: req.params.post,
       user: req.params.id,
       service: req.params.service
-    }), { priority: 1 });
+    });
     res.end();
   })
   .get('/:service?/:entity/:id', async (req, res) => {
-    const userPosts = await queue.add(() => {
-      return db('booru_posts')
-        .where({ user: req.params.id, service: req.params.service })
-        .orderBy('published', 'desc')
-        .offset(Number(req.query.skip) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
-    }, { priority: 1 });
+    const userPosts = await db('booru_posts')
+      .where({ user: req.params.id, service: req.params.service })
+      .orderBy('published', 'desc')
+      .offset(Number(req.query.skip) || 0)
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userPosts);
   });

@@ -1,4 +1,14 @@
-const { default: Pq } = require('p-queue');
+// const mongo = require('mongo-lazy-connect')(process.env.MONGO_URL, { useUnifiedTopology: true });
+// const db = {
+//   posts: mongo.collection('posts'),
+//   lookup: mongo.collection('lookup'),
+//   flags: mongo.collection('flags'),
+//   bans: mongo.collection('bans'),
+//   board: mongo.collection('board'),
+//   revisions: mongo.collection('revisions'),
+//   discord: mongo.collection('discord')
+// };
+
 module.exports = {
   db: require('knex')({
     client: 'pg',
@@ -8,7 +18,9 @@ module.exports = {
       password: process.env.PGPASSWORD,
       database: process.env.PGDATABASE
     },
-    pool: { min: 2, max: 200 }
-  }),
-  queue: new Pq({ concurrency: 200 })
+    pool: {
+      acquireTimeoutMillis: 1000000, // never timeout
+      max: 10
+    }
+  })
 };

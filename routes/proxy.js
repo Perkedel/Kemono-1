@@ -1,7 +1,7 @@
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
-const { db, queue } = require('../db');
+const { db } = require('../db');
 const getUrls = require('get-urls');
 
 const express = require('express');
@@ -99,11 +99,9 @@ router
     }
   })
   .get('/discord/server/:id', async (req, res) => {
-    const index = await queue.add(() => {
-      return db('lookup')
-        .select('name')
-        .where({ service: 'discord', id: req.params.id });
-    }, { priority: 1 });
+    const index = await db('lookup')
+      .select('name')
+      .where({ service: 'discord', id: req.params.id });
     res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
     res.json(index);
   });

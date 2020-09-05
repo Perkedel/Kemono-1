@@ -101,7 +101,7 @@ async function scraper (importData, page = 1) {
         }
       });
 
-      if (splitFileData.parts) {
+      if (splitFileData.parts.length) {
         await Promise.map(splitFileData.parts, async (part) => {
           await downloadFile({
             ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)

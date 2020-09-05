@@ -1,3 +1,4 @@
+const Redis = require('cacheman-redis');
 module.exports = {
   db: require('knex')({
     client: 'pg',
@@ -11,5 +12,9 @@ module.exports = {
       acquireTimeoutMillis: 1000000, // never timeout
       max: 50
     }
+  }),
+  cache: new Redis({
+    host: process.env.RDHOST || 'localhost',
+    port: process.env.RDPORT || 6379
   })
 };

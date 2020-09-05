@@ -1,19 +1,33 @@
 const cloudscraper = require('cloudscraper');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
-const { db } = require('../db');
+const { db, cache } = require('../db');
 const getUrls = require('get-urls');
 
 const express = require('express');
 const router = express.Router();
 
+const cacheMiddleware = () => {
+  return (req, res, next) => {
+    cache.get(req.originalUrl, (_, reply) => {
+      if (!reply) {
+        res.set('x-proxy-cache', 'MISS')
+        return next();
+      }
+      res.set('x-proxy-cache', 'HIT').send(reply);
+    })
+  }
+}
+
 router
+  .use(cacheMiddleware())
   .get('/patreon/user/:id', (req, res) => {
     const api = 'https://www.patreon.com/api/user';
     const options = cloudscraper.defaultParams;
     options.json = true;
     cloudscraper.get(`${api}/${req.params.id}`, options)
       .then(user => {
+        cache.set(req.originalUrl, user, 2629800, () => {});
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
       })
@@ -29,6 +43,7 @@ router
       }
     })
       .then(user => {
+        cache.set(req.originalUrl, user, 2629800, () => {});
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
       })
@@ -57,6 +72,7 @@ router
         name: 'h2.creator-profile-card__name.js-creator-name'
       });
 
+      cache.set(req.originalUrl, user, 31557600, () => {});
       res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {
@@ -79,6 +95,7 @@ router
         name: '.profile_main_info-name'
       });
 
+      cache.set(req.originalUrl, user, 31557600, () => {});
       res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {
@@ -92,6 +109,7 @@ router
       const user = scrapeIt.scrapeHTML(html, {
         name: '.prof_maker_name'
       });
+      cache.set(req.originalUrl, user, 31557600, () => {});
       res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {

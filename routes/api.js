@@ -103,7 +103,7 @@ router
     if (req.query.q.length > 35) return res.sendStatus(400);
     const userPosts = await db('booru_posts')
       .where({ user: req.params.id, service: req.params.service })
-      .whereRaw('to_tsvector(content || title) @@ to_tsquery(?)', [req.query.q])
+      .whereRaw('to_tsvector(content || \' \' || title) @@ plainto_tsquery(?)', [req.query.q])
       .orderBy('published', 'desc')
       .offset(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);

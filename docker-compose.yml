@@ -3,7 +3,7 @@ services:
   kemono-cache:
     image: healthcheck/redis
     container_name: kemono-cache
-    command: ["redis-server", "--appendonly", "yes"],
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - cache-data:/data
     restart: unless-stopped

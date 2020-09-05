@@ -117,7 +117,7 @@ module.exports = () => {
         .select('*')
         .orderBy('added', 'desc')
         .offset(Number(req.query.o) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);
+        .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(recent({

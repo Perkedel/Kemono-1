@@ -1,0 +1,16 @@
+name: CI
+on:
+  push:
+    branches: [ party ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run SSH command
+        uses: garygrossgarten/github-action-ssh@v0.5.0
+        with:
+          command: cd /root/Kemono && deploy
+          host: ${{ secrets.HOST }}
+          username: root
+          password: ${{ secrets.PASSWORD }}

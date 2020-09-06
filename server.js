@@ -19,7 +19,6 @@ const staticOpts = {
 };
 
 module.exports = () => {
-  sharp.cache(false);
   express()
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())

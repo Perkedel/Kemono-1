@@ -5,9 +5,9 @@ const cloudscraper = require('cloudscraper');
 const { db } = require('./db');
 async function indexer () {
   await db.transaction(async trx => {
-    const postsData = await trx
+    const postsData = await trx('booru_posts')
       .select('user', 'service')
-      .from('booru_posts')
+      .orderBy('added', 'desc')
       .limit(10000);
     await Promise.mapSeries(postsData, async (post) => {
       const indexExists = await trx('lookup')
@@ -19,7 +19,6 @@ async function indexer () {
           const api = 'https://www.patreon.com/api/user';
           const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
           await trx('lookup')
-            .transacting(trx)
             .insert({
               id: post.user,
               name: user.data.attributes.vanity || user.data.attributes.full_name,
@@ -36,7 +35,6 @@ async function indexer () {
             }
           });
           await trx('lookup')
-            .transacting(trx)
             .insert({
               id: post.user,
               name: unraw(user.body.user.name),
@@ -48,7 +46,6 @@ async function indexer () {
           const api = `${process.env.ORIGIN}/proxy/gumroad/user`;
           const user = await request.get(`${api}/${post.user}`, { json: true });
           await trx('lookup')
-            .transacting(trx)
             .insert({
               id: post.user,
               name: user.name,
@@ -60,7 +57,6 @@ async function indexer () {
           const api = `${process.env.ORIGIN}/proxy/subscribestar/user`;
           const user = await request.get(`${api}/${post.user}`, { json: true });
           await trx('lookup')
-            .transacting(trx)
             .insert({
               id: post.user,
               name: user.name,
@@ -72,7 +68,6 @@ async function indexer () {
           const api = `${process.env.ORIGIN}/proxy/dlsite/user`;
           const user = await request.get(`${api}/${post.user}`, { json: true });
           await trx('lookup')
-            .transacting(trx)
             .insert({
               id: post.user,
               name: user.name,

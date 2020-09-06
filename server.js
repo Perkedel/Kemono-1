@@ -188,7 +188,7 @@ module.exports = () => {
     .get('/user/:id/post/:post', (req, res) => res.redirect(path.join('/patreon/user/', req.params.id, 'post', req.params.post)))
     .get('/:service/user/:id', async (req, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-      await db.transaction(async trx => {
+      db.transaction(async trx => {
         const userPosts = await trx('booru_posts')
           .where({ user: req.params.id, service: req.params.service })
           .orderBy('published', 'desc')
@@ -207,7 +207,7 @@ module.exports = () => {
             query: req.query,
             url: req.path
           }));
-      });
+      })
     })
     .get('/discord/server/:id', async (_, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');

@@ -188,24 +188,26 @@ module.exports = () => {
     .get('/user/:id/post/:post', (req, res) => res.redirect(path.join('/patreon/user/', req.params.id, 'post', req.params.post)))
     .get('/:service/user/:id', async (req, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-      const userPosts = await db('booru_posts')
-        .where({ user: req.params.id, service: req.params.service })
-        .orderBy('published', 'desc')
-        .offset(Number(req.query.o) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
-      const userUniqueIds = await db('booru_posts')
-        .select('id')
-        .where({ user: req.params.id, service: req.params.service })
-        .groupBy('id')
-      res.type('html')
-        .send(user({
-          count: userUniqueIds.length,
-          service: req.params.service || 'patreon',
-          id: req.params.id,
-          posts: userPosts,
-          query: req.query,
-          url: req.path
-        }));
+      await db.transaction(async trx => {
+        const userPosts = await trx('booru_posts')
+          .where({ user: req.params.id, service: req.params.service })
+          .orderBy('published', 'desc')
+          .offset(Number(req.query.o) || 0)
+          .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
+        const userUniqueIds = await trx('booru_posts')
+          .select('id')
+          .where({ user: req.params.id, service: req.params.service })
+          .groupBy('id')
+        res.type('html')
+          .send(user({
+            count: userUniqueIds.length,
+            service: req.params.service || 'patreon',
+            id: req.params.id,
+            posts: userPosts,
+            query: req.query,
+            url: req.path
+          }));
+      });
     })
     .get('/discord/server/:id', async (_, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');

@@ -89,7 +89,7 @@ module.exports = () => {
           .groupBy('user', 'service')
           .orderByRaw('max(added) desc')
           .limit(50);
-        
+
         const index = await Promise.map(recentUsers, async (user) => {
           const cache = await trx('lookup').where({ id: user.user, service: user.service });
           if (!cache.length) return;
@@ -108,8 +108,7 @@ module.exports = () => {
             query: req.query,
             url: req.originalUrl
           }));
-
-      })
+      });
     })
     .get('/posts', async (req, res) => {
       const recentPosts = await db('booru_posts')
@@ -188,7 +187,7 @@ module.exports = () => {
     .get('/user/:id/post/:post', (req, res) => res.redirect(path.join('/patreon/user/', req.params.id, 'post', req.params.post)))
     .get('/:service/user/:id', async (req, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-      await db.transaction(async trx => {
+      db.transaction(async trx => {
         const userPosts = await trx('booru_posts')
           .where({ user: req.params.id, service: req.params.service })
           .orderBy('published', 'desc')
@@ -197,7 +196,7 @@ module.exports = () => {
         const userUniqueIds = await trx('booru_posts')
           .select('id')
           .where({ user: req.params.id, service: req.params.service })
-          .groupBy('id')
+          .groupBy('id');
         res.type('html')
           .send(user({
             count: userUniqueIds.length,

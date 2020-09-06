@@ -89,7 +89,7 @@ module.exports = () => {
           .groupBy('user', 'service')
           .orderByRaw('max(added) desc')
           .limit(50);
-        
+
         const index = await Promise.map(recentUsers, async (user) => {
           const cache = await trx('lookup').where({ id: user.user, service: user.service });
           if (!cache.length) return;
@@ -108,8 +108,7 @@ module.exports = () => {
             query: req.query,
             url: req.originalUrl
           }));
-
-      })
+      });
     })
     .get('/posts', async (req, res) => {
       const recentPosts = await db('booru_posts')
@@ -197,7 +196,7 @@ module.exports = () => {
         const userUniqueIds = await trx('booru_posts')
           .select('id')
           .where({ user: req.params.id, service: req.params.service })
-          .groupBy('id')
+          .groupBy('id');
         res.type('html')
           .send(user({
             count: userUniqueIds.length,
@@ -207,7 +206,7 @@ module.exports = () => {
             query: req.query,
             url: req.path
           }));
-      })
+      });
     })
     .get('/discord/server/:id', async (_, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');

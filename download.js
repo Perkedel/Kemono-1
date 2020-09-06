@@ -45,7 +45,7 @@ module.exports = (opts, requestOpts = {}) => {
                 process.on('disconnect', () => {
                   process.exit(0);
                 });
-                
+
                 const JPEG = require('jpeg-js');
                 const fs = require('fs-extra');
                 const mime = require('mime');
@@ -73,7 +73,7 @@ module.exports = (opts, requestOpts = {}) => {
                       });
                     });
                 })
-                .catch(() => reject(new Error('Decode failed')))
+                .catch(() => reject(new Error('Decode failed')));
             })
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));

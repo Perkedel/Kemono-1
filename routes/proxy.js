@@ -11,13 +11,13 @@ const cacheMiddleware = () => {
   return (req, res, next) => {
     cache.get(req.originalUrl, (_, reply) => {
       if (!reply) {
-        res.set('x-proxy-cache', 'MISS')
+        res.set('x-proxy-cache', 'MISS');
         return next();
       }
       res.set('x-proxy-cache', 'HIT').send(reply);
-    })
-  }
-}
+    });
+  };
+};
 
 router
   .use(cacheMiddleware())

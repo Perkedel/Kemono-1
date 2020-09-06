@@ -13,7 +13,7 @@ async function indexer () {
       const indexExists = await trx('lookup')
         .where({ id: post.user, service: post.service });
       if (indexExists.length) return;
-  
+
       switch (post.service) {
         case 'patreon': {
           const api = 'https://www.patreon.com/api/user';
@@ -77,7 +77,7 @@ async function indexer () {
         }
       }
     });
-  })
+  });
 }
 
 module.exports = () => indexer();

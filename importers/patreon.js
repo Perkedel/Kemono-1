@@ -147,8 +147,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       });
     });
 
-    await Promise.map(postData.body.included, async (includedFile, i) => {
-      if (i === 0 && JSON.stringify(model.file) !== '{}') return;
+    await Promise.map(postData.body.included, async (includedFile) => {
       await downloadFile({
         ddir: path.join(process.env.DB_ROOT, attachmentsKey),
         name: includedFile.attributes.file_name

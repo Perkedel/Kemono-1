@@ -69,7 +69,7 @@ async function scraper (key, from = 1) {
       entityId: userId,
       id: product.id
     });
-    const postExists = await await db('booru_posts').where({ id: product.id, service: 'gumroad' });
+    const postExists = await db('booru_posts').where({ id: product.id, service: 'gumroad' });
     if (postExists.length) return;
 
     const model = {

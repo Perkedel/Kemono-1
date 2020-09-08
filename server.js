@@ -20,6 +20,7 @@ const staticOpts = {
 
 module.exports = () => {
   express()
+    .set('trust proxy', true)
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(express.static('public', {

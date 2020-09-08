@@ -63,7 +63,7 @@ router
     query: req.query
   })))
   .post('/new', upload.single('image'), async (req, res) => {
-    const newRequest = await db('requests')
+    await db('requests')
       .insert({
         service: xss(req.body.service),
         user: xss(req.body.user_id),
@@ -96,7 +96,7 @@ router
         .increment('votes', 1);
       await trx('requests')
         .where({ id: req.params.id })
-        .update({ ips: requests[0].ips.concat([ip]) });
+        .update({ ips: requests[0].ips.concat([await hasha.async(ip)]) });
       res.send(success({
         currentPage: 'requests',
         redirect: req.headers.referer || '/requests'

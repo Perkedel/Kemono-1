@@ -80,11 +80,12 @@ router
     }));
   })
   .post('/:id/vote_up', async (req, res) => {
+    const ip = req.headers['CF-Connecting-IP'] || req.ip
     await db.transaction(async trx => {
       const requests = await trx('requests')
         .where({ id: req.params.id });
       if (!requests.length) return res.sendStatus(404);
-      if (requests[0].ips.includes(await hasha.async(req.ip))) {
+      if (requests[0].ips.includes(await hasha.async(ip))) {
         return res.status(401).send(error({
           currentPage: 'requests',
           message: 'You already voted on this request.'
@@ -95,7 +96,7 @@ router
         .increment('votes', 1);
       await trx('requests')
         .where({ id: req.params.id })
-        .update({ ips: requests[0].ips.concat([req.ip]) });
+        .update({ ips: requests[0].ips.concat([ip]) });
       res.send(success({
         currentPage: 'requests',
         redirect: req.headers.referer || '/requests'

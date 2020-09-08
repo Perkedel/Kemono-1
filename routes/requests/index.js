@@ -33,6 +33,7 @@ router
     setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600, no-cache')
   }))
   .get('/', async (req, res) => {
+    res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     if (!req.query.commit) {
       return res.send(list({
         requests: await db('requests')
@@ -51,8 +52,7 @@ router
       .whereNot('service', 'discord-channel')
       .orderBy(req.query.sort_by, req.query.order)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50);
-    res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
-      .type('html')
+    res.type('html')
       .send(list({
         requests: index,
         query: req.query,

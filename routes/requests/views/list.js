@@ -52,6 +52,7 @@ const list = props => shell(`
           <label for="status">Status</label>
           <input type="radio" name="status" value="open" style="margin-right:5px" ${props.query.status !== 'fulfilled' ? 'checked' : ''}>Open
           <input type="radio" name="status" value="fulfilled" style="margin-right:5px" ${props.query.status === 'fulfilled' ? 'checked' : ''}>Fulfilled
+          <input type="radio" name="status" value="fulfilled" style="margin-right:5px" ${props.query.status === 'closed' ? 'checked' : ''}>Closed
         </div>
         <div>
           <label for="max_price">Max Price</label>

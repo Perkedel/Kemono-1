@@ -10,8 +10,9 @@ module.exports = {
     },
     pool: {
       acquireTimeoutMillis: 1000000, // never timeout
-      max: 50
-    }
+      max: 100
+    },
+    acquireConnectionTimeout: 1000000
   }),
   cache: new Redis({
     host: process.env.RDHOST || 'localhost',

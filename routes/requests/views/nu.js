@@ -52,6 +52,8 @@ const nu = props => shell(`
             name="user_id"
             id="user_id"
             autocomplete="off"
+            pattern="[A-Za-z0-9]+"
+            title="Letters and numbers only"
             required
           >
           <small>

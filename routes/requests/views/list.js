@@ -91,15 +91,7 @@ const list = props => shell(`
           ${props.requests.map(request => `
             <tr class="artist-row">
               <td>
-                <a href="${({
-                  patreon: request.post_id ? `https://www.patreon.com/posts/${request.post_id}` : `https://www.patreon.com/user?u=${request.user}`,
-                  fanbox: request.post_id ? `https://www.pixiv.net/fanbox/creator/${request.user}/post/${request.post_id}` : `https://www.pixiv.net/fanbox/creator/${request.user}`,
-                  gumroad: request.post_id ? `https://gumroad.com/l/${request.post_id}` : `https://gumroad.com/${request.user}`,
-                  subscribestar: request.post_id ? `https://subscribestar.adult/posts/${request.post_id}` : `https://subscribestar.adult/${request.user}`,
-                  dlsite: request.post_id ? `https://www.dlsite.com/ecchi-eng/work/=/product_id/${request.post_id}` : `https://www.dlsite.com/eng/circle/profile/=/maker_id/${request.user}`
-                })[request.service]}"
-                  target="_blank"
-                >
+                <a href="${request.image}" target="_blank">
                   ${request.image ? `<img src="/thumbnail${request.image}?size=200">` : `<span class="subtitle">No image</span>`}
                 </a>
               </td>

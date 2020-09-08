@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { api, proxy, board, importer, help } = require('./routes');
+const { api, proxy, board, importer, help, requests } = require('./routes');
 const { db } = require('./db');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
@@ -24,12 +24,15 @@ module.exports = () => {
     .use(bodyParser.json())
     .use(express.static('public', {
       extensions: ['html', 'htm'],
-      setHeaders: (res) => res.setHeader('Cache-Control', 'max-age=300, public, stale-while-revalidate=2592000')
+      setHeaders: (res) => res
+        .set('Cache-Control', 'max-age=300, public, stale-while-revalidate=2592000')
+        .set('Service-Worker-Allowed', '/')
     }))
     .use('/api', api)
     .use('/help', help)
     .use('/proxy', proxy)
     .use('/board', board)
+    .use('/requests', requests)
     .use('/importer', importer)
     .get('/thumbnail/*', async (req, res) => {
       const file = `${process.env.DB_ROOT}/${req.params[0]}`;

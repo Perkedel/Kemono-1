@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const mime = require('mime');
 const path = require('path');
 const checkForFlags = require('../flagcheck');
+const checkForRequests = require('../requestcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 const { URL } = require('url');
@@ -64,6 +65,13 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       entityId: rel.user.data.id,
       id: post.id
     });
+
+    await checkForRequests({
+      service: 'patreon',
+      userId: rel.user.data.id,
+      id: post.id
+    })
+    
     const existingPosts = await db('booru_posts')
       .where({ id: post.id, service: 'patreon' })
       .orderBy('edited', 'asc');

@@ -19,6 +19,12 @@ const subheader = props => ({
       <li><a href="/artists/updated">Recently Updated</a></li>
     </ul>
   `,
+  requests: `
+    <ul class="subheader">
+      <li><a href="/requests">List</a></li>
+      <li><a href="/requests/new">New</a></li>
+    </ul>
+  `,
   import: `
     <ul class="subheader">
       <li><a href="">List</a></li>

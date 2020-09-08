@@ -4,6 +4,7 @@ const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
+const checkForRequests = require('../requestcheck');
 const checkForFlags = require('../flagcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
@@ -37,6 +38,12 @@ async function scraper (importData, page = 1) {
       entityId: work.maker_id,
       id: work.workno
     });
+
+    await checkForRequests({
+      service: 'dlsite',
+      userId: work.maker_id,
+      id: work.workno
+    })
 
     const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
     if (postExists.length) return;

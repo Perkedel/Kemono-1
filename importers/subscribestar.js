@@ -8,6 +8,7 @@ const indexer = require('../indexer');
 const ellipsize = require('ellipsize');
 const { unraw } = require('unraw');
 const checkForFlags = require('../flagcheck');
+const checkForRequests = require('../requestcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
@@ -65,6 +66,13 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
       entityId: post.user,
       id: post.id
     });
+    
+    await checkForRequests({
+      service: 'subscribestar',
+      userId: post.user,
+      id: post.id
+    })
+    
     const postExists = await db('booru_posts').where({ id: post.id, service: 'subscribestar' });
     if (postExists.length) return;
 

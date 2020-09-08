@@ -5,6 +5,7 @@ const path = require('path');
 const indexer = require('../indexer');
 const { unraw } = require('unraw');
 const nl2br = require('nl2br');
+const checkForRequests = require('../requestcheck');
 const checkForFlags = require('../flagcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
@@ -42,6 +43,12 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       entityId: post.user.userId,
       id: post.id
     });
+
+    await checkForRequests({
+      service: 'fanbox',
+      userId: post.user.userId,
+      id: post.id
+    })
 
     const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
     if (postExists.length) return;

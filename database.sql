@@ -68,3 +68,32 @@ CREATE TABLE IF NOT EXISTS board_replies (
   "reply" integer NOT NULL,
   "in" integer NOT NULL
 );
+
+-- Requests
+DO $$ BEGIN
+  CREATE TYPE request_status AS ENUM ('open', 'fulfilled', 'closed');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+CREATE TABLE IF NOT EXISTS requests (
+  "id" SERIAL PRIMARY KEY,
+  "service" varchar(20) NOT NULL,
+  "user" varchar(255) NOT NULL,
+  "post_id" varchar(255),
+  "title" text NOT NULL,
+  "description" text NOT NULL DEFAULT '',
+  "created" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "image" text,
+  "price" numeric NOT NULL,
+  "votes" integer NOT NULL DEFAULT 1,
+  "ips" text[] NOT NULL,
+  "status" request_status NOT NULL DEFAULT 'open'
+);
+
+-- Request Subscriptions
+CREATE TABLE IF NOT EXISTS request_subscriptions (
+  "request_id" numeric NOT NULL,
+  "endpoint" text NOT NULL,
+  "expirationTime" numeric,
+  "keys" jsonb NOT NULL
+);

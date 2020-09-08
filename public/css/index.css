@@ -10,6 +10,15 @@ h1, h2, h3, label {
   font-family: Tahoma;
 }
 
+textarea {
+  width: calc(100% - 2px);
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  min-height: 3rem;
+  background: #4c4f57;
+}
+
 pre {
   white-space: pre-wrap;       /* Since CSS 2.1 */
   white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -22,9 +31,8 @@ a {
   color: #87CEFA;
 }
 
-textarea {
-  min-height: 3rem;
-  color: #000;
+.a {
+  color: #87CEFA;
 }
 
 * {
@@ -126,9 +134,14 @@ select {
   text-align-last: center;
 }
 
-input[type="text"] {
-  border-radius: 5px;
+select::-ms-expand {
   color: #000;
+}
+
+input[type="text"], input[type="number"] {
+  border-radius: 5px;
+  background: #4c4f57;
+  color: #fff;
   text-align: center;
   border: 0;
 }
@@ -262,8 +275,12 @@ input[type="submit"] {
 
 .search-form > div {
   display: table-row;
-  line-height: 2em;
-  margin-bottom: 1em;
+  line-height: 1.5em;
+  margin-bottom: 2em;
+}
+
+.search-form small {
+  line-height: normal;
 }
 
 .search-form label, .search-form input {
@@ -293,6 +310,7 @@ input[type="submit"] {
 
 .search-results tbody td {
   height: 2.25em;
+  padding-right: 10px;
 }
 
 thead th {

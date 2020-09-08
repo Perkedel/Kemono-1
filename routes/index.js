@@ -1,4 +1,5 @@
 const importer = require('./importer');
+const requests = require('./requests');
 const proxy = require('./proxy');
 const board = require('./board');
 const help = require('./help');
@@ -9,5 +10,6 @@ module.exports = {
   proxy,
   board,
   help,
-  importer
+  importer,
+  requests
 };

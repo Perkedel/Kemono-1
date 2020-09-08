@@ -4,6 +4,7 @@ const { slugify } = require('transliteration');
 const webpush = require('web-push');
 const { db } = require('../../db');
 const express = require('express');
+const request = require('request-promise');
 const multer = require('multer');
 const router = express.Router();
 const hasha = require('hasha');
@@ -64,6 +65,18 @@ router
     query: req.query
   })))
   .post('/new', upload.single('image'), async (req, res) => {
+    await request.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage?chat_id=-1001273389670&parse_mode=markdown&text=${encodeURIComponent(`
+*New request*
+_${req.body.title}_ ($${req.body.price})
+${req.body.description || ''}
+[Link to requested user/post.](${({
+  patreon: req.body.specific_id ? `https://www.patreon.com/posts/${req.body.specific_id}` : `https://www.patreon.com/user?u=${req.body.user_id}`,
+  fanbox: req.body.specific_id ? `https://www.pixiv.net/fanbox/creator/${req.body.user_id}/post/${req.body.specific_id}` : `https://www.pixiv.net/fanbox/creator/${req.body.user_id}`,
+  gumroad: req.body.specific_id ? `https://gumroad.com/l/${req.body.specific_id}` : `https://gumroad.com/${req.body.user_id}`,
+  subscribestar: req.body.specific_id ? `https://subscribestar.adult/posts/${req.body.specific_id}` : `https://subscribestar.adult/${req.body.user_id}`,
+  dlsite: req.body.specific_id ? `https://www.dlsite.com/ecchi-eng/work/=/product_id/${req.body.specific_id}` : `https://www.dlsite.com/eng/circle/profile/=/maker_id/${req.body.user_id}`
+})[req.body.service]})
+    `.trim())}`)
     await db('requests')
       .insert({
         service: xss(req.body.service),

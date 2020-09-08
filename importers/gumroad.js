@@ -2,6 +2,7 @@ const cloudscraper = require('cloudscraper');
 const { db } = require('../db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
+const checkForRequests = require('../requestcheck');
 const checkForFlags = require('../flagcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
@@ -69,7 +70,12 @@ async function scraper (key, from = 1) {
       entityId: userId,
       id: product.id
     });
-    const postExists = await await db('booru_posts').where({ id: product.id, service: 'gumroad' });
+    await checkForRequests({
+      service: 'gumroad',
+      userId: userId,
+      id: product.id
+    })
+    const postExists = await db('booru_posts').where({ id: product.id, service: 'gumroad' });
     if (postExists.length) return;
 
     const model = {

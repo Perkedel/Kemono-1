@@ -121,7 +121,8 @@ const list = props => shell(`
               <td>
                 ${({
                   open: '<span style="color:#cc0">Open</span>',
-                  fulfilled: '<span style="color:#0f0">Fulfilled</span>'
+                  fulfilled: '<span style="color:#0f0">Fulfilled</span>',
+                  closed: '<span style="color:#ff6961">Closed</span>'
                 })[request.status]}
               </td>
               <td>

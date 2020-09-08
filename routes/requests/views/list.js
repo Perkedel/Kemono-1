@@ -56,7 +56,16 @@ const list = props => shell(`
         </div>
         <div>
           <label for="max_price">Max Price</label>
-          $ <input id="max-price" name="max-price" type="number" min="0.00" max="10000.00" step="0.01" required/>
+          $ <input
+              id="max_price"
+              name="max_price"
+              type="number"
+              min="0.00"
+              max="10000.00"
+              step="0.01"
+              value="${props.query.max_price || ''}"
+              required
+            />
         </div>
         <div>
           <label for="limit">Limit</label>

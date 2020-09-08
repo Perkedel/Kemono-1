@@ -7,6 +7,7 @@ const express = require('express');
 const multer = require('multer');
 const router = express.Router();
 const hasha = require('hasha');
+const nl2br = require('nl2br');
 const path = require('path');
 const xss = require('xss');
 
@@ -69,7 +70,7 @@ router
         user: xss(req.body.user_id),
         post_id: xss(req.body.specific_id) || null,
         title: xss(req.body.title),
-        description: xss(req.body.description),
+        description: xss(nl2br(req.body.description)),
         image: req.file ? path.join('/requests', 'images', req.file.filename) : null,
         price: xss(req.body.price),
         ips: [await hasha.async(req.ip)]

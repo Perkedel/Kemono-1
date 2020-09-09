@@ -62,6 +62,9 @@ CREATE TABLE IF NOT EXISTS lookup (
   "indexed" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS name_idx ON lookup USING btree ("name");
+CREATE INDEX IF NOT EXISTS lookup_id_idx ON lookup USING btree ("id");
+CREATE INDEX IF NOT EXISTS lookup_service_idx ON lookup USING btree ("service");
+CREATE INDEX IF NOT EXISTS lookup_indexed_idx ON lookup USING btree ("indexed");
 
 -- Board
 CREATE TABLE IF NOT EXISTS board_replies (
@@ -97,3 +100,4 @@ CREATE TABLE IF NOT EXISTS request_subscriptions (
   "expirationTime" numeric,
   "keys" jsonb NOT NULL
 );
+CREATE INDEX IF NOT EXISTS request_id_idx ON request_subscriptions USING btree ("request_id");

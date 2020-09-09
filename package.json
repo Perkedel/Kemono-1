@@ -73,7 +73,8 @@
       "renderPost",
       "debounce",
       "confirm",
-      "self"
+      "self",
+      "clients"
     ]
   }
 }

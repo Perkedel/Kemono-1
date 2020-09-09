@@ -74,7 +74,7 @@ async function scraper (key, from = 1) {
       service: 'gumroad',
       userId: userId,
       id: product.id
-    })
+    });
     const postExists = await db('booru_posts').where({ id: product.id, service: 'gumroad' });
     if (postExists.length) return;
 

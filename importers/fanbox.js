@@ -48,7 +48,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       service: 'fanbox',
       userId: post.user.userId,
       id: post.id
-    })
+    });
 
     const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
     if (postExists.length) return;

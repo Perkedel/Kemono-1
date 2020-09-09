@@ -99,7 +99,7 @@ const list = props => shell(`
               <tr class="artist-row">
                 <td>
                   <a href="${request.image}" target="_blank">
-                    ${request.image ? `<img src="/thumbnail${request.image}?size=200">` : `<span class="subtitle">No image</span>`}
+                    ${request.image ? `<img src="/thumbnail${request.image}?size=200">` : '<span class="subtitle">No image</span>'}
                   </a>
                 </td>
                 <td>
@@ -135,8 +135,8 @@ const list = props => shell(`
                 <td>
                   ${request.price <= 5 ? `<span style="color:#0f0">$${parseFloat(request.price).toFixed(2)}</span>` : (
                       request.price <= 20 ? `<span style="color:#cc0">$${parseFloat(request.price).toFixed(2)}</span>` : (
-                        request.price <= 50 ? `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>` : 
-                          `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>`
+                        request.price <= 50 ? `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>`
+                          : `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>`
                       )
                     )
                   }

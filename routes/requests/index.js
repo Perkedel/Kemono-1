@@ -1,5 +1,7 @@
 const { error, success } = require('../../views');
 const { list, nu } = require('./views');
+const rateLimit = require('express-rate-limit');
+const RedisStore = require('rate-limit-redis');
 const { slugify } = require('transliteration');
 const webpush = require('web-push');
 const { db } = require('../../db');
@@ -28,6 +30,13 @@ const upload = multer({
       cb(new Error('That wasn\'t an image.'), false);
     }
   }
+});
+
+const createRequestLimiter = rateLimit({
+  store: new RedisStore(),
+  windowMs: 6 * 60 * 60 * 1000, // 1 hour
+  max: 3,
+  message: 'You can only make three requests every six hours. Come back later.'
 });
 
 router
@@ -67,7 +76,7 @@ router
   .get('/new', (req, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(nu({
     query: req.query
   })))
-  .post('/new', upload.single('image'), async (req, res) => {
+  .post('/new', createRequestLimiter, upload.single('image'), async (req, res) => {
     await request.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage?chat_id=-1001273389670&parse_mode=markdown&text=${encodeURIComponent(`
 *New request*
 _${req.body.title}_ ($${req.body.price})

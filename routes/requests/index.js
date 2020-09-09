@@ -34,7 +34,7 @@ const upload = multer({
 
 const createRequestLimiter = rateLimit({
   store: new RedisStore(),
-  windowMs: 6 * 60 * 60 * 1000, // 1 hour
+  windowMs: 6 * 60 * 60 * 1000, // 6 hours
   max: 3,
   message: 'You can only make three requests every six hours. Come back later.'
 });

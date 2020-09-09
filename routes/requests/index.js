@@ -40,9 +40,11 @@ router
       return res.send(list({
         requests: await db('requests')
           .where({ status: 'open' })
+          .offset(Number(req.query.o) || 0)
           .orderBy('votes', 'desc')
-          .limit(50),
-        query: {}
+          .limit(25),
+        query: req.query,
+        url: req.originalUrl
       }));
     }
     const index = await db('requests')
@@ -52,8 +54,9 @@ router
       .where('price', '<=', req.query.max_price || 1000000)
       .where({ status: req.query.status })
       .whereNot('service', 'discord-channel')
+      .offset(Number(req.query.o) || 0)
       .orderBy(req.query.sort_by, req.query.order)
-      .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50);
+      .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 25);
     res.type('html')
       .send(list({
         requests: index,

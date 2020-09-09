@@ -62,7 +62,7 @@ module.exports = () => {
     })
     .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
     .get('/artists', async (req, res) => {
-      if (!req.query.commit) return res.send(artists({ results: [], query: req.query }));
+      if (!req.query.commit) return res.send(artists({ results: [], query: req.query, url: req.originalUrl }));
       const index = await db('lookup')
         .select('*')
         .where(req.query.service ? { service: req.query.service } : {})
@@ -76,7 +76,8 @@ module.exports = () => {
           asc: 'asc',
           desc: 'desc'
         })[req.query.order])
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 50);
+        .offset(Number(req.query.o) || 0)
+        .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 25);
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(artists({

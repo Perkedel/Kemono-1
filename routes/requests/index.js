@@ -13,6 +13,7 @@ const hasha = require('hasha');
 const nl2br = require('nl2br');
 const path = require('path');
 const xss = require('xss');
+const redis = require('redis');
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -33,7 +34,12 @@ const upload = multer({
 });
 
 const createRequestLimiter = rateLimit({
-  store: new RedisStore(),
+  store: new RedisStore({
+    client: redis.createClient({
+      host: process.env.RDHOST || 'localhost',
+      port: process.env.RDPORT || 6379
+    })
+  }),
   windowMs: 6 * 60 * 60 * 1000, // 6 hours
   max: 3,
   message: 'You can only make three requests every six hours. Come back later.'

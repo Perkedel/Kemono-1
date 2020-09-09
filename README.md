@@ -14,21 +14,40 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 - DLsite
 - SubscribeStar
 
-### Running
+### Dependencies
+- Node *v8.x*
+- Yarn
+- PostgreSQL
+- Redis
+
+## Running
+### Quick Start
 - Install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) if you don't have them installed already.
 - `git clone https://github.com/OpenYiff/Kemono && cd Kemono`
-- Copy `.env.example` to `.env` and configure
 - `docker-compose build`
 - `docker-compose up -d`
-- Your instance should now be running [here](http://localhost:8000).
-#### Migrating from v1.x -> v2.0
-Kemono v2.0 uses Postgres for speed, along with a new unified schema. Ensure your instance is up with the database ports exposed, and run `node migrate-1.x-to-2.0.js <mongo connection url>`.
+- Kemono should now be running on port [8000](http://localhost:8000).
 
-### FAQ
-#### Where did the test scripts go?
-The importer test scripts were removed in [v1.2](https://github.com/OpenYiff/Kemono/releases/tag/v1.2).
+For production, you should probably configure `.env`.
+### Standalone
+- Ensure you have external dependencies installed, and databases running.
+- Install packages (`yarn`)
+- Copy `.env.example` to `.env` and configure
+- Start the development server. (`yarn run dev`) 
+
+## Migrating from v1.x >> v2.0
+Kemono 2.0.0 uses Postgres for speed and scalability, and comes packaged with a migration script for users of older versions.
+```sh
+# Make sure both databases are exposed to the local network (edit docker-compose.yml)
+node migrate-to-2.0.js <mongo url>
+# The script will automatically connect to the database service and start migrating.
+# If running standalone, you'll need to manually set Postgres environment variables.
+env PGHOST=127.0.0.1 PGUSER=someuser PGPASSWORD= PGDATABASE=someuser node migrate-to-2.0.js <mongo url>
+```
+
+## FAQ
 #### My instance uses too much memory!/My instance is randomly crashing!
-Large instances may see memory issues due to the thumbnail generator. Either [set some swap space](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-16-04) or disable the feature in your `docker-compose` file.
+Large instances may see memory issues due to the thumbnail generator. Either [set some swap space](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-16-04) or disable the feature in your `.env` file.
 
 ---
 

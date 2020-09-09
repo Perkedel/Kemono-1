@@ -70,8 +70,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       service: 'patreon',
       userId: rel.user.data.id,
       id: post.id
-    })
-    
+    });
+
     const existingPosts = await db('booru_posts')
       .where({ id: post.id, service: 'patreon' })
       .orderBy('edited', 'asc');

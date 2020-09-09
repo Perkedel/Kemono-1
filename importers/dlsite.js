@@ -43,7 +43,7 @@ async function scraper (importData, page = 1) {
       service: 'dlsite',
       userId: work.maker_id,
       id: work.workno
-    })
+    });
 
     const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
     if (postExists.length) return;

@@ -1,4 +1,4 @@
-const Promise = require('bluebird')
+const Promise = require('bluebird');
 const webpush = require('web-push');
 const { db } = require('./db');
 const path = require('path');
@@ -32,9 +32,9 @@ module.exports = async (data) => {
         endpoint: subscription.endpoint,
         keys: subscription.keys
       }, payload);
-    })
+    });
     await trx('request_subscriptions')
       .where({ request_id: requests[0].id })
-      .del()
-  })
-}
+      .del();
+  });
+};

@@ -3,29 +3,28 @@ self.addEventListener('push', (e) => {
   self.registration.showNotification(data.title, {
     data: data.url,
     body: data.body,
-    icon: data.icon,
+    icon: data.icon
   });
 });
 
-self.addEventListener('notificationclick', function(event) {  
-  let url = event.notification.data;
+self.addEventListener('notificationclick', function (event) {
+  const url = event.notification.data;
   if (!url) return;
   event.notification.close();
 
   event.waitUntil(
-    clients.matchAll({  
-      type: "window"  
+    clients.matchAll({
+      type: 'window'
     })
-    .then(function(clientList) {  
-      for (var i = 0; i < clientList.length; i++) {  
-        var client = clientList[i];  
-        if (client.url == '/' && 'focus' in client)  
-          return client.focus();  
-      }  
-      if (clients.openWindow) {
-        return clients.openWindow(url);  
-      }
-    })
+      .then(function (clientList) {
+        for (var i = 0; i < clientList.length; i++) {
+          var client = clientList[i];
+          if (client.url === '/' && 'focus' in client) { return client.focus(); }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(url);
+        }
+      })
   );
 });
 

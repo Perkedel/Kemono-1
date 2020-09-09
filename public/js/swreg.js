@@ -9,7 +9,7 @@ const publicVapidKey = document.getElementsByName('push_key')[0].content;
 const urlBase64ToUint8Array = (base64String) => {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
+    .replace(/-/g, '+')
     .replace(/_/g, '/');
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -24,13 +24,13 @@ window.subscribeToRequestStatus = async requestId => {
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
   });
   await fetch(`/requests/${requestId}/subscribe`, {
     method: 'POST',
     body: JSON.stringify(subscription),
     headers: {
-      'content-type': 'application/json',
+      'content-type': 'application/json'
     }
   });
 };

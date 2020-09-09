@@ -18,7 +18,7 @@ const MongoClient = require('mongodb').MongoClient;
       host: process.env.PGHOST || 'localhost'
     }
   });
-  
+
   await postgres.transaction(async trx => {
     await mongo.posts.find({
       service: { $ne: 'discord' }
@@ -39,7 +39,7 @@ const MongoClient = require('mongodb').MongoClient;
           attachments: x.attachments || []
         }).asCallback(() => {});
       });
-  
+
     await mongo.bans.find({})
       .forEach(x => {
         trx('dnp').insert({
@@ -47,7 +47,7 @@ const MongoClient = require('mongodb').MongoClient;
           service: x.service
         }).asCallback(() => {});
       });
-  
+
     await mongo.posts.find({ service: 'discord' })
       .forEach(x => {
         trx('discord_posts').insert({
@@ -64,7 +64,7 @@ const MongoClient = require('mongodb').MongoClient;
           attachments: x.attachments
         }).asCallback(() => {});
       });
-  
+
     await mongo.flags.find({})
       .forEach(x => {
         trx('booru_flags').insert({
@@ -73,7 +73,7 @@ const MongoClient = require('mongodb').MongoClient;
           service: x.service
         }).asCallback(() => {});
       });
-  
+
     await mongo.lookup.find({})
       .forEach(x => {
         trx('lookup').insert({
@@ -82,7 +82,7 @@ const MongoClient = require('mongodb').MongoClient;
           service: x.service
         }).asCallback(() => {});
       });
-  
+
     await mongo.board.find({})
       .forEach(x => {
         trx('board_replies').insert({
@@ -90,7 +90,5 @@ const MongoClient = require('mongodb').MongoClient;
           in: x.in
         }).asCallback(() => {});
       });
-  })
-
-  
+  });
 })();

@@ -84,7 +84,7 @@ router
     }));
   })
   .post('/:id/vote_up', async (req, res) => {
-    const ip = req.headers['CF-Connecting-IP'] || req.ip
+    const ip = req.headers['CF-Connecting-IP'] || req.ip;
     await db.transaction(async trx => {
       const requests = await trx('requests')
         .where({ id: req.params.id });
@@ -118,14 +118,14 @@ router
           endpoint: req.body.endpoint,
           expirationTime: req.body.expirationTime || null,
           keys: req.body.keys
-        })
+        });
       const payload = JSON.stringify({
         title: 'Success',
         body: `You'll be notified when request #${req.params.id} is fulfilled.`
       });
       await webpush.sendNotification(req.body, payload);
       res.status(201).json({});
-    }) 
+    });
   });
 
 module.exports = router;

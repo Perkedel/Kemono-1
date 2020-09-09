@@ -39,7 +39,7 @@ router
       json: true,
       headers: {
         origin: 'https://fanbox.cc',
-        cookie: `FANBOXSESSID=${process.env.FANBOX_KEY}`
+        cookie: process.env.FANBOX_KEY ? `FANBOXSESSID=${process.env.FANBOX_KEY}` : undefined
       }
     })
       .then(user => {

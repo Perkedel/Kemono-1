@@ -1,7 +1,5 @@
 const { error, success } = require('../../views');
 const { list, nu } = require('./views');
-const rateLimit = require('express-rate-limit');
-const RedisStore = require('rate-limit-redis');
 const { slugify } = require('transliteration');
 const webpush = require('web-push');
 const { db } = require('../../db');
@@ -29,13 +27,6 @@ const upload = multer({
       cb(new Error('That wasn\'t an image.'), false);
     }
   }
-});
-
-const createRequestLimiter = rateLimit({
-  store: new RedisStore(),
-  windowMs: 6 * 60 * 60 * 1000, // 1 hour
-  max: 3,
-  message: 'You can only make three requests every six hours. Come back later.'
 });
 
 router
@@ -75,7 +66,7 @@ router
   .get('/new', (req, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(nu({
     query: req.query
   })))
-  .post('/new', createRequestLimiter, upload.single('image'), async (req, res) => {
+  .post('/new', upload.single('image'), async (req, res) => {
     await db('requests')
       .insert({
         service: xss(req.body.service),

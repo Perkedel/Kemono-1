@@ -67,6 +67,7 @@ router
     query: req.query
   })))
   .post('/new', upload.single('image'), async (req, res) => {
+    if (!req.body.user_id) return res.status(400).send(`You didn't enter a user ID.`);
     await db('requests')
       .insert({
         service: xss(req.body.service),

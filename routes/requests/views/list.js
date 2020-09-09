@@ -1,4 +1,4 @@
-const { shell, header, subheader } = require('../../../views/components');
+const { shell, header, subheader, paginator } = require('../../../views/components');
 
 const list = props => shell(`
   <div class="main">
@@ -14,7 +14,7 @@ const list = props => shell(`
         onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"
       >
         <div>
-          <label for="q">Name</label>
+          <label for="q">Title</label>
           <input
             type="text"
             name="q"
@@ -67,106 +67,110 @@ const list = props => shell(`
               required
             />
         </div>
-        <div>
-          <label for="limit">Limit</label>
-          <input
-            type="text"
-            name="limit"
-            id="limit"
-            autocomplete="off"
-            value="${props.query.limit || ''}"
-          >
-          <small class="subtitle" style="margin-left: 5px;">Up to 250, default 50.</small>
-        </div>
         <input type="submit" name="commit" value="Search" data-disable-with="Search">
       </form>
-      <table class="search-results" width="100%">
-        <thead>
-          <tr>
-            <th width="100px"></th>
-            <th></th>
-            <th>Status</th>
-            <th>Price</th>
-            <th>Votes</th>
-            <th>Notifications</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${props.requests.length === 0 ? `
+      <div class="vertical-views">
+        <div class="paginator" id="paginator-top">
+          ${paginator({
+            o: props.query.o,
+            query: props.query,
+            url: props.url
+          })}
+        </div>
+        <table class="search-results" width="100%">
+          <thead>
             <tr>
-              <td></td>
-              <td class="subtitle">No requests yet.</td>
+              <th width="100px"></th>
+              <th></th>
+              <th>Status</th>
+              <th>Price</th>
+              <th>Votes</th>
+              <th>Notifications</th>
             </tr>
-          ` : ''}
-          ${props.requests.map(request => `
-            <tr class="artist-row">
-              <td>
-                <a href="${request.image}" target="_blank">
-                  ${request.image ? `<img src="/thumbnail${request.image}?size=200">` : `<span class="subtitle">No image</span>`}
-                </a>
-              </td>
-              <td>
-                <a href="${({
-                  patreon: request.post_id ? `https://www.patreon.com/posts/${request.post_id}` : `https://www.patreon.com/user?u=${request.user}`,
-                  fanbox: request.post_id ? `https://www.pixiv.net/fanbox/creator/${request.user}/post/${request.post_id}` : `https://www.pixiv.net/fanbox/creator/${request.user}`,
-                  gumroad: request.post_id ? `https://gumroad.com/l/${request.post_id}` : `https://gumroad.com/${request.user}`,
-                  subscribestar: request.post_id ? `https://subscribestar.adult/posts/${request.post_id}` : `https://subscribestar.adult/${request.user}`,
-                  dlsite: request.post_id ? `https://www.dlsite.com/ecchi-eng/work/=/product_id/${request.post_id}` : `https://www.dlsite.com/eng/circle/profile/=/maker_id/${request.user}`
-                })[request.service]}"
-                  target="_blank"
-                >
-                  <strong>${request.title}</strong><span class="subtitle"> (${({
-                    patreon: 'Patreon',
-                    fanbox: 'Pixiv Fanbox',
-                    subscribestar: 'SubscribeStar',
-                    gumroad: 'Gumroad',
-                    discord: 'Discord',
-                    dlsite: 'DLsite'
-                  })[request.service]})</span>
-                  <br>
-                  ${request.description ? `<small>${request.description}</small><br>` : ''}
-                  <small class="subtitle">${request.created}</small>
-                </a>
-              </td>
-              <td>
-                ${({
-                  open: '<span style="color:#cc0">Open</span>',
-                  fulfilled: '<span style="color:#0f0">Fulfilled</span>',
-                  closed: '<span style="color:#ff6961">Closed</span>'
-                })[request.status]}
-              </td>
-              <td>
-                ${request.price <= 5 ? `<span style="color:#0f0">$${parseFloat(request.price).toFixed(2)}</span>` : (
-                    request.price <= 20 ? `<span style="color:#cc0">$${parseFloat(request.price).toFixed(2)}</span>` : (
-                      request.price <= 50 ? `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>` : 
-                        `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>`
-                    )
-                  )
-                }
+          </thead>
+          <tbody>
+            ${props.requests.length === 0 ? `
+              <tr>
+                <td></td>
+                <td class="subtitle">No more requests for your query.</td>
+              </tr>
+            ` : ''}
+            ${props.requests.map(request => `
+              <tr class="artist-row">
+                <td>
+                  <a href="${request.image}" target="_blank">
+                    ${request.image ? `<img src="/thumbnail${request.image}?size=200">` : `<span class="subtitle">No image</span>`}
+                  </a>
                 </td>
-              <td>
-                <form
-                  action="/requests/${request.id}/vote_up"
-                  method="post"
-                  onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"
-                >
-                  <span>${request.votes} ${request.votes === 1 ? 'vote' : 'votes'}</span>
-                  <label class="a" style="cursor:pointer" for="voteup-${request.id}">(+)</label>
-                  <button type="submit" id="voteup-${request.id}" style="display:none"></button>
-                </form>
-              </td>
-              <td>
-                ${request.status === 'open' ? `
-                  <a href="javascript:subscribeToRequestStatus('${request.id}');">Subscribe</a><br>
-                  <small class="subtitle">May not work on older browsers or privacy-centric forks.</small>
-                ` : `
-                  <span class="subtitle">Request completed.</span>
-                `}
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+                <td>
+                  <a href="${({
+                    patreon: request.post_id ? `https://www.patreon.com/posts/${request.post_id}` : `https://www.patreon.com/user?u=${request.user}`,
+                    fanbox: request.post_id ? `https://www.pixiv.net/fanbox/creator/${request.user}/post/${request.post_id}` : `https://www.pixiv.net/fanbox/creator/${request.user}`,
+                    gumroad: request.post_id ? `https://gumroad.com/l/${request.post_id}` : `https://gumroad.com/${request.user}`,
+                    subscribestar: request.post_id ? `https://subscribestar.adult/posts/${request.post_id}` : `https://subscribestar.adult/${request.user}`,
+                    dlsite: request.post_id ? `https://www.dlsite.com/ecchi-eng/work/=/product_id/${request.post_id}` : `https://www.dlsite.com/eng/circle/profile/=/maker_id/${request.user}`
+                  })[request.service]}"
+                    target="_blank"
+                  >
+                    <strong>${request.title}</strong><span class="subtitle"> (${({
+                      patreon: 'Patreon',
+                      fanbox: 'Pixiv Fanbox',
+                      subscribestar: 'SubscribeStar',
+                      gumroad: 'Gumroad',
+                      discord: 'Discord',
+                      dlsite: 'DLsite'
+                    })[request.service]})</span>
+                    <br>
+                    ${request.description ? `<small>${request.description}</small><br>` : ''}
+                    <small class="subtitle">${request.created}</small>
+                  </a>
+                </td>
+                <td>
+                  ${({
+                    open: '<span style="color:#cc0">Open</span>',
+                    fulfilled: '<span style="color:#0f0">Fulfilled</span>',
+                    closed: '<span style="color:#ff6961">Closed</span>'
+                  })[request.status]}
+                </td>
+                <td>
+                  ${request.price <= 5 ? `<span style="color:#0f0">$${parseFloat(request.price).toFixed(2)}</span>` : (
+                      request.price <= 20 ? `<span style="color:#cc0">$${parseFloat(request.price).toFixed(2)}</span>` : (
+                        request.price <= 50 ? `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>` : 
+                          `<span style="color:#ff6961">$${parseFloat(request.price).toFixed(2)}</span>`
+                      )
+                    )
+                  }
+                  </td>
+                <td>
+                  <form
+                    action="/requests/${request.id}/vote_up"
+                    method="post"
+                    onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"
+                  >
+                    <span>${request.votes} ${request.votes === 1 ? 'vote' : 'votes'}</span>
+                    <label class="a" style="cursor:pointer" for="voteup-${request.id}">(+)</label>
+                    <button type="submit" id="voteup-${request.id}" style="display:none"></button>
+                  </form>
+                </td>
+                <td>
+                  ${request.status === 'open' ? `
+                    <a href="javascript:subscribeToRequestStatus('${request.id}');">Subscribe</a><br>
+                    <small class="subtitle">May not work on older browsers or privacy-centric forks.</small>
+                  ` : `
+                    <span class="subtitle">Request completed.</span>
+                  `}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="paginator" id="paginator-bottom">
+          ${paginator({
+            o: props.query.o,
+            url: props.url
+          })}
+        </div>
+      </div>
     </div>
   </div>
   <script src="/js/swreg.js"></script>

@@ -90,7 +90,7 @@ async function processChannel (id, server, key, before) {
         mentions: msg.mentions,
         attachments: []
       };
-  
+
       await Promise.map(msg.embeds, async (embed) => model.embeds.push(embed));
       await Promise.map(msg.attachments, async (attachment) => {
         await downloadFile({
@@ -99,14 +99,14 @@ async function processChannel (id, server, key, before) {
         }, {
           url: attachment.url || attachment.proxy_url
         });
-  
+
         model.attachments.push({
           isImage: isImage(attachment.filename),
           name: attachment.filename,
           path: `/${attachmentsKey}/${attachment.filename}`
         });
       });
-  
+
       await trx('discord_posts').insert(model);
     });
   });

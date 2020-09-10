@@ -37,23 +37,23 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       if (!post.body) return; // locked content; nothing to do
       const banExists = await trx('dnp').where({ id: post.user.userId, service: 'fanbox' });
       if (banExists.length) return;
-  
+
       await checkForFlags({
         service: 'fanbox',
         entity: 'user',
         entityId: post.user.userId,
         id: post.id
       });
-  
+
       await checkForRequests({
         service: 'fanbox',
         userId: post.user.userId,
         id: post.id
       });
-  
+
       const postExists = await trx('booru_posts').where({ id: post.id, service: 'fanbox' });
       if (postExists.length) return;
-  
+
       const model = {
         id: post.id,
         user: post.user.userId,
@@ -71,7 +71,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
         file: {},
         attachments: []
       };
-  
+
       const filesLocation = '/files/fanbox';
       const attachmentsLocation = '/attachments/fanbox';
       if (post.body.images) {
@@ -96,7 +96,7 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
             .then(res => store(res.filename));
         });
       }
-  
+
       if (post.body.files) {
         await Promise.mapSeries(post.body.files, async (file, index) => {
           const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
@@ -119,10 +119,10 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
             .then(res => store(res.filename));
         });
       }
-  
+
       await trx('booru_posts').insert(model);
     });
-  })
+  });
 
   if (fanbox.body.nextUrl) {
     scraper(key, fanbox.body.nextUrl);

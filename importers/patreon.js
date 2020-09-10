@@ -56,23 +56,23 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       const rel = post.relationships;
       let fileKey = `files/${rel.user.data.id}/${post.id}`;
       let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
-  
+
       const banExists = await trx('dnp').where({ id: rel.user.data.id, service: 'patreon' });
       if (banExists.length) return;
-  
+
       await checkForFlags({
         service: 'patreon',
         entity: 'user',
         entityId: rel.user.data.id,
         id: post.id
       });
-  
+
       await checkForRequests({
         service: 'patreon',
         userId: rel.user.data.id,
         id: post.id
       });
-  
+
       const existingPosts = await trx('booru_posts')
         .where({ id: post.id, service: 'patreon' })
         .orderBy('edited', 'asc');
@@ -84,7 +84,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         fileKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
         attachmentsKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
       }
-  
+
       const model = {
         id: post.id,
         user: rel.user.data.id,
@@ -99,7 +99,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         file: {},
         attachments: []
       };
-  
+
       if (attr.post_file) {
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, fileKey),
@@ -112,13 +112,13 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             model.file.path = `/${fileKey}/${res.filename}`;
           });
       }
-  
+
       if (attr.embed) {
         model.embed.subject = attr.embed.subject;
         model.embed.description = attr.embed.description;
         model.embed.url = attr.embed.url;
       }
-  
+
       await Promise.map(rel.attachments.data, async (attachment) => {
         const res = await retry(() => {
           return cloudscraper.get({
@@ -145,7 +145,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             });
           });
       });
-  
+
       const postData = await retry(() => {
         return cloudscraper.get(`https://www.patreon.com/api/posts/${post.id}?include=images.null,audio.null&json-api-use-default-includes=false&json-api-version=1.0`, {
           resolveWithFullResponse: true,
@@ -155,7 +155,7 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
           }
         });
       });
-  
+
       await Promise.map(postData.body.included, async (includedFile) => {
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, attachmentsKey),
@@ -170,10 +170,10 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
             });
           });
       }).catch(() => {});
-  
+
       await trx('booru_posts').insert(model);
     });
-  })
+  });
 
   if (patreon.body.links.next) {
     scraper(key, 'https://' + patreon.body.links.next);

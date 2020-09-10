@@ -41,10 +41,10 @@ async function scraper (users) {
         // intentionally doesn't support flags to prevent version downgrading and edit erasing
         const banExists = await trx('booru_posts').where({ id: String(post.id), service: 'patreon' });
         if (banExists.length) return;
-  
+
         const postExists = await trx('booru_posts').where({ id: String(post.id), service: 'patreon' });
         if (postExists.length) return;
-  
+
         const model = {
           id: String(post.id),
           user: user,
@@ -58,13 +58,13 @@ async function scraper (users) {
           file: {},
           attachments: []
         };
-  
+
         if (Object.keys(post.embed || {}).length) {
           model.embed.subject = post.embed.subject;
           model.embed.description = post.embed.description;
           model.embed.url = post.embed.url;
         }
-  
+
         if (Object.keys(post.post_file || {}).length) {
           await downloadFile({
             ddir: path.join(process.env.DB_ROOT, `files/${user}/${post.id}`),
@@ -77,7 +77,7 @@ async function scraper (users) {
               model.file.path = `/files/${user}/${post.id}/${res.filename}`;
             });
         }
-  
+
         await Promise.map(post.attachments, async (attachment) => {
           await downloadFile({
             ddir: path.join(process.env.DB_ROOT, `attachments/${user}/${post.id}`),
@@ -92,7 +92,7 @@ async function scraper (users) {
               });
             });
         });
-  
+
         await trx('booru_posts').insert(model);
       });
     });

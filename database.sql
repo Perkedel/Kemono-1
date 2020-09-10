@@ -92,6 +92,12 @@ CREATE TABLE IF NOT EXISTS requests (
   "ips" text[] NOT NULL,
   "status" request_status NOT NULL DEFAULT 'open'
 );
+CREATE INDEX IF NOT EXISTS request_title_idx ON requests USING btree ("title");
+CREATE INDEX IF NOT EXISTS request_service_idx ON requests USING btree ("service");
+CREATE INDEX IF NOT EXISTS request_votes_idx ON requests USING btree ("votes");
+CREATE INDEX IF NOT EXISTS request_created_idx ON requests USING btree ("created");
+CREATE INDEX IF NOT EXISTS request_price_idx ON requests USING btree ("price");
+CREATE INDEX IF NOT EXISTS request_status_idx ON requests USING btree ("status");
 
 -- Request Subscriptions
 CREATE TABLE IF NOT EXISTS request_subscriptions (

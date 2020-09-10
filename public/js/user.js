@@ -12,6 +12,13 @@ function favorite (service, user) {
   location.reload();
 }
 
+function unfavorite (service, user) {
+  let favorites = localStorage.getItem('favorites') ? localStorage.getItem('favorites').split(',') : [];
+  favorites = favorites.filter(i => i !== service + ':' + user)
+  localStorage.setItem('favorites', favorites.join(','));
+  location.reload();
+}
+
 function loadQuery () {
   const query = document.getElementById('search-input').value;
   const pathname = window.location.pathname.split('/');
@@ -79,12 +86,12 @@ function loadQuery () {
         </li>
         ${localStorage.getItem('favorites') && localStorage.getItem('favorites').split(',').includes(document.getElementsByName('service')[0].content + ':' + pathname[3]) ? `
           <li class="subtitle">
-            ★ Favorited
+            ★ Favorited <a href="javascript:unfavorite('${document.getElementsByName('service')[0].content}', '${pathname[3]}');">(☆)</a>
           </li>
           <br>
         ` : `
           <li>
-            <a href="javascript:favorite('${document.getElementsByName('service')[0].content}', ${pathname[3]});">☆ Favorite</a>
+            <a href="javascript:favorite('${document.getElementsByName('service')[0].content}', '${pathname[3]}');">☆ Favorite</a>
           </li>
           <br>
         `}

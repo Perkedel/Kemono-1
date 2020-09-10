@@ -40,7 +40,7 @@ const nu = props => shell(`
         <div>
           <input
             type="hidden"
-            name="user"
+            name="user_id"
             value="${props.query.user}"
           > 
         </div>

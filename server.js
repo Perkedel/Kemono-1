@@ -10,7 +10,7 @@ const sharp = require('sharp');
 const path = require('path');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
-const { artists, post, user, server, recent, upload, updated } = require('./views');
+const { artists, post, user, server, recent, upload, updated, favorites } = require('./views');
 const urljoin = require('url-join');
 
 const staticOpts = {
@@ -115,6 +115,9 @@ module.exports = () => {
           }));
       });
     })
+    .get('/artists/favorites', (_, res) => res
+      .set('Cache-Control', 'max-age=300, public, stale-while-revalidate=2592000')
+      .send(favorites()))
     .get('/posts', async (req, res) => {
       const recentPosts = await db('booru_posts')
         .select('*')

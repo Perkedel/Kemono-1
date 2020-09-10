@@ -4,6 +4,14 @@ require.config({
   }
 });
 
+function favorite (service, user) {
+  let favorites = localStorage.getItem('favorites') ? localStorage.getItem('favorites').split(',') : [];
+  if (favorites.includes(service + ':' + user)) return;
+  favorites.push(service + ':' + user);
+  localStorage.setItem('favorites', favorites.join(','));
+  location.reload();
+}
+
 function loadQuery () {
   const query = document.getElementById('search-input').value;
   const pathname = window.location.pathname.split('/');
@@ -69,6 +77,17 @@ function loadQuery () {
         <li>
           User: <a href="${window.location.href.split('?')[0]}">${cache.name}</a>
         </li>
+        ${localStorage.getItem('favorites') && localStorage.getItem('favorites').split(',').includes(document.getElementsByName('service')[0].content + ':' + pathname[3]) ? `
+          <li class="subtitle">
+            ★ Favorited
+          </li>
+          <br>
+        ` : `
+          <li>
+            <a href="javascript:favorite('${document.getElementsByName('service')[0].content}', ${pathname[3]});">☆ Favorite</a>
+          </li>
+          <br>
+        `}
       `;
     });
   if (service === 'Patreon') {

@@ -88,12 +88,10 @@ function loadQuery () {
           <li class="subtitle">
             ★ Favorited <a href="javascript:unfavorite('${document.getElementsByName('service')[0].content}', '${pathname[3]}');">(☆)</a>
           </li>
-          <br>
         ` : `
           <li>
             <a href="javascript:favorite('${document.getElementsByName('service')[0].content}', '${pathname[3]}');">☆ Favorite</a>
           </li>
-          <br>
         `}
       `;
     });

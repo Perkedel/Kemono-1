@@ -8,7 +8,6 @@ const favorites = () => shell(`
       <table class="search-results" width="100%">
         <thead>
           <tr>
-            <th width="50px">Icon</th>
             <th>Name</th>
             <th>Service</th>
           </tr>
@@ -16,9 +15,7 @@ const favorites = () => shell(`
         <tbody id="favorites-list">
           <noscript>
             <tr>
-              <td></td>
               <td class="subtitle">This feature requires Javascript.</td>
-              <td></td>
               <td></td>
             </tr>
           </noscript>
@@ -27,7 +24,6 @@ const favorites = () => shell(`
     </div>
   </div>
   <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
-  <script src="/js/artists.js"></script>
   <script src="/js/favorites.js"></script>
 `);
 

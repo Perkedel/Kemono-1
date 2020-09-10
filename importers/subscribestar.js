@@ -56,64 +56,66 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     }
   });
 
-  Promise.map(data.posts, async (post) => {
-    const banExists = await db('dnp').where({ id: post.user, service: 'subscribestar' });
-    if (banExists.length) return;
+  await db.transaction(trx => {
+    return Promise.map(data.posts, async (post) => {
+      const banExists = await trx('dnp').where({ id: post.user, service: 'subscribestar' });
+      if (banExists.length) return;
 
-    await checkForFlags({
-      service: 'subscribestar',
-      entity: 'user',
-      entityId: post.user,
-      id: post.id
+      await checkForFlags({
+        service: 'subscribestar',
+        entity: 'user',
+        entityId: post.user,
+        id: post.id
+      });
+
+      await checkForRequests({
+        service: 'subscribestar',
+        userId: post.user,
+        id: post.id
+      });
+
+      const postExists = await trx('booru_posts').where({ id: post.id, service: 'subscribestar' });
+      if (postExists.length) return;
+
+      const model = {
+        id: post.id,
+        user: post.user,
+        service: 'subscribestar',
+        title: ellipsize(striptags(post.content), 60),
+        content: post.content,
+        embed: {},
+        shared_file: false,
+        added: new Date().toISOString(),
+        published: new Date(Date.parse(post.published_at)).toISOString(),
+        edited: null,
+        file: {},
+        attachments: []
+      };
+
+      if (model.title === 'Extend Subscription') return;
+      if ((/This post belongs to a locked/i).test(model.content)) return;
+      await Promise.mapSeries(post.attachments, async (attachment) => {
+        await downloadFile({
+          ddir: path.join(process.env.DB_ROOT, `/attachments/subscribestar/${post.user}/${post.id}`)
+        }, {
+          url: attachment.url
+        })
+          .then(res => {
+            if (!Object.keys(model.file).length) {
+              model.file.name = res.filename;
+              model.file.path = `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`;
+            } else {
+              model.attachments.push({
+                id: String(attachment.id),
+                name: res.filename,
+                path: `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`
+              });
+            }
+          });
+      });
+
+      await trx('booru_posts').insert(model);
     });
-
-    await checkForRequests({
-      service: 'subscribestar',
-      userId: post.user,
-      id: post.id
-    });
-
-    const postExists = await db('booru_posts').where({ id: post.id, service: 'subscribestar' });
-    if (postExists.length) return;
-
-    const model = {
-      id: post.id,
-      user: post.user,
-      service: 'subscribestar',
-      title: ellipsize(striptags(post.content), 60),
-      content: post.content,
-      embed: {},
-      shared_file: false,
-      added: new Date().toISOString(),
-      published: new Date(Date.parse(post.published_at)).toISOString(),
-      edited: null,
-      file: {},
-      attachments: []
-    };
-
-    if (model.title === 'Extend Subscription') return;
-    if ((/This post belongs to a locked/i).test(model.content)) return;
-    await Promise.mapSeries(post.attachments, async (attachment) => {
-      await downloadFile({
-        ddir: path.join(process.env.DB_ROOT, `/attachments/subscribestar/${post.user}/${post.id}`)
-      }, {
-        url: attachment.url
-      })
-        .then(res => {
-          if (!Object.keys(model.file).length) {
-            model.file.name = res.filename;
-            model.file.path = `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`;
-          } else {
-            model.attachments.push({
-              id: String(attachment.id),
-              name: res.filename,
-              path: `/attachments/subscribestar/${post.user}/${post.id}/${res.filename}`
-            });
-          }
-        });
-    });
-
-    await db('booru_posts').insert(model);
   });
 
   if (data.next_url) {

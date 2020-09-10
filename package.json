@@ -76,7 +76,9 @@
       "debounce",
       "confirm",
       "self",
-      "clients"
+      "clients",
+      "localStorage",
+      "location"
     ]
   }
 }

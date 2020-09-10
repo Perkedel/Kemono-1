@@ -4,8 +4,10 @@ require.config({
   }
 });
 
+/* eslint-disable no-unused-vars */
+
 function favorite (service, user) {
-  let favorites = localStorage.getItem('favorites') ? localStorage.getItem('favorites').split(',') : [];
+  const favorites = localStorage.getItem('favorites') ? localStorage.getItem('favorites').split(',') : [];
   if (favorites.includes(service + ':' + user)) return;
   favorites.push(service + ':' + user);
   localStorage.setItem('favorites', favorites.join(','));
@@ -14,10 +16,12 @@ function favorite (service, user) {
 
 function unfavorite (service, user) {
   let favorites = localStorage.getItem('favorites') ? localStorage.getItem('favorites').split(',') : [];
-  favorites = favorites.filter(i => i !== service + ':' + user)
+  favorites = favorites.filter(i => i !== service + ':' + user);
   localStorage.setItem('favorites', favorites.join(','));
   location.reload();
 }
+
+/* eslint-enable no-unused-vars */
 
 function loadQuery () {
   const query = document.getElementById('search-input').value;

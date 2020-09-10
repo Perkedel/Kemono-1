@@ -76,7 +76,7 @@ async function processChannel (id, server, key, before) {
     return Promise.mapSeries(messages, async (msg, i, len) => {
       if (i === len - 1) lastMessageId = msg.id;
       const attachmentsKey = `attachments/discord/${server}/${msg.channel_id}/${msg.id}`;
-      const existing = await db('discord_posts').where({ id: msg.id });
+      const existing = await trx('discord_posts').where({ id: msg.id });
       if (existing.length) return;
       const model = {
         id: msg.id,
@@ -107,7 +107,7 @@ async function processChannel (id, server, key, before) {
         });
       });
   
-      db('discord_posts').insert(model);
+      await trx('discord_posts').insert(model);
     });
   });
 

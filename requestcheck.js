@@ -17,7 +17,7 @@ module.exports = async (data) => {
       .where({ user: data.userId, service: data.service })
       .where({ status: 'open' });
     if (!requests.length) return;
-    if (requests[0].post_id && requests[0].post_id === data.id) return;
+    if (requests[0].post_id && requests[0].post_id !== data.id) return;
     await trx('requests')
       .where({ user: data.userId })
       .update({ status: 'fulfilled' });

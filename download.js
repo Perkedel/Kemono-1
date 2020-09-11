@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
-const Worker = require('tiny-worker');
+const { pool } = require('./worker');
 
 /**
  * Wrapper for Request that automatically handles integrity checking and automatic retries when downloading files.
@@ -41,46 +41,39 @@ module.exports = (opts, requestOpts = {}) => {
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
               }
 
-              const worker = new Worker(() => {
+              pool.exec((data) => {
+                process.on('disconnect', () => {
+                  process.exit(0);
+                });
+
                 const JPEG = require('jpeg-js');
                 const fs = require('fs-extra');
                 const mime = require('mime');
                 const path = require('path');
                 const PNG = require('png-js');
-                self.onmessage = e => {
-                  if (mime.getType(e.data.filename) === 'image/png') {
-                    PNG.load(path.join(e.data.ddir, e.data.tempname));
-                  } else if (mime.getType(e.data.filename) === 'image/jpeg') {
-                    JPEG.decode(fs.readFileSync(path.join(e.data.ddir, e.data.tempname)), {
-                      tolerantDecoding: false
-                    });
-                  }
-                  postMessage(); // eslint-disable-line no-undef
-                  process.exit();
-                };
-              });
 
-              worker.onmessage = () => {
-                worker.terminate();
-                fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
-                  .then(() => {
-                    resolve({
-                      filename: filename,
-                      res: res
-                    });
+                if (mime.getType(data.filename) === 'image/png') {
+                  PNG.load(path.join(data.ddir, data.tempname));
+                } else if (mime.getType(data.filename) === 'image/jpeg') {
+                  JPEG.decode(fs.readFileSync(path.join(data.ddir, data.tempname)), {
+                    tolerantDecoding: false
                   });
-              };
-
-              worker.onerror = () => {
-                worker.terminate();
-                reject(new Error('Decode failed'));
-              };
-
-              worker.postMessage({
+                }
+              }, [{
                 filename: filename,
                 tempname: tempname,
                 ddir: opts.ddir
-              });
+              }])
+                .then(() => {
+                  fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
+                    .then(() => {
+                      resolve({
+                        filename: filename,
+                        res: res
+                      });
+                    });
+                })
+                .catch(() => reject(new Error('Decode failed')));
             })
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));

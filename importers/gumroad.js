@@ -60,109 +60,107 @@ async function scraper (key, from = 1) {
       }
     }
   });
-  await db.transaction(trx => {
-    return Promise.map(data.products, async (product) => {
-      const userId = product.userId;
-      const banExists = await trx('dnp').where({ id: userId, service: 'gumroad' });
-      if (banExists.length) return;
-      await checkForFlags({
-        service: 'gumroad',
-        entity: 'user',
-        entityId: userId,
-        id: product.id
-      });
-      await checkForRequests({
-        service: 'gumroad',
-        userId: userId,
-        id: product.id
-      });
-      const postExists = await trx('booru_posts').where({ id: product.id, service: 'gumroad' });
-      if (postExists.length) return;
-  
-      const model = {
-        id: product.id,
-        user: userId,
-        service: 'gumroad',
-        title: product.title,
-        content: '',
-        embed: {},
-        shared_file: false,
-        added: new Date().toISOString(),
-        published: null,
-        edited: null,
-        file: {},
-        attachments: []
-      };
-  
-      const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
-      const productData = await scrapeIt.scrapeHTML(productPage, {
-        contentUrl: {
-          selector: '.button.button-primary.button-block',
-          attr: 'href'
-        }
-      });
-      const downloadPage = await cloudscraper.get(productData.contentUrl, scrapeOptions(key));
-      const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
-        thumbnail1: {
-          selector: '.image-preview-container img',
-          attr: 'src'
-        },
-        thumbnail2: {
-          selector: '.image-preview-container img',
-          attr: 'data-cfsrc'
-        },
-        thumbnail3: {
-          selector: '.image-preview-container noscript img',
-          attr: 'src'
-        },
-        data: {
-          selector: 'div[data-react-class="DownloadPage/FileList"]',
-          attr: 'data-react-props',
-          convert: x => {
-            try {
-              return JSON.parse(x);
-            } catch (err) {
-              return {
-                files: [],
-                download_info: {}
-              };
-            }
+  Promise.map(data.products, async (product) => {
+    const userId = product.userId;
+    const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
+    if (banExists.length) return;
+    await checkForFlags({
+      service: 'gumroad',
+      entity: 'user',
+      entityId: userId,
+      id: product.id
+    });
+    await checkForRequests({
+      service: 'gumroad',
+      userId: userId,
+      id: product.id
+    });
+    const postExists = await db('booru_posts').where({ id: product.id, service: 'gumroad' });
+    if (postExists.length) return;
+
+    const model = {
+      id: product.id,
+      user: userId,
+      service: 'gumroad',
+      title: product.title,
+      content: '',
+      embed: {},
+      shared_file: false,
+      added: new Date().toISOString(),
+      published: null,
+      edited: null,
+      file: {},
+      attachments: []
+    };
+
+    const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
+    const productData = await scrapeIt.scrapeHTML(productPage, {
+      contentUrl: {
+        selector: '.button.button-primary.button-block',
+        attr: 'href'
+      }
+    });
+    const downloadPage = await cloudscraper.get(productData.contentUrl, scrapeOptions(key));
+    const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
+      thumbnail1: {
+        selector: '.image-preview-container img',
+        attr: 'src'
+      },
+      thumbnail2: {
+        selector: '.image-preview-container img',
+        attr: 'data-cfsrc'
+      },
+      thumbnail3: {
+        selector: '.image-preview-container noscript img',
+        attr: 'src'
+      },
+      data: {
+        selector: 'div[data-react-class="DownloadPage/FileList"]',
+        attr: 'data-react-props',
+        convert: x => {
+          try {
+            return JSON.parse(x);
+          } catch (err) {
+            return {
+              files: [],
+              download_info: {}
+            };
           }
         }
-      });
-  
-      const thumbnail = downloadData.thumbnail1 || downloadData.thumbnail2 || downloadData.thumbnail3;
-      if (thumbnail) {
-        const urlBits = new URL(thumbnail).pathname.split('/');
-        const filename = urlBits[urlBits.length - 1].replace(/%20/g, '_');
-        await downloadFile({
-          ddir: path.join(process.env.DB_ROOT, `/files/gumroad/${userId}/${product.id}`),
-          name: filename
-        }, {
-          url: thumbnail
-        });
-        model.file.name = filename;
-        model.file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
       }
-  
-      await Promise.map(downloadData.data.files, async (file) => {
-        await downloadFile({
-          ddir: path.join(process.env.DB_ROOT, `/attachments/gumroad/${userId}/${product.id}`),
-          name: `${file.file_name}.${file.extension.toLowerCase()}`
-        }, Object.assign({
-          url: 'https://gumroad.com' + downloadData.data.download_info[file.id].download_url
-        }, scrapeOptions(key)))
-          .then(res => {
-            model.attachments.push({
-              name: res.filename,
-              path: `/attachments/gumroad/${userId}/${product.id}/${res.filename}`
-            });
-          });
-      });
-  
-      await trx('booru_posts').insert(model);
     });
-  })
+
+    const thumbnail = downloadData.thumbnail1 || downloadData.thumbnail2 || downloadData.thumbnail3;
+    if (thumbnail) {
+      const urlBits = new URL(thumbnail).pathname.split('/');
+      const filename = urlBits[urlBits.length - 1].replace(/%20/g, '_');
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, `/files/gumroad/${userId}/${product.id}`),
+        name: filename
+      }, {
+        url: thumbnail
+      });
+      model.file.name = filename;
+      model.file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
+    }
+
+    await Promise.map(downloadData.data.files, async (file) => {
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, `/attachments/gumroad/${userId}/${product.id}`),
+        name: `${file.file_name}.${file.extension.toLowerCase()}`
+      }, Object.assign({
+        url: 'https://gumroad.com' + downloadData.data.download_info[file.id].download_url
+      }, scrapeOptions(key)))
+        .then(res => {
+          model.attachments.push({
+            name: res.filename,
+            path: `/attachments/gumroad/${userId}/${product.id}/${res.filename}`
+          });
+        });
+    });
+
+    await db('booru_posts').insert(model);
+  });
 
   if (data.products.length) {
     scraper(key, from + gumroad.result_count);

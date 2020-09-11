@@ -36,65 +36,63 @@ async function scraper (users) {
     const yiff = await retry(() => cloudscraper.get(`https://yiff.party/${user}.json`, {
       json: true
     }));
-    await db.transaction(trx => {
-      return Promise.map(yiff.posts, async (post) => {
-        // intentionally doesn't support flags to prevent version downgrading and edit erasing
-        const banExists = await trx('booru_posts').where({ id: String(post.id), service: 'patreon' });
-        if (banExists.length) return;
-  
-        const postExists = await trx('booru_posts').where({ id: String(post.id), service: 'patreon' });
-        if (postExists.length) return;
-  
-        const model = {
-          id: String(post.id),
-          user: user,
-          service: 'patreon',
-          title: post.title || '',
-          content: await sanitizePostContent(post.body),
-          embed: {},
-          shared_file: false,
-          published: new Date(post.created * 1000).toISOString(),
-          edited: null,
-          file: {},
-          attachments: []
-        };
-  
-        if (Object.keys(post.embed || {}).length) {
-          model.embed.subject = post.embed.subject;
-          model.embed.description = post.embed.description;
-          model.embed.url = post.embed.url;
-        }
-  
-        if (Object.keys(post.post_file || {}).length) {
-          await downloadFile({
-            ddir: path.join(process.env.DB_ROOT, `files/${user}/${post.id}`),
-            name: post.post_file.file_name
-          }, {
-            url: post.post_file.file_url
-          })
-            .then(res => {
-              model.file.name = res.filename;
-              model.file.path = `/files/${user}/${post.id}/${res.filename}`;
+    await Promise.map(yiff.posts, async (post) => {
+      // intentionally doesn't support flags to prevent version downgrading and edit erasing
+      const banExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
+      if (banExists.length) return;
+
+      const postExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
+      if (postExists.length) return;
+
+      const model = {
+        id: String(post.id),
+        user: user,
+        service: 'patreon',
+        title: post.title || '',
+        content: await sanitizePostContent(post.body),
+        embed: {},
+        shared_file: false,
+        published: new Date(post.created * 1000).toISOString(),
+        edited: null,
+        file: {},
+        attachments: []
+      };
+
+      if (Object.keys(post.embed || {}).length) {
+        model.embed.subject = post.embed.subject;
+        model.embed.description = post.embed.description;
+        model.embed.url = post.embed.url;
+      }
+
+      if (Object.keys(post.post_file || {}).length) {
+        await downloadFile({
+          ddir: path.join(process.env.DB_ROOT, `files/${user}/${post.id}`),
+          name: post.post_file.file_name
+        }, {
+          url: post.post_file.file_url
+        })
+          .then(res => {
+            model.file.name = res.filename;
+            model.file.path = `/files/${user}/${post.id}/${res.filename}`;
+          });
+      }
+
+      await Promise.map(post.attachments, async (attachment) => {
+        await downloadFile({
+          ddir: path.join(process.env.DB_ROOT, `attachments/${user}/${post.id}`),
+          name: attachment.file_name
+        }, {
+          url: attachment.file_url
+        })
+          .then(res => {
+            model.attachments.push({
+              name: res.filename,
+              path: `/attachments/${user}/${post.id}/${res.filename}`
             });
-        }
-  
-        await Promise.map(post.attachments, async (attachment) => {
-          await downloadFile({
-            ddir: path.join(process.env.DB_ROOT, `attachments/${user}/${post.id}`),
-            name: attachment.file_name
-          }, {
-            url: attachment.file_url
-          })
-            .then(res => {
-              model.attachments.push({
-                name: res.filename,
-                path: `/attachments/${user}/${post.id}/${res.filename}`
-              });
-            });
-        });
-  
-        await trx('booru_posts').insert(model);
+          });
       });
+
+      await db('booru_posts').insert(model);
     });
   });
 

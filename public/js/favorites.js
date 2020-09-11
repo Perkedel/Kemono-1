@@ -8,9 +8,6 @@ favorites.forEach(favorite => {
       favoritesList.innerHTML += `
         <tr class="artist-row">
           <td>
-            <div class="user-icon" data-user="${user}" data-service="${service}"></div>
-          </td>
-          <td>
             <a href="/${service}/user/${user}">${cache.name}</a>
           </td>
           <td>

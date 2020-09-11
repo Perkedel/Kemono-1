@@ -32,23 +32,23 @@ async function scraper (importData, page = 1) {
     return Promise.map(dlsite.works, async (work) => {
       const banExists = await trx('dnp').where({ id: work.maker_id, service: 'dlsite' });
       if (banExists.length) return;
-
+  
       await checkForFlags({
         service: 'dlsite',
         entity: 'user',
         entityId: work.maker_id,
         id: work.workno
       });
-
+  
       await checkForRequests({
         service: 'dlsite',
         userId: work.maker_id,
         id: work.workno
       });
-
+  
       const postExists = await trx('booru_posts').where({ id: work.workno, service: 'dlsite' });
       if (postExists.length) return;
-
+  
       const model = {
         id: work.workno,
         user: work.maker_id,
@@ -63,13 +63,13 @@ async function scraper (importData, page = 1) {
         file: {},
         attachments: []
       };
-
+  
       const { data, response } = await scrapeIt(`https://www.dlsite.com/${importData.jp ? 'maniax' : 'ecchi-eng'}/work/=/product_id/${model.id}.html`, {
         drmTag: '.icon_PVA'
       });
-
+  
       if (response.statusCode === 200 && data.drmTag) return; // DRMed product; skip
-
+  
       if (Object.keys(work.work_files || {}).length) {
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, `/files/dlsite/${work.maker_id}/${work.workno}`)
@@ -81,7 +81,7 @@ async function scraper (importData, page = 1) {
             model.file.path = `/files/dlsite/${work.maker_id}/${work.workno}/${res.filename}`;
           });
       }
-
+  
       await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key)));
       const jar = request.jar(); // required for auth dance
       const res = await downloadFile({
@@ -90,12 +90,12 @@ async function scraper (importData, page = 1) {
         url: `https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
         jar: jar
       }, fileRequestOptions(key, importData.jp)));
-
+  
       model.attachments.push({
         name: res.filename,
         path: `/attachments/dlsite/${work.maker_id}/${work.workno}/${res.filename}`
       });
-
+  
       // handle split files
       if (res.filename.endsWith('.Untitled')) {
         const splitFileData = scrapeIt.scrapeHTML(await fs.readFile(path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`, res.filename), 'utf8'), {
@@ -108,7 +108,7 @@ async function scraper (importData, page = 1) {
             }
           }
         });
-
+  
         if (splitFileData.parts.length) {
           await Promise.map(splitFileData.parts, async (part) => {
             await downloadFile({
@@ -128,10 +128,10 @@ async function scraper (importData, page = 1) {
           model.attachments.splice(0, 1); // remove untitled file
         }
       }
-
+  
       await trx('booru_posts').insert(model);
     });
-  });
+  })
 
   if (dlsite.works.length) {
     scraper(importData, page + 1);

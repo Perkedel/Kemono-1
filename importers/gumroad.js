@@ -78,7 +78,7 @@ async function scraper (key, from = 1) {
       });
       const postExists = await trx('booru_posts').where({ id: product.id, service: 'gumroad' });
       if (postExists.length) return;
-
+  
       const model = {
         id: product.id,
         user: userId,
@@ -93,7 +93,7 @@ async function scraper (key, from = 1) {
         file: {},
         attachments: []
       };
-
+  
       const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
       const productData = await scrapeIt.scrapeHTML(productPage, {
         contentUrl: {
@@ -130,7 +130,7 @@ async function scraper (key, from = 1) {
           }
         }
       });
-
+  
       const thumbnail = downloadData.thumbnail1 || downloadData.thumbnail2 || downloadData.thumbnail3;
       if (thumbnail) {
         const urlBits = new URL(thumbnail).pathname.split('/');
@@ -144,7 +144,7 @@ async function scraper (key, from = 1) {
         model.file.name = filename;
         model.file.path = `/files/gumroad/${userId}/${product.id}/${filename}`;
       }
-
+  
       await Promise.map(downloadData.data.files, async (file) => {
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, `/attachments/gumroad/${userId}/${product.id}`),
@@ -159,10 +159,10 @@ async function scraper (key, from = 1) {
             });
           });
       });
-
+  
       await trx('booru_posts').insert(model);
     });
-  });
+  })
 
   if (data.products.length) {
     scraper(key, from + gumroad.result_count);

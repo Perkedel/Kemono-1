@@ -60,23 +60,23 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     return Promise.map(data.posts, async (post) => {
       const banExists = await trx('dnp').where({ id: post.user, service: 'subscribestar' });
       if (banExists.length) return;
-
+  
       await checkForFlags({
         service: 'subscribestar',
         entity: 'user',
         entityId: post.user,
         id: post.id
       });
-
+  
       await checkForRequests({
         service: 'subscribestar',
         userId: post.user,
         id: post.id
       });
-
+  
       const postExists = await trx('booru_posts').where({ id: post.id, service: 'subscribestar' });
       if (postExists.length) return;
-
+  
       const model = {
         id: post.id,
         user: post.user,
@@ -91,7 +91,7 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
         file: {},
         attachments: []
       };
-
+  
       if (model.title === 'Extend Subscription') return;
       if ((/This post belongs to a locked/i).test(model.content)) return;
       await Promise.mapSeries(post.attachments, async (attachment) => {
@@ -113,10 +113,10 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
             }
           });
       });
-
+  
       await trx('booru_posts').insert(model);
     });
-  });
+  })
 
   if (data.next_url) {
     scraper(key, data.next_url);

@@ -1,4 +1,4 @@
 const workerpool = require('workerpool');
 module.exports = {
-  pool: workerpool.pool({ maxWorkers: 4 })
+  pool: workerpool.pool()
 };

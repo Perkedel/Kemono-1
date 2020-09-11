@@ -32,96 +32,94 @@ const fileRequestOptions = (key) => {
 
 async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?limit=50') {
   const fanbox = await retry(() => request.get(url, requestOptions(key)));
-  await db.transaction(trx => {
-    return Promise.map(fanbox.body.items, async (post) => {
-      if (!post.body) return; // locked content; nothing to do
-      const banExists = await trx('dnp').where({ id: post.user.userId, service: 'fanbox' });
-      if (banExists.length) return;
+  Promise.map(fanbox.body.items, async (post) => {
+    if (!post.body) return; // locked content; nothing to do
+    const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
+    if (banExists.length) return;
 
-      await checkForFlags({
-        service: 'fanbox',
-        entity: 'user',
-        entityId: post.user.userId,
-        id: post.id
-      });
-
-      await checkForRequests({
-        service: 'fanbox',
-        userId: post.user.userId,
-        id: post.id
-      });
-
-      const postExists = await trx('booru_posts').where({ id: post.id, service: 'fanbox' });
-      if (postExists.length) return;
-
-      const model = {
-        id: post.id,
-        user: post.user.userId,
-        service: 'fanbox',
-        title: unraw(post.title),
-        content: nl2br(unraw(await parseBody(post.body, key, {
-          id: post.id,
-          user: post.user.userId
-        }), true)),
-        embed: {},
-        shared_file: false,
-        added: new Date().toISOString(),
-        published: post.publishedDatetime,
-        edited: null,
-        file: {},
-        attachments: []
-      };
-
-      const filesLocation = '/files/fanbox';
-      const attachmentsLocation = '/attachments/fanbox';
-      if (post.body.images) {
-        await Promise.mapSeries(post.body.images, async (image, index) => {
-          const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
-          const store = index === 0 && !model.file.name ? fn => {
-            model.file.name = `${image.id}.${image.extension}`;
-            model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
-          } : fn => {
-            model.attachments.push({
-              id: image.id,
-              name: `${image.id}.${image.extension}`,
-              path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${fn}`
-            });
-          };
-          await downloadFile({
-            ddir: path.join(process.env.DB_ROOT, `${location}/${post.user.userId}/${post.id}`),
-            name: `${image.id}.${image.extension}`
-          }, Object.assign({
-            url: unraw(image.originalUrl)
-          }, fileRequestOptions(key)))
-            .then(res => store(res.filename));
-        });
-      }
-
-      if (post.body.files) {
-        await Promise.mapSeries(post.body.files, async (file, index) => {
-          const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
-          const store = index === 0 && !model.file.name ? fn => {
-            model.file.name = `${file.name}.${file.extension}`;
-            model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
-          } : fn => {
-            model.attachments.push({
-              id: file.id,
-              name: `${file.name}.${file.extension}`,
-              path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${fn}`
-            });
-          };
-          await downloadFile({
-            ddir: path.join(process.env.DB_ROOT, `${location}/${post.user.userId}/${post.id}`),
-            name: `${file.name}.${file.extension}`
-          }, Object.assign({
-            url: unraw(file.url)
-          }, fileRequestOptions(key)))
-            .then(res => store(res.filename));
-        });
-      }
-
-      await trx('booru_posts').insert(model);
+    await checkForFlags({
+      service: 'fanbox',
+      entity: 'user',
+      entityId: post.user.userId,
+      id: post.id
     });
+
+    await checkForRequests({
+      service: 'fanbox',
+      userId: post.user.userId,
+      id: post.id
+    });
+
+    const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
+    if (postExists.length) return;
+
+    const model = {
+      id: post.id,
+      user: post.user.userId,
+      service: 'fanbox',
+      title: unraw(post.title),
+      content: nl2br(unraw(await parseBody(post.body, key, {
+        id: post.id,
+        user: post.user.userId
+      }), true)),
+      embed: {},
+      shared_file: false,
+      added: new Date().toISOString(),
+      published: post.publishedDatetime,
+      edited: null,
+      file: {},
+      attachments: []
+    };
+
+    const filesLocation = '/files/fanbox';
+    const attachmentsLocation = '/attachments/fanbox';
+    if (post.body.images) {
+      await Promise.mapSeries(post.body.images, async (image, index) => {
+        const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !model.file.name ? fn => {
+          model.file.name = `${image.id}.${image.extension}`;
+          model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
+        } : fn => {
+          model.attachments.push({
+            id: image.id,
+            name: `${image.id}.${image.extension}`,
+            path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${fn}`
+          });
+        };
+        await downloadFile({
+          ddir: path.join(process.env.DB_ROOT, `${location}/${post.user.userId}/${post.id}`),
+          name: `${image.id}.${image.extension}`
+        }, Object.assign({
+          url: unraw(image.originalUrl)
+        }, fileRequestOptions(key)))
+          .then(res => store(res.filename));
+      });
+    }
+
+    if (post.body.files) {
+      await Promise.mapSeries(post.body.files, async (file, index) => {
+        const location = index === 0 && !model.file.name ? filesLocation : attachmentsLocation;
+        const store = index === 0 && !model.file.name ? fn => {
+          model.file.name = `${file.name}.${file.extension}`;
+          model.file.path = `${location}/${post.user.userId}/${post.id}/${fn}`;
+        } : fn => {
+          model.attachments.push({
+            id: file.id,
+            name: `${file.name}.${file.extension}`,
+            path: `${attachmentsLocation}/${post.user.userId}/${post.id}/${fn}`
+          });
+        };
+        await downloadFile({
+          ddir: path.join(process.env.DB_ROOT, `${location}/${post.user.userId}/${post.id}`),
+          name: `${file.name}.${file.extension}`
+        }, Object.assign({
+          url: unraw(file.url)
+        }, fileRequestOptions(key)))
+          .then(res => store(res.filename));
+      });
+    }
+
+    await db('booru_posts').insert(model);
   });
 
   if (fanbox.body.nextUrl) {

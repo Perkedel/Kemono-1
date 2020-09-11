@@ -24,6 +24,7 @@ favorites.forEach(favorite => {
             })[service]}
           </td>
         </tr>
-      `;
-    });
-});
+      `
+    })
+  
+})

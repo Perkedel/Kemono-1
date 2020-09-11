@@ -50,129 +50,127 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       }
     });
   });
-  await db.transaction(trx => {
-    return Promise.map(patreon.body.data, async (post) => {
-      const attr = post.attributes;
-      const rel = post.relationships;
-      let fileKey = `files/${rel.user.data.id}/${post.id}`;
-      let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
+  Promise.mapSeries(patreon.body.data, async (post) => {
+    const attr = post.attributes;
+    const rel = post.relationships;
+    let fileKey = `files/${rel.user.data.id}/${post.id}`;
+    let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
 
-      const banExists = await trx('dnp').where({ id: rel.user.data.id, service: 'patreon' });
-      if (banExists.length) return;
+    const banExists = await db('dnp').where({ id: rel.user.data.id, service: 'patreon' });
+    if (banExists.length) return;
 
-      await checkForFlags({
-        service: 'patreon',
-        entity: 'user',
-        entityId: rel.user.data.id,
-        id: post.id
-      });
+    await checkForFlags({
+      service: 'patreon',
+      entity: 'user',
+      entityId: rel.user.data.id,
+      id: post.id
+    });
 
-      await checkForRequests({
-        service: 'patreon',
-        userId: rel.user.data.id,
-        id: post.id
-      });
+    await checkForRequests({
+      service: 'patreon',
+      userId: rel.user.data.id,
+      id: post.id
+    });
 
-      const existingPosts = await trx('booru_posts')
-        .where({ id: post.id, service: 'patreon' })
-        .orderBy('edited', 'asc');
-      if (existingPosts.length && !existingPosts[0].edited) {
-        return;
-      } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() >= new Date(attr.edited_at).getTime()) {
-        return;
-      } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() < new Date(attr.edited_at).getTime()) {
-        fileKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
-        attachmentsKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
-      }
+    const existingPosts = await db('booru_posts')
+      .where({ id: post.id, service: 'patreon' })
+      .orderBy('edited', 'asc');
+    if (existingPosts.length && !existingPosts[0].edited) {
+      return;
+    } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() >= new Date(attr.edited_at).getTime()) {
+      return;
+    } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() < new Date(attr.edited_at).getTime()) {
+      fileKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
+      attachmentsKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
+    }
 
-      const model = {
-        id: post.id,
-        user: rel.user.data.id,
-        service: 'patreon',
-        title: attr.title || '',
-        content: await sanitizePostContent(attr.content),
-        embed: {},
-        shared_file: false,
-        added: new Date().toISOString(),
-        published: attr.published_at,
-        edited: attr.edited_at,
-        file: {},
-        attachments: []
-      };
+    const model = {
+      id: post.id,
+      user: rel.user.data.id,
+      service: 'patreon',
+      title: attr.title || '',
+      content: await sanitizePostContent(attr.content),
+      embed: {},
+      shared_file: false,
+      added: new Date().toISOString(),
+      published: attr.published_at,
+      edited: attr.edited_at,
+      file: {},
+      attachments: []
+    };
 
-      if (attr.post_file) {
-        await downloadFile({
-          ddir: path.join(process.env.DB_ROOT, fileKey),
-          name: attr.post_file.name
-        }, {
-          url: attr.post_file.url
-        })
-          .then(res => {
-            model.file.name = attr.post_file.name;
-            model.file.path = `/${fileKey}/${res.filename}`;
-          });
-      }
-
-      if (attr.embed) {
-        model.embed.subject = attr.embed.subject;
-        model.embed.description = attr.embed.description;
-        model.embed.url = attr.embed.url;
-      }
-
-      await Promise.map(rel.attachments.data, async (attachment) => {
-        const res = await retry(() => {
-          return cloudscraper.get({
-            url: `https://www.patreon.com/file?h=${post.id}&i=${attachment.id}`,
-            followRedirect: false,
-            followAllRedirects: false,
-            resolveWithFullResponse: true,
-            simple: false,
-            headers: {
-              cookie: `session_id=${key}`
-            }
-          });
+    if (attr.post_file) {
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, fileKey),
+        name: attr.post_file.name
+      }, {
+        url: attr.post_file.url
+      })
+        .then(res => {
+          model.file.name = attr.post_file.name;
+          model.file.path = `/${fileKey}/${res.filename}`;
         });
-        await downloadFile({
-          ddir: path.join(process.env.DB_ROOT, attachmentsKey)
-        }, {
-          url: res.headers.location
-        })
-          .then(res => {
-            model.attachments.push({
-              id: attachment.id,
-              name: res.filename,
-              path: `/${attachmentsKey}/${res.filename}`
-            });
-          });
-      });
+    }
 
-      const postData = await retry(() => {
-        return cloudscraper.get(`https://www.patreon.com/api/posts/${post.id}?include=images.null,audio.null&json-api-use-default-includes=false&json-api-version=1.0`, {
+    if (attr.embed) {
+      model.embed.subject = attr.embed.subject;
+      model.embed.description = attr.embed.description;
+      model.embed.url = attr.embed.url;
+    }
+
+    await Promise.map(rel.attachments.data, async (attachment) => {
+      const res = await retry(() => {
+        return cloudscraper.get({
+          url: `https://www.patreon.com/file?h=${post.id}&i=${attachment.id}`,
+          followRedirect: false,
+          followAllRedirects: false,
           resolveWithFullResponse: true,
-          json: true,
+          simple: false,
           headers: {
             cookie: `session_id=${key}`
           }
         });
       });
-
-      await Promise.map(postData.body.included, async (includedFile) => {
-        await downloadFile({
-          ddir: path.join(process.env.DB_ROOT, attachmentsKey),
-          name: includedFile.attributes.file_name
-        }, {
-          url: includedFile.attributes.download_url
-        })
-          .then(res => {
-            model.attachments.push({
-              name: res.filename,
-              path: `/${attachmentsKey}/${res.filename}`
-            });
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, attachmentsKey)
+      }, {
+        url: res.headers.location
+      })
+        .then(res => {
+          model.attachments.push({
+            id: attachment.id,
+            name: res.filename,
+            path: `/${attachmentsKey}/${res.filename}`
           });
-      }).catch(() => {});
-
-      await trx('booru_posts').insert(model);
+        });
     });
+
+    const postData = await retry(() => {
+      return cloudscraper.get(`https://www.patreon.com/api/posts/${post.id}?include=images.null,audio.null&json-api-use-default-includes=false&json-api-version=1.0`, {
+        resolveWithFullResponse: true,
+        json: true,
+        headers: {
+          cookie: `session_id=${key}`
+        }
+      });
+    });
+
+    await Promise.map(postData.body.included, async (includedFile) => {
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, attachmentsKey),
+        name: includedFile.attributes.file_name
+      }, {
+        url: includedFile.attributes.download_url
+      })
+        .then(res => {
+          model.attachments.push({
+            name: res.filename,
+            path: `/${attachmentsKey}/${res.filename}`
+          });
+        });
+    }).catch(() => {});
+
+    await db('booru_posts').insert(model);
   });
 
   if (patreon.body.links.next) {

@@ -72,43 +72,41 @@ async function processChannel (id, server, key, before) {
     }
   });
   let lastMessageId = '';
-  await db.transaction(trx => {
-    return Promise.mapSeries(messages, async (msg, i, len) => {
-      if (i === len - 1) lastMessageId = msg.id;
-      const attachmentsKey = `attachments/discord/${server}/${msg.channel_id}/${msg.id}`;
-      const existing = await trx('discord_posts').where({ id: msg.id });
-      if (existing.length) return;
-      const model = {
-        id: msg.id,
-        author: msg.author,
-        server: server,
-        channel: id,
-        content: nl2br(msg.content),
-        published: msg.timestamp,
-        edited: msg.edited_timestamp,
-        embeds: [],
-        mentions: msg.mentions,
-        attachments: []
-      };
+  await Promise.mapSeries(messages, async (msg, i, len) => {
+    if (i === len - 1) lastMessageId = msg.id;
+    const attachmentsKey = `attachments/discord/${server}/${msg.channel_id}/${msg.id}`;
+    const existing = await db('discord_posts').where({ id: msg.id });
+    if (existing.length) return;
+    const model = {
+      id: msg.id,
+      author: msg.author,
+      server: server,
+      channel: id,
+      content: nl2br(msg.content),
+      published: msg.timestamp,
+      edited: msg.edited_timestamp,
+      embeds: [],
+      mentions: msg.mentions,
+      attachments: []
+    };
 
-      await Promise.map(msg.embeds, async (embed) => model.embeds.push(embed));
-      await Promise.map(msg.attachments, async (attachment) => {
-        await downloadFile({
-          ddir: path.join(process.env.DB_ROOT, attachmentsKey),
-          name: attachment.filename
-        }, {
-          url: attachment.url || attachment.proxy_url
-        });
-
-        model.attachments.push({
-          isImage: isImage(attachment.filename),
-          name: attachment.filename,
-          path: `/${attachmentsKey}/${attachment.filename}`
-        });
+    await Promise.map(msg.embeds, async (embed) => model.embeds.push(embed));
+    await Promise.map(msg.attachments, async (attachment) => {
+      await downloadFile({
+        ddir: path.join(process.env.DB_ROOT, attachmentsKey),
+        name: attachment.filename
+      }, {
+        url: attachment.url || attachment.proxy_url
       });
 
-      await trx('discord_posts').insert(model);
+      model.attachments.push({
+        isImage: isImage(attachment.filename),
+        name: attachment.filename,
+        path: `/${attachmentsKey}/${attachment.filename}`
+      });
     });
+
+    db('discord_posts').insert(model);
   });
 
   if (messages.length === 50) {

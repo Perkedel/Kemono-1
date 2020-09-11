@@ -12,6 +12,7 @@ const Promise = require('bluebird');
 const { Feed } = require('feed');
 const { artists, post, user, server, recent, upload, updated, favorites } = require('./views');
 const urljoin = require('url-join');
+const { pool } = require('./worker');
 
 const staticOpts = {
   dotfiles: 'allow',
@@ -45,20 +46,25 @@ module.exports = () => {
       ext = ext === 'jpg' ? 'jpeg' : ext;
       const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false;
       if (!fileSupported) return res.sendStatus(404);
-      res.setHeader('Cache-Control', 'max-age=31557600, public');
-      sharp(file, { failOnError: false })
-        .jpeg({
-          quality: 60,
-          chromaSubsampling: '4:2:0',
-          progressive: true
-        })
-        .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
-        .setMaxListeners(250)
-        .on('error', () => {
-          fs.createReadStream(file)
-            .pipe(res);
-        })
-        .pipe(res);
+      res.set('Cache-Control', 'max-age=31557600, public');
+      
+      const thumb = await pool.exec((data) => {
+        const sharp = require('sharp');
+        return sharp(data.file, { failOnError: false })
+          .jpeg({
+            quality: 60,
+            chromaSubsampling: '4:2:0',
+            progressive: true
+          })
+          .resize({ width: Number(data.size) && Number(data.size) <= 800 ? Number(data.size) : 800, withoutEnlargement: true })
+          .toBuffer()
+      }, [{
+        file: file,
+        size: req.query.size
+      }])
+
+      res.write(Buffer.from(Uint8Array.from(thumb.data).buffer))
+      res.end();
     })
     .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
     .get('/artists', async (req, res) => {

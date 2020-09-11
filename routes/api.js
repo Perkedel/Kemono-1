@@ -14,8 +14,9 @@ router
     res.json(userBans);
   })
   .get('/recent', async (req, res) => {
-    const recentPosts = await db('booru_posts')
+    const recentPosts = await db
       .select('*')
+      .from('booru_posts')
       .orderBy('added', 'desc')
       .offset(Number(req.query.skip) || 0)
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);

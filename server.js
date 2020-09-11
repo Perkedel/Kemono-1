@@ -4,13 +4,12 @@ const { db } = require('./db');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
-const Worker = require('tiny-worker');
 const express = require('express');
 const fs = require('fs-extra');
+const sharp = require('sharp');
 const path = require('path');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
-const sharp = require('sharp');
 const { artists, post, user, server, recent, upload, updated, favorites } = require('./views');
 const urljoin = require('url-join');
 
@@ -46,36 +45,20 @@ module.exports = () => {
       ext = ext === 'jpg' ? 'jpeg' : ext;
       const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false;
       if (!fileSupported) return res.sendStatus(404);
-      res.set('Cache-Control', 'max-age=31557600, public');
-      
-      const worker = new Worker(() => {
-        const sharp = require('sharp');
-        const fs = require('fs-extra');
-
-        self.onmessage = event => {
-          sharp(event.data.file, { failOnError: false })
-            .jpeg({
-              quality: 60,
-              chromaSubsampling: '4:2:0',
-              progressive: true
-            })
-            .resize({ width: Number(event.data.size) && Number(event.data.size) <= 800 ? Number(event.data.size) : 800, withoutEnlargement: true })
-            .on('error', () => {
-              fs.createReadStream(event.data.file)
-                .pipe(process.stdout);
-            })
-            .on('end', () => process.exit(0))
-            .pipe(process.stdout);
-        }
-      }, [], {
-        stdio: [0, 'pipe', 2, 'ipc']
-      })
-
-      worker.child.stdout.pipe(res);
-      worker.postMessage({
-        file: file,
-        size: req.query.size
-      });
+      res.setHeader('Cache-Control', 'max-age=31557600, public');
+      sharp(file, { failOnError: false })
+        .jpeg({
+          quality: 60,
+          chromaSubsampling: '4:2:0',
+          progressive: true
+        })
+        .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
+        .setMaxListeners(250)
+        .on('error', () => {
+          fs.createReadStream(file)
+            .pipe(res);
+        })
+        .pipe(res);
     })
     .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
     .get('/artists', async (req, res) => {

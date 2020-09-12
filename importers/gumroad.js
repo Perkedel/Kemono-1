@@ -29,7 +29,7 @@ const scrapeOptions = key => {
 
 async function scraper (key, from = 1) {
   const gumroad = await retry(() => cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key)));
-  if (gumroad.total > 500000) return; // not logged in
+  if (gumroad.total > 100000) return; // not logged in
   const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
       listItem: '.product-card',

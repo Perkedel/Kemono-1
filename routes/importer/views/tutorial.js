@@ -38,7 +38,7 @@ const tutorial = () => shell(`
         <ul>
           <li>For <em>Patreon,</em> your session key is under <code>session_key</code>.</li>
           <li>For <em>Fanbox,</em> your session key is under <code>FANBOXSESSID</code>.</li>
-          <li>For <em>Gumroad,</em> your session key is under <code>_gumroad_session</code>.</li>
+          <li>For <em>Gumroad,</em> your session key is under <code>_gumroad_app_session</code>.</li>
           <li>For <em>SubscribeStar,</em> your session key is under <code>auth_token</code>.</li>
           <li>For <em>DLsite,</em> your session key is under <code>__DLsite_SID</code>.</li>
         </ul>

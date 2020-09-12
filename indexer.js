@@ -1,7 +1,19 @@
 const Promise = require('bluebird');
 const request = require('request-promise');
+const retry = require('p-retry');
 const { unraw } = require('unraw');
-const cloudscraper = require('cloudscraper');
+// const cloudscraper = require('cloudscraper').defaults({
+//   agentOptions: {
+//     ciphers: [
+//       'TLS_AES_128_GCM_SHA256',
+//       'TLS_CHACHA20_POLY1305_SHA256',
+//       'TLS_AES_256_GCM_SHA384',
+//       'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+//     ].join(':')
+//   }
+// });
+const agentOptions = require('./agent');
+const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { db } = require('./db');
 async function indexer () {
   await db.transaction(async trx => {
@@ -17,7 +29,7 @@ async function indexer () {
       switch (post.service) {
         case 'patreon': {
           const api = 'https://www.patreon.com/api/user';
-          const user = await cloudscraper.get(`${api}/${post.user}`, { json: true });
+          const user = await retry(() => cloudscraper.get(`${api}/${post.user}`, { json: true }));
           await trx('lookup')
             .insert({
               id: post.user,

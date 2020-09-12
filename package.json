@@ -1,7 +1,7 @@
 {
   "private": true,
   "engines": {
-    "node": "~8.17"
+    "node": "~12.18"
   },
   "scripts": {
     "dev": "supervisor -i node_modules,public -n error bootstrap.js",

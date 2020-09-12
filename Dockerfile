@@ -1,4 +1,4 @@
-FROM node:8.17
+FROM node:12
 WORKDIR /app
 COPY . /app
 RUN apt-get update && apt-get install -y python3 git build-essential && yarn

@@ -1,4 +1,6 @@
-const cloudscraper = require('cloudscraper');
+const agentOptions = require('../agent');
+const cloudscraper = require('cloudscraper').defaults({ agentOptions });
+const retry = require('p-retry');
 const { db } = require('../db');
 const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
@@ -12,12 +14,12 @@ const checkForRequests = require('../requestcheck');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
-  const subscribestar = await cloudscraper.get(uri, {
+  const subscribestar = await retry(() => cloudscraper.get(uri, {
     json: true,
     headers: {
       cookie: `auth_token=${key}`
     }
-  });
+  }));
   const data = await scrapeIt.scrapeHTML(unraw(subscribestar.html), {
     posts: {
       listItem: '.post',

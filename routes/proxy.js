@@ -1,4 +1,6 @@
-const cloudscraper = require('cloudscraper');
+const agentOptions = require('../agent');
+const cloudscraper = require('cloudscraper').defaults({ agentOptions });
+const retry = require('p-retry');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const { db, cache } = require('../db');
@@ -25,7 +27,7 @@ router
     const api = 'https://www.patreon.com/api/user';
     const options = cloudscraper.defaultParams;
     options.json = true;
-    cloudscraper.get(`${api}/${req.params.id}`, options)
+    retry(() => cloudscraper.get(`${api}/${req.params.id}`, options))
       .then(user => {
         cache.set(req.originalUrl, user, 2629800, () => {});
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');

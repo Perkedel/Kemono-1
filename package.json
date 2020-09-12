@@ -1,7 +1,7 @@
 {
   "private": true,
   "engines": {
-    "node": "~8.17"
+    "node": "~12.18"
   },
   "scripts": {
     "dev": "supervisor -i node_modules,public -n error bootstrap.js",
@@ -57,7 +57,6 @@
     "unraw": "^1.2.5",
     "url-join": "^4.0.1",
     "web-push": "^3.4.4",
-    "workerpool": "^6.0.0",
     "xss": "^1.0.7"
   },
   "devDependencies": {

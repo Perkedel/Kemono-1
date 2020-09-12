@@ -1,4 +1,5 @@
-const cloudscraper = require('cloudscraper');
+const agentOptions = require('../agent');
+const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { db } = require('../db');
 const retry = require('p-retry');
 const path = require('path');

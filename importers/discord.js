@@ -1,6 +1,7 @@
 const { db } = require('../db');
 const Promise = require('bluebird');
-const cloudscraper = require('cloudscraper');
+const agentOptions = require('../agent');
+const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const nl2br = require('nl2br');
 const retry = require('p-retry');
 const isImage = require('is-image');

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { api, proxy, board, importer, help, requests } = require('./routes');
 const { db } = require('./db');
+const { Worker } = require('worker_threads');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
@@ -46,19 +47,15 @@ module.exports = () => {
       const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false;
       if (!fileSupported) return res.sendStatus(404);
       res.setHeader('Cache-Control', 'max-age=31557600, public');
-      sharp(file, { failOnError: false })
-        .jpeg({
-          quality: 60,
-          chromaSubsampling: '4:2:0',
-          progressive: true
-        })
-        .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
-        .setMaxListeners(250)
-        .on('error', () => {
-          fs.createReadStream(file)
-            .pipe(res);
-        })
-        .pipe(res);
+      const worker = new Worker('./thumbnail.js', {
+        stdout: true,
+        workerData: {
+          file: file,
+          size: req.query.size
+        }
+      })
+      worker.stdout.pipe(res);
+      worker.on('exit', () => res.end())
     })
     .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
     .get('/artists', async (req, res) => {

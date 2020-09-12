@@ -1,4 +1,6 @@
-const cloudscraper = require('cloudscraper');
+const agentOptions = require('../agent');
+const cloudscraper = require('cloudscraper').defaults({ agentOptions });
+const retry = require('p-retry');
 const { db } = require('../db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
@@ -13,21 +15,21 @@ const apiOptions = key => {
   return {
     json: true,
     headers: {
-      cookie: `_gumroad_session=${key}`
+      cookie: `_gumroad_app_session=${key}`
     }
   };
 };
 const scrapeOptions = key => {
   return {
     headers: {
-      cookie: `_gumroad_session=${key}`
+      cookie: `_gumroad_app_session=${key}`
     }
   };
 };
 
 async function scraper (key, from = 1) {
-  const gumroad = await cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key));
-  if (gumroad.total > 500000) return; // not logged in
+  const gumroad = await retry(() => cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key)));
+  if (gumroad.total > 100000) return; // not logged in
   const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
       listItem: '.product-card',
@@ -62,6 +64,7 @@ async function scraper (key, from = 1) {
   });
   Promise.map(data.products, async (product) => {
     const userId = product.userId;
+    console.log('user:'+userId)
     const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
     if (banExists.length) return;
     await checkForFlags({
@@ -93,14 +96,14 @@ async function scraper (key, from = 1) {
       attachments: []
     };
 
-    const productPage = await cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key));
+    const productPage = await retry(() => cloudscraper.get(`https://gumroad.com/library/purchases/${product.purchaseId}`, scrapeOptions(key)));
     const productData = await scrapeIt.scrapeHTML(productPage, {
       contentUrl: {
         selector: '.button.button-primary.button-block',
         attr: 'href'
       }
     });
-    const downloadPage = await cloudscraper.get(productData.contentUrl, scrapeOptions(key));
+    const downloadPage = await retry(() => cloudscraper.get(productData.contentUrl, scrapeOptions(key)));
     const downloadData = await scrapeIt.scrapeHTML(downloadPage, {
       thumbnail1: {
         selector: '.image-preview-container img',

@@ -49,7 +49,7 @@ function renderPost (post) {
   // if you couldn't tell, i'm very bad at regex
   const inline = post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
   inline.reverse();
-  const href = post.service === 'patreon' || !post.service ? `/user/${post.user}/post/${post.id}` : `/${post.service}/user/${post.user}/post/${post.id}`;
+  const href = `/${post.service}/user/${post.user}/post/${post.id}`;
   inline.forEach(function (url) {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(url) && (/\/inline\//i).test(url)) {
       parent = true;
@@ -73,10 +73,10 @@ function renderPost (post) {
     }
   });
   contentView.innerHTML += thumbHTML({
-    src: post.post_type === 'image_file' || post.post_type === 'image' ? post.post_file.path : undefined,
+    src: (/\.(gif|jpe?g|png|webp)$/i).test(post.file.path) ? post.file.path : undefined,
     title: post.title,
     content: post.content.replace(/(&nbsp;|<([^>]+)>)/ig, ''),
-    class: parent ? 'thumb-parent' : undefined,
+    class: post.shared_file ? 'thumb-shared' : (parent ? 'thumb-parent' : undefined),
     href: href
   });
 }

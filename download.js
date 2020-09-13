@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
-const { Worker } = require('worker_threads');
+const { pool } = require('./worker');
 
 /**
  * Wrapper for Request that automatically handles integrity checking and automatic retries when downloading files.
@@ -41,26 +41,39 @@ module.exports = (opts, requestOpts = {}) => {
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
               }
 
-              const worker = new Worker('./imagechk.js', {
-                workerData: {
-                  filename: filename,
-                  tempname: tempname,
-                  ddir: opts.ddir
-                }
-              })
-              worker.on('message', () => {
-                fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
-                  .then(() => {
-                    resolve({
-                      filename: filename,
-                      res: res
-                    });
+              pool.exec((data) => {
+                process.on('disconnect', () => {
+                  process.exit(0);
+                });
+
+                const JPEG = require('jpeg-js');
+                const fs = require('fs-extra');
+                const mime = require('mime');
+                const path = require('path');
+                const PNG = require('png-js');
+
+                if (mime.getType(data.filename) === 'image/png') {
+                  PNG.load(path.join(data.ddir, data.tempname));
+                } else if (mime.getType(data.filename) === 'image/jpeg') {
+                  JPEG.decode(fs.readFileSync(path.join(data.ddir, data.tempname)), {
+                    tolerantDecoding: false
                   });
-              });
-              worker.on('error', err => {
-                console.log(err);
-                reject(new Error('Decode failed'))
-              })
+                }
+              }, [{
+                filename: filename,
+                tempname: tempname,
+                ddir: opts.ddir
+              }])
+                .then(() => {
+                  fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
+                    .then(() => {
+                      resolve({
+                        filename: filename,
+                        res: res
+                      });
+                    });
+                })
+                .catch(() => reject(new Error('Decode failed')));
             })
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));

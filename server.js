@@ -9,7 +9,6 @@ const fs = require('fs-extra');
 const sharp = require('sharp');
 const path = require('path');
 const Promise = require('bluebird');
-const Piscina = require('piscina');
 const { Feed } = require('feed');
 const { artists, post, user, server, recent, upload, updated, favorites } = require('./views');
 const urljoin = require('url-join');
@@ -18,10 +17,6 @@ const staticOpts = {
   dotfiles: 'allow',
   setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600, no-cache')
 };
-
-const piscina = new Piscina({
-  filename: path.join(__dirname, 'thumbnail.js')
-});
 
 module.exports = () => {
   express()
@@ -51,12 +46,19 @@ module.exports = () => {
       const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false;
       if (!fileSupported) return res.sendStatus(404);
       res.setHeader('Cache-Control', 'max-age=31557600, public');
-      const data = await piscina.runTask({
-        file: file,
-        size: req.query.size
-      })
-      res.write(Buffer.from(data.buffer));
-      res.end();
+      sharp(file, { failOnError: false })
+        .jpeg({
+          quality: 60,
+          chromaSubsampling: '4:2:0',
+          progressive: true
+        })
+        .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
+        .setMaxListeners(250)
+        .on('error', () => {
+          fs.createReadStream(file)
+            .pipe(res);
+        })
+        .pipe(res);
     })
     .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
     .get('/artists', async (req, res) => {
@@ -67,7 +69,6 @@ module.exports = () => {
         .where('name', 'ILIKE', '%' + req.query.q + '%')
         .whereNot('service', 'discord-channel')
         .orderBy(({
-          _id: 'indexed',
           indexed: 'indexed',
           name: 'name',
           service: 'service'

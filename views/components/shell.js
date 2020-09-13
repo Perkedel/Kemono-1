@@ -17,6 +17,7 @@ const shell = (html, props = {}) => `
         <meta name="id" content="${props.posts[0].id}"/>
       ` : ''}
       <script data-ad-client="ca-pub-3130195103158832" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <meta name="juicyads-site-verification" content="6c69d0c8c8c62943922be0dca4f8fc7b">
     </head>
     <body>
       ${html}

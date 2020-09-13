@@ -16,6 +16,7 @@ const shell = (html, props = {}) => `
         <meta name="added" content="${props.posts[0].added}"/>
         <meta name="id" content="${props.posts[0].id}"/>
       ` : ''}
+      <script data-ad-client="ca-pub-3130195103158832" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
     </head>
     <body>
       ${html}

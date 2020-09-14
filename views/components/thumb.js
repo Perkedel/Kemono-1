@@ -2,7 +2,7 @@ const thumb = props => `
   <a href="${props.href}" class="thumb-link">
     ${props.src ? `
       <div class="thumb thumb-with-image ${props.class || 'thumb-standard'}">
-        <img src="https://images.weserv.nl/?url=https://kemono.party${props.src.replace('https://kemono.party', '')}&width=500">
+        <img src="https://images.weserv.nl/?url=https://kemono.party${props.src.replace('https://kemono.party', '')}&width=500&output=jpg">
       </div>
     ` : `
       <div class="thumb thumb-with-text ${props.class || 'thumb-standard'}">

@@ -84,9 +84,9 @@ router
   })))
   .post('/new', createRequestLimiter, upload.single('image'), async (req, res) => {
     if (!req.body.user_id) return res.status(400).send(`You didn't enter a user ID.`);
-    await request.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage?chat_id=-1001273389670&parse_mode=markdown&text=${encodeURIComponent(`
-*New request*
-_${req.body.title}_ ($${req.body.price})
+    await request.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage?chat_id=-1001273389670&parse_mode=HTML&text=${encodeURIComponent(`
+<b>New request</b>
+<i>${req.body.title}</i> ($${req.body.price})
 ${req.body.description || ''}
 [Link to requested user/post.](${({
   patreon: req.body.specific_id ? `https://www.patreon.com/posts/${req.body.specific_id}` : `https://www.patreon.com/user?u=${req.body.user_id}`,

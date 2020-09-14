@@ -1,6 +1,6 @@
 const Promise = require('bluebird');
 const webpush = require('web-push');
-const { db } = require('./db');
+const { db } = require('../db');
 const path = require('path');
 /**
  * Checks for reimport flags and purges the database entries and files if found.

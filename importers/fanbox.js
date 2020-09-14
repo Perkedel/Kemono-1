@@ -5,8 +5,8 @@ const path = require('path');
 const indexer = require('../indexer');
 const { unraw } = require('unraw');
 const nl2br = require('nl2br');
-const checkForRequests = require('../requestcheck');
-const checkForFlags = require('../flagcheck');
+const checkForRequests = require('../checks/requests');
+const checkForFlags = require('../checks/flags');
 const downloadFile = require('../download');
 const Promise = require('bluebird');
 

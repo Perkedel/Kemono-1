@@ -367,6 +367,7 @@ thead th {
   float: left;
   margin-top: 3px;
   margin-right: 20px;
+  max-width: 150px;
 }
 
 .bbs-quote {

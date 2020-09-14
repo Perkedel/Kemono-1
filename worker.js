@@ -1,4 +1,6 @@
 const workerpool = require('workerpool');
 module.exports = {
-  pool: workerpool.pool({ maxWorkers: 10 })
+  pool: workerpool.pool({
+    workerType: 'thread'
+  })
 };

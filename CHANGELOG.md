@@ -9,6 +9,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   - Yiff.party support
   - DLsite support
   - Shared Files
+  - Requests
   - RSS feeds
   - "Artists" tab
   - Board functionality

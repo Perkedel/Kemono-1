@@ -161,7 +161,7 @@ router
     });
     res.end();
   })
-  .get('/:service?/:entity/:id', async (req, res) => {
+  .get('/:service/:entity/:id', async (req, res) => {
     const userPosts = await db('booru_posts')
       .where({ user: req.params.id, service: req.params.service })
       .orderBy('published', 'desc')

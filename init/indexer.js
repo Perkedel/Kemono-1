@@ -12,9 +12,9 @@ const { unraw } = require('unraw');
 //     ].join(':')
 //   }
 // });
-const agentOptions = require('./agent');
+const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
-const { db } = require('./db');
+const { db } = require('../utils/db');
 async function indexer () {
   await db.transaction(async trx => {
     const postsData = await trx('booru_posts')

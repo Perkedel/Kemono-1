@@ -1,17 +1,17 @@
 require('dotenv').config();
-const { api, proxy, board, importer, help, requests } = require('./routes');
+const { api, proxy, board, importer, help, requests } = require('../routes');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
 const express = require('express');
 const fs = require('fs-extra');
 const sharp = require('sharp');
-const { db } = require('./db');
+const { db } = require('../utils/db');
 const path = require('path');
 const { default: PQueue } = require('p-queue');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
-const { artists, post, user, server, recent, upload, updated, favorites } = require('./views');
+const { artists, post, user, server, recent, upload, updated, favorites } = require('../views');
 const urljoin = require('url-join');
 const { queue } = require('sharp');
 

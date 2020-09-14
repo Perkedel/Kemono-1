@@ -1,12 +1,12 @@
-const agentOptions = require('../agent');
+const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
-const { db } = require('../db');
+const { db } = require('../utils/db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
-const downloadFile = require('../download');
+const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
-const indexer = require('../indexer');
+const indexer = require('../init/indexer');
 
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images

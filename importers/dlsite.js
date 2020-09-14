@@ -1,4 +1,4 @@
-const { db } = require('../db');
+const { db } = require('../utils/db');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
@@ -6,9 +6,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const checkForRequests = require('../checks/requests');
 const checkForFlags = require('../checks/flags');
-const downloadFile = require('../download');
+const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
-const indexer = require('../indexer');
+const indexer = require('../init/indexer');
 
 const requestOptions = (key, jp) => {
   return {

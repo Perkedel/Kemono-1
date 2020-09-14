@@ -1,4 +1,4 @@
-const { db } = require('../db');
+const { db } = require('../utils/db');
 const upload = require('./upload');
 const fs = require('fs-extra');
 const path = require('path');

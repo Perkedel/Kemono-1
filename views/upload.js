@@ -108,7 +108,7 @@ const upload = props => shell(`
             type="file"
             name="file"
           />
-          <small class="subtitle" style="margin-left: 5px;">100MB size limit per file</small>
+          <small class="subtitle" style="margin-left: 5px;">2GB size limit per file</small>
         </div>
         ${process.env.MASTER_KEY ? `
           <div>

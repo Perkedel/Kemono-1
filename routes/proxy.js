@@ -1,9 +1,9 @@
-const agentOptions = require('../agent');
+const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
-const { db, cache } = require('../db');
+const { db, cache } = require('../utils/db');
 const getUrls = require('get-urls');
 
 const express = require('express');

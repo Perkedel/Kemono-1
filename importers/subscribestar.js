@@ -1,17 +1,17 @@
-const agentOptions = require('../agent');
+const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
-const { db } = require('../db');
+const { db } = require('../utils/db');
 const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
 const path = require('path');
-const indexer = require('../indexer');
+const indexer = require('../init/indexer');
 const ellipsize = require('ellipsize');
 const { unraw } = require('unraw');
-const checkForFlags = require('../flagcheck');
-const checkForRequests = require('../requestcheck');
-const downloadFile = require('../download');
+const checkForFlags = require('../checks/flags');
+const checkForRequests = require('../checks/requests');
+const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
   const subscribestar = await retry(() => cloudscraper.get(uri, {

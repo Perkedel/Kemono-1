@@ -1,15 +1,15 @@
-const agentOptions = require('../agent');
+const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
-const { db } = require('../db');
+const { db } = require('../utils/db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
-const checkForRequests = require('../requestcheck');
-const checkForFlags = require('../flagcheck');
-const downloadFile = require('../download');
+const checkForRequests = require('../checks/requests');
+const checkForFlags = require('../checks/flags');
+const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 const { URL } = require('url');
-const indexer = require('../indexer');
+const indexer = require('../init/indexer');
 
 const apiOptions = key => {
   return {

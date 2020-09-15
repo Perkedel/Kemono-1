@@ -22,13 +22,13 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 
 ## Running
 ### Quick Start
-- Install [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) if you don't have them installed already.
-- `git clone https://github.com/OpenYiff/Kemono && cd Kemono`
-- `docker-compose build`
-- `docker-compose up -d`
-- Kemono should now be running on port [8000](http://localhost:8000).
-
-For production, you should probably configure `.env`.
+```sh
+# make sure you have docker/compose installed
+git clone https://github.com/OpenYiff/Kemono && cd Kemono
+docker-compose build
+docker-compose up -d
+```
+Kemono should now be running on port [8000](http://localhost:8000). For production, you should probably configure `.env`.
 ### Standalone
 - Ensure you have external dependencies installed, and databases running.
 - Install packages (`yarn`)
@@ -44,10 +44,6 @@ node migrate-to-2.0.js <mongo url>
 # If running standalone, you'll need to manually set Postgres environment variables.
 env PGHOST=127.0.0.1 PGUSER=someuser PGPASSWORD= PGDATABASE=someuser node migrate-to-2.0.js <mongo url>
 ```
-
-## FAQ
-#### My instance uses too much memory!/My instance is randomly crashing!
-Large instances may see memory issues due to the thumbnail generator. Either [set some swap space](https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-16-04) or disable the feature in your `.env` file.
 
 ---
 

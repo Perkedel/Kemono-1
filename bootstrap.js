@@ -1,10 +1,10 @@
 require('dotenv').config();
-const webpush = require('./push');
-const { db } = require('./db');
+const webpush = require('./utils/push');
+const { db } = require('./utils/db');
 const fs = require('fs-extra');
 const path = require('path');
-const indexer = require('./indexer');
-const server = require('./server');
+const indexer = require('./init/indexer');
+const server = require('./init/server');
 
 const logfmt = str => str.trim();
 (async () => {

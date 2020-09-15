@@ -1,17 +1,17 @@
 
-const agentOptions = require('../agent');
+const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
-const { db } = require('../db');
+const { db } = require('../utils/db');
 const retry = require('p-retry');
 const crypto = require('crypto');
 const mime = require('mime');
 const path = require('path');
-const checkForFlags = require('../flagcheck');
-const checkForRequests = require('../requestcheck');
-const downloadFile = require('../download');
+const checkForFlags = require('../checks/flags');
+const checkForRequests = require('../checks/requests');
+const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 const { URL } = require('url');
-const indexer = require('../indexer');
+const indexer = require('../init/indexer');
 const isImage = require('is-image');
 const getUrls = require('get-urls');
 

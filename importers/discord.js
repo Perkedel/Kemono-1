@@ -1,12 +1,12 @@
-const { db } = require('../db');
+const { db } = require('../utils/db');
 const Promise = require('bluebird');
-const agentOptions = require('../agent');
+const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const nl2br = require('nl2br');
 const retry = require('p-retry');
 const isImage = require('is-image');
 const path = require('path');
-const downloadFile = require('../download');
+const downloadFile = require('../utils/download');
 const random = (min, max) => Math.floor(Math.random() * (max - min) + min);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const cloudscraperWithRateLimits = (url, opts) => {

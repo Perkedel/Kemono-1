@@ -14,7 +14,7 @@ const upload = multer({
   storage: multer.diskStorage({
     destination: (req, _, cb) => {
       if (!req.body.user || !req.body.service) cb(new Error('Bad form data'), false);
-      req.id = crypto.randomBytes(5).toString('hex');
+      req.id = req.id || crypto.randomBytes(5).toString('hex');
       const dir = path.join(process.env.DB_ROOT, 'files', req.body.service === 'patreon' ? '' : req.body.service, req.body.user, req.id);
       fs.ensureDir(dir)
         .then(() => cb(null, dir));
@@ -22,7 +22,7 @@ const upload = multer({
     filename: (_, file, cb) => cb(null, slugify(file.originalname, { lowercase: false }))
   }),
   limits: {
-    files: 1,
+    files: 5,
     fileSize: 2000000000 // 2GB
   }
 });
@@ -40,10 +40,10 @@ router
     encrypted += cipher.final('hex');
     res.send(encrypted);
   })
-  .post('/', upload.single('file'), async (req, res) => {
+  .post('/', upload.array('file'), async (req, res) => {
     if (!req.body.title || req.body.content.length > 50) return res.sendStatus(400);
     if (req.body.content && req.body.content.length > 5000) return res.sendStatus(400);
-    if (!req.file) return res.sendStatus(400);
+    if (!req.files.length) return res.sendStatus(400);
     if (process.env.MASTER_KEY && !req.body.token) return res.sendStatus(401);
     if (process.env.MASTER_KEY) {
       try {
@@ -77,10 +77,13 @@ router
       published: new Date().toISOString(),
       edited: null,
       file: {
-        name: req.file.originalname,
-        path: path.join('/files', req.body.service === 'patreon' ? '' : req.body.service, req.body.user, req.id, req.file.filename)
+        name: req.files[0].originalname,
+        path: path.join('/files', req.body.service === 'patreon' ? '' : req.body.service, req.body.user, req.id, req.files[0].filename)
       },
-      attachments: []
+      attachments: req.files.slice(1).map(file => ({
+        name: file.originalname,
+        path: path.join('/files', req.body.service === 'patreon' ? '' : req.body.service, req.body.user, req.id, file.filename)
+      }))
     });
 
     res.redirect(path.join('/', req.body.service === 'patreon' ? '' : req.body.service, 'user', req.body.user));

@@ -181,13 +181,7 @@ module.exports = () => {
         if (Object.keys(post.file).length !== 0 && (/\.(gif|jpe?g|png|webp)$/i).test(post.file.path)) {
           item.image = post.file.path;
         }
-        feed.addItem({
-          title: post.title,
-          id: urljoin(process.env.PUBLIC_ORIGIN, req.params.service, 'user', req.params.id, 'post', post.id),
-          link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service, 'user', req.params.id, 'post', post.id),
-          description: post.content,
-          date: new Date(post.added)
-        });
+        feed.addItem(item);
       });
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .send(feed.rss2());

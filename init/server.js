@@ -8,14 +8,11 @@ const fs = require('fs-extra');
 const sharp = require('sharp');
 const { db } = require('../utils/db');
 const path = require('path');
-const { default: PQueue } = require('p-queue');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
 const { artists, post, user, server, recent, upload, updated, favorites } = require('../views');
 const urljoin = require('url-join');
-const { queue } = require('sharp');
 
-const thumbnailQueue = new PQueue({ concurrency: 1 });
 const staticOpts = {
   dotfiles: 'allow',
   setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600, no-cache')
@@ -39,42 +36,29 @@ module.exports = () => {
     .use('/requests', requests)
     .use('/importer', importer)
     .get('/thumbnail/*', async (req, res) => {
-      // check if this file exists
-      const file = path.join(process.env.DB_ROOT, req.params[0]);
+      const file = `${process.env.DB_ROOT}/${req.params[0]}`;
       const fileExists = await fs.pathExists(file);
       if (!fileExists) return res.sendStatus(404);
-      if (process.env.DISABLE_THUMBNAILS === 'true') return res.redirect(path.join('/', file));
-
-      // check if this file can be thumbnailed
+      if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
       const type = imageType(await readChunk(file, 0, imageType.minimumBytes));
       let ext = type ? type.ext : '';
       ext = ext === 'jpg' ? 'jpeg' : ext;
       const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false;
       if (!fileSupported) return res.sendStatus(404);
-
-      // check if there's already a thumbnail on disk
-      const thumbnail = path.join(process.env.DB_ROOT, 'thumbnails', req.query.size || 'default', req.params[0]);
-      const thumbnailExists = await fs.pathExists(thumbnail);
-      if (thumbnailExists) {
-        // send thumbnail
-        res.set('Cache-Control', 'max-age=31557600, public');
-        res.sendFile(thumbnail);
-      } else {
-        // redirect to original file and create thumbnail in background
-        res.redirect(path.join('/', req.params[0]));
-        thumbnailQueue.add(() => {
-          return fs.ensureFile(thumbnail)
-            .then(() => sharp(file, { failOnError: false })
-              .jpeg({
-                quality: 60,
-                chromaSubsampling: '4:2:0',
-                progressive: true
-              })
-              .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
-              .toFile(thumbnail)
-            );
+      res.setHeader('Cache-Control', 'max-age=31557600, public');
+      sharp(file, { failOnError: false })
+        .jpeg({
+          quality: 60,
+          chromaSubsampling: '4:2:0',
+          progressive: true
         })
-      }
+        .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
+        .setMaxListeners(250)
+        .on('error', () => {
+          fs.createReadStream(file)
+            .pipe(res);
+        })
+        .pipe(res);
     })
     .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
     .get('/artists', async (req, res) => {

@@ -107,3 +107,11 @@ CREATE TABLE IF NOT EXISTS request_subscriptions (
   "keys" jsonb NOT NULL
 );
 CREATE INDEX IF NOT EXISTS request_id_idx ON request_subscriptions USING btree ("request_id");
+
+-- Logs
+CREATE TABLE IF NOT EXISTS logs (
+  "log0" text NOT NULL,
+  "log" text[] NOT NULL,
+  "created" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS log0_idx ON logs USING btree ("log0");

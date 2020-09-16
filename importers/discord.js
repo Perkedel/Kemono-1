@@ -107,7 +107,7 @@ async function processChannel (id, server, key, before) {
       });
     });
 
-    db('discord_posts').insert(model);
+    await db('discord_posts').insert(model);
   });
 
   if (messages.length === 50) {

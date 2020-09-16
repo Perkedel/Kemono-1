@@ -179,7 +179,7 @@ module.exports = () => {
           date: new Date(post.added)
         };
         if (Object.keys(post.file).length !== 0 && (/\.(gif|jpe?g|png|webp)$/i).test(post.file.path)) {
-          item.image = post.file.path;
+          item.image = urljoin(process.env.PUBLIC_ORIGIN, post.file.path);
         }
         feed.addItem(item);
       });

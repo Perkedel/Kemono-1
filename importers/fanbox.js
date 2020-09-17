@@ -1,5 +1,7 @@
 const { db } = require('../utils/db');
 const request = require('request-promise');
+const { to: pWrapper } = require('await-to-js');
+const debug = require('../utils/debug');
 const retry = require('p-retry');
 const path = require('path');
 const indexer = require('../init/indexer');
@@ -30,12 +32,22 @@ const fileRequestOptions = (key) => {
   };
 };
 
-async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?limit=50') {
-  const fanbox = await retry(() => request.get(url, requestOptions(key)));
-  Promise.map(fanbox.body.items, async (post) => {
-    if (!post.body) return; // locked content; nothing to do
+async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupporting?limit=50') {
+  const log = debug('kemono:importer:fanbox:' + id);
+
+  const [err1, fanbox] = await pWrapper(retry(() => request.get(url, requestOptions(key))));
+
+  if (err1 && err1.statusCode === 401) {
+    return log(`Error: Invalid session key`)
+  } else if (err1 && err1.statusCode) {
+    return log(`Error: Status code ${err1.statusCode} when contacting Pixiv Fanbox API.`)
+  } else if (err1) {
+    return log(err1);
+  }
+  await Promise.map(fanbox.body.items, async (post) => {
+    if (!post.body) return log(`Skipping ID ${post.id}: Locked`);; // locked content; nothing to do
     const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
-    if (banExists.length) return;
+    if (banExists.length) return log(`Skipping ID ${post.id}: user ${post.user.userId} is banned`);
 
     await checkForFlags({
       service: 'fanbox',
@@ -52,6 +64,8 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
 
     const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
     if (postExists.length) return;
+
+    log(`Importing ID ${post.id}`)
 
     const model = {
       id: post.id,
@@ -119,12 +133,14 @@ async function scraper (key, url = 'https://api.fanbox.cc/post.listSupporting?li
       });
     }
 
+    log(`Finished importing ID ${post.id}`)
     await db('booru_posts').insert(model);
   });
 
   if (fanbox.body.nextUrl) {
-    scraper(key, fanbox.body.nextUrl);
+    scraper(id, key, fanbox.body.nextUrl);
   } else {
+    log('Finished processing posts.')
     indexer();
   }
 }
@@ -228,4 +244,7 @@ async function parseBody (body, key, opts) {
   return `${bodyText}<br>${concatenatedText}`;
 }
 
-module.exports = key => scraper(key);
+module.exports = data => {
+  debug('kemono:importer:fanbox:' + data.id)('Starting Pixiv Fanbox import...')
+  scraper(data.id, data.key);
+};

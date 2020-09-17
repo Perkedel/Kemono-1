@@ -4,6 +4,8 @@ const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
+const { to: pWrapper } = require('await-to-js');
+const debug = require('../utils/debug');
 const checkForRequests = require('../checks/requests');
 const checkForFlags = require('../checks/flags');
 const downloadFile = require('../utils/download');
@@ -25,12 +27,26 @@ const fileRequestOptions = (key, jp) => {
 };
 
 async function scraper (importData, page = 1) {
-  const auth = await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/authorize`, requestOptions(importData.key)));
+  const log = debug('kemono:importer:dlsite:' + importData.id);
+
+  const [err1, auth] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/authorize`, requestOptions(importData.key))));
+  if (err1 && err1.statusCode) {
+    return log(`Error: Status code ${err1.statusCode} when authenticating.`)
+  } else if (err1) {
+    return log(err1)
+  }
+
   const key = auth.sid;
-  const dlsite = await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key)));
-  Promise.map(dlsite.works, async (work) => {
+  const [err2, dlsite] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key))));
+  if (err2 && err2.statusCode) {
+    return log(`Error: Status code ${err2.statusCode} when contacting DLsite API.`)
+  } else if (err2) {
+    return log(err2)
+  }
+
+  await Promise.map(dlsite.works, async (work) => {
     const banExists = await db('dnp').where({ id: work.maker_id, service: 'dlsite' });
-    if (banExists.length) return;
+    if (banExists.length) return log(`Skipping ID ${work.workno}: user ${work.maker_id} is banned`);
 
     await checkForFlags({
       service: 'dlsite',
@@ -47,6 +63,8 @@ async function scraper (importData, page = 1) {
 
     const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
     if (postExists.length) return;
+
+    log(`Importing ID ${work.workno}`)
 
     const model = {
       id: work.workno,
@@ -81,7 +99,13 @@ async function scraper (importData, page = 1) {
         });
     }
 
-    await retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key)));
+    [err3, _] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key))));
+    if (err3 && err3.statusCode) {
+      return log(`Error: Status code ${err1.statusCode} when refreshing download token.`)
+    } else if (err3) {
+      return log(err3)
+    }
+
     const jar = request.jar(); // required for auth dance
     const res = await downloadFile({
       ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
@@ -97,6 +121,8 @@ async function scraper (importData, page = 1) {
 
     // handle split files
     if (res.filename.endsWith('.Untitled')) {
+      log(`ID ${work.workno}: HTML/unknown file downloaded.`)
+      log(`ID ${work.workno}: Scanning for multipart files...`)
       const splitFileData = scrapeIt.scrapeHTML(await fs.readFile(path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`, res.filename), 'utf8'), {
         parts: {
           listItem: '.work_download a',
@@ -109,6 +135,7 @@ async function scraper (importData, page = 1) {
       });
 
       if (splitFileData.parts.length) {
+        log(`ID ${work.workno}: ${splitFileData.parts.length} parts found.`)
         await Promise.map(splitFileData.parts, async (part) => {
           await downloadFile({
             ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
@@ -128,14 +155,19 @@ async function scraper (importData, page = 1) {
       }
     }
 
+    log(`Finished importing ${work.workno}.`)
     await db('booru_posts').insert(model);
   });
 
   if (dlsite.works.length) {
     scraper(importData, page + 1);
   } else {
+    log('Finished processing posts.')
     indexer();
   }
 }
 
-module.exports = data => scraper(data);
+module.exports = data => {
+  debug('kemono:importer:dlsite:' + data.id)('Starting DLsite import...')
+  scraper(data);
+}

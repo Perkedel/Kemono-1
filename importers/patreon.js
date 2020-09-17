@@ -1,6 +1,8 @@
 
 const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
+const { to: pWrapper } = require('await-to-js');
+const debug = require('../utils/debug');
 const { db } = require('../utils/db');
 const retry = require('p-retry');
 const crypto = require('crypto');
@@ -41,24 +43,32 @@ const sanitizePostContent = async (content) => {
   });
   return content;
 };
-async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-version=1.0') {
-  const patreon = await retry(() => {
+async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-version=1.0') {
+  const log = debug('kemono:importer:patreon:' + id);
+
+  const [err1, patreon] = await pWrapper(retry(() => {
     return cloudscraper.get(uri, {
-      resolveWithFullResponse: true,
       json: true,
       headers: {
         cookie: `session_id=${key}`
       }
     });
-  });
-  Promise.mapSeries(patreon.body.data, async (post) => {
+  }));
+
+  if (err1 && err1.statusCode) {
+    return log(`Error: Status code ${err1.statusCode} when contacting Patreon API.`)
+  } else if (err1) {
+    return log(err1)
+  }
+
+  await Promise.map(patreon.data, async (post) => {
     const attr = post.attributes;
     const rel = post.relationships;
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
 
     const banExists = await db('dnp').where({ id: rel.user.data.id, service: 'patreon' });
-    if (banExists.length) return;
+    if (banExists.length) return log(`Skipping ID ${post.id}: user ${rel.user.data.id} is banned`);
 
     await checkForFlags({
       service: 'patreon',
@@ -84,6 +94,8 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
       fileKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
       attachmentsKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
     }
+
+    log(`Importing ID ${post.id}`)
 
     const model = {
       id: post.id,
@@ -171,14 +183,20 @@ async function scraper (key, uri = 'https://api.patreon.com/stream?json-api-vers
         });
     }).catch(() => {});
 
+    log(`Finished importing ${post.id}`)
     await db('booru_posts').insert(model);
   });
 
-  if (patreon.body.links.next) {
-    scraper(key, 'https://' + patreon.body.links.next);
+  if (patreon.links.next) {
+    scraper(id, key, 'https://' + patreon.links.next);
   } else {
+    log('Finished processing posts.')
+    log('No posts imported? You either entered your session key incorrectly, or are not subscribed to any artists.')
     indexer();
   }
 }
 
-module.exports = data => scraper(data);
+module.exports = data => {
+  debug('kemono:importer:patreon:' + data.id)('Starting Patreon import...')
+  scraper(data.id, data.key);
+}

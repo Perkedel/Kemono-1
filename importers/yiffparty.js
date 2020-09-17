@@ -1,5 +1,7 @@
 const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
+const { to: pWrapper } = require('await-to-js');
+const debug = require('../utils/debug');
 const { db } = require('../utils/db');
 const retry = require('p-retry');
 const path = require('path');
@@ -31,19 +33,37 @@ const sanitizePostContent = async (content) => {
   return content;
 };
 
-async function scraper (users) {
+async function scraper (id, users) {
   const userArray = users.split(',');
-  await Promise.mapSeries(userArray, async (user) => {
-    const yiff = await retry(() => cloudscraper.get(`https://yiff.party/${user}.json`, {
+  const log = debug('kemono:importer:yiff:' + id);
+
+  await Promise.map(userArray, async (user) => {
+    const [err1, yiff] = await pWrapper(retry(() => cloudscraper.get(`https://yiff.party/${user}.json`, {
       json: true
+    }), {
+      onFailedAttempt: error => {
+        if (error.statusCode === 404) throw error;
+      }
     }));
+    if (err1 && err1.statusCode === 404) {
+      return log(`Error: User ID ${user} not found.`)
+    } else if (err1 && err1.statusCode) {
+      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party API.`)
+    } else if (err1) {
+      return log(err1);
+    }
+
+    log(`Importing user ${user}`)
+
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
-      const banExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
-      if (banExists.length) return;
+      const banExists = await db('dnp').where({ id: user, service: 'patreon' });
+      if (banExists.length) return log(`Skipping ID ${post.id}: user ${user} is banned`);
 
       const postExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
       if (postExists.length) return;
+
+      log(`Importing ID ${post.id}`)
 
       const model = {
         id: String(post.id),
@@ -93,11 +113,16 @@ async function scraper (users) {
           });
       });
 
+      log(`Finished importing ID ${post.id}`)
       await db('booru_posts').insert(model);
     });
   });
 
+  log('Finished processing posts.')
   indexer();
 }
 
-module.exports = users => scraper(users);
+module.exports = data => {
+  debug('kemono:importer:yiff:' + data.id)('Starting yiff.party import...')
+  scraper(data.id, data.users);
+}

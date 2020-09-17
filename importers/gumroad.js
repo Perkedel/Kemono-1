@@ -1,6 +1,8 @@
 const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
+const { to: pWrapper } = require('await-to-js');
+const debug = require('../utils/debug');
 const { db } = require('../utils/db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
@@ -27,9 +29,18 @@ const scrapeOptions = key => {
   };
 };
 
-async function scraper (key, from = 1) {
-  const gumroad = await retry(() => cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key)));
-  if (gumroad.total > 100000) return; // not logged in
+async function scraper (id, key, from = 1) {
+  const log = debug('kemono:importer:gumroad:' + id);
+
+  const [err1, gumroad] = await pWrapper(retry(() => cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key))));
+
+  if (err1 && err1.statusCode) {
+    return log(`Error: Status code ${err1.statusCode} when contacting Patreon API.`)
+  } else if (err1) {
+    return log(err1)
+  }
+  
+  if (gumroad.total > 100000) return log('Error: Can\'t log in; is your session key correct?'); // not logged in
   const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
       listItem: '.product-card',
@@ -62,11 +73,10 @@ async function scraper (key, from = 1) {
       }
     }
   });
-  Promise.map(data.products, async (product) => {
+  await Promise.map(data.products, async (product) => {
     const userId = product.userId;
-    console.log('user:'+userId)
     const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
-    if (banExists.length) return;
+    if (banExists.length) return log(`Skipping ID ${product.id}: user ${userId} is banned`);
     await checkForFlags({
       service: 'gumroad',
       entity: 'user',
@@ -80,6 +90,8 @@ async function scraper (key, from = 1) {
     });
     const postExists = await db('booru_posts').where({ id: product.id, service: 'gumroad' });
     if (postExists.length) return;
+
+    log(`Importing ID ${product.id}`)
 
     const model = {
       id: product.id,
@@ -162,14 +174,19 @@ async function scraper (key, from = 1) {
         });
     });
 
+    log(`Finished importing ${product.id}`)
     await db('booru_posts').insert(model);
   });
 
   if (data.products.length) {
-    scraper(key, from + gumroad.result_count);
+    scraper(id, key, from + gumroad.result_count);
   } else {
+    log('Finished processing posts.')
     indexer();
   }
 }
 
-module.exports = data => scraper(data);
+module.exports = data => {
+  debug('kemono:importer:gumroad:' + data.id)('Starting Gumroad import...')
+  scraper(data.id, data.key);
+}

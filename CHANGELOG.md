@@ -16,6 +16,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   - New and improved Fanbox importer; stable and (mostly) API complete
   - Missing content indicator for Patreon users
   - New unified downloader with integrity checking and failure resistance
+  - Importer failsafe; can now recover after crashes/restarts
 </details>
 <details>
   <summary>Patch</summary>

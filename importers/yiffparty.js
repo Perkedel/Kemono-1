@@ -2,7 +2,7 @@ const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { to: pWrapper } = require('await-to-js');
 const debug = require('../utils/debug');
-const { db } = require('../utils/db');
+const { db, failsafe } = require('../utils/db');
 const retry = require('p-retry');
 const path = require('path');
 const mime = require('mime');
@@ -119,10 +119,12 @@ async function scraper (id, users) {
   });
 
   log('Finished processing posts.')
+  failsafe.del(id);
   indexer();
 }
 
 module.exports = data => {
   debug('kemono:importer:yiff:' + data.id)('Starting yiff.party import...')
+  failsafe.set(data.id, { importer: 'yiffparty', data: data }, 1800, () => {})
   scraper(data.id, data.users);
 }

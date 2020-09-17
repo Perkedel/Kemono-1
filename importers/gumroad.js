@@ -3,7 +3,7 @@ const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
 const { to: pWrapper } = require('await-to-js');
 const debug = require('../utils/debug');
-const { db } = require('../utils/db');
+const { db, failsafe } = require('../utils/db');
 const scrapeIt = require('scrape-it');
 const path = require('path');
 const checkForRequests = require('../checks/requests');
@@ -182,11 +182,13 @@ async function scraper (id, key, from = 1) {
     scraper(id, key, from + gumroad.result_count);
   } else {
     log('Finished processing posts.')
+    failsafe.del(id);
     indexer();
   }
 }
 
 module.exports = data => {
   debug('kemono:importer:gumroad:' + data.id)('Starting Gumroad import...')
+  failsafe.set(data.id, { importer: 'gumroad', data: data }, 1800, () => {})
   scraper(data.id, data.key);
 }

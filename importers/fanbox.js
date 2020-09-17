@@ -1,4 +1,4 @@
-const { db } = require('../utils/db');
+const { db, failsafe } = require('../utils/db');
 const request = require('request-promise');
 const { to: pWrapper } = require('await-to-js');
 const debug = require('../utils/debug');
@@ -141,6 +141,7 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
     scraper(id, key, fanbox.body.nextUrl);
   } else {
     log('Finished processing posts.')
+    failsafe.del(id);
     indexer();
   }
 }
@@ -246,5 +247,6 @@ async function parseBody (body, key, opts) {
 
 module.exports = data => {
   debug('kemono:importer:fanbox:' + data.id)('Starting Pixiv Fanbox import...')
+  failsafe.set(data.id, { importer: 'fanbox', data: data }, 1800, () => {})
   scraper(data.id, data.key);
 };

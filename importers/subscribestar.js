@@ -3,7 +3,7 @@ const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
 const { to: pWrapper } = require('await-to-js');
 const debug = require('../utils/debug');
-const { db } = require('../utils/db');
+const { db, failsafe } = require('../utils/db');
 const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
@@ -137,11 +137,13 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
   } else {
     log('Finished processing posts.')
     log('No posts imported? You either entered your session key incorrectly, or are not subscribed to any artists.')
+    failsafe.del(id);
     indexer();
   }
 }
 
 module.exports = data => {
   debug('kemono:importer:subscribestar:' + data.id)('Starting SubscribeStar import...')
+  failsafe.set(data.id, { importer: 'subscribestar', data: data }, 1800, () => {})
   scraper(data.id, data.key);
 }

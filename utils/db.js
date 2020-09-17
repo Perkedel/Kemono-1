@@ -17,5 +17,10 @@ module.exports = {
   cache: new Redis({
     host: process.env.RDHOST || 'localhost',
     port: process.env.RDPORT || 6379
+  }),
+  failsafe: new Redis({
+    host: process.env.RDHOST || 'localhost',
+    port: process.env.RDPORT || 6379,
+    prefix: 'importers:'
   })
 };

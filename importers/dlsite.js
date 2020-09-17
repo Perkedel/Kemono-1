@@ -1,4 +1,4 @@
-const { db } = require('../utils/db');
+const { db, failsafe } = require('../utils/db');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
 const retry = require('p-retry');
@@ -163,11 +163,13 @@ async function scraper (importData, page = 1) {
     scraper(importData, page + 1);
   } else {
     log('Finished processing posts.')
+    failsafe.del(id);
     indexer();
   }
 }
 
 module.exports = data => {
   debug('kemono:importer:dlsite:' + data.id)('Starting DLsite import...')
+  failsafe.set(data.id, { importer: 'dlsite', data: data }, 1800, () => {})
   scraper(data);
 }

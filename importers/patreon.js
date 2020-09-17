@@ -3,7 +3,7 @@ const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { to: pWrapper } = require('await-to-js');
 const debug = require('../utils/debug');
-const { db } = require('../utils/db');
+const { db, failsafe } = require('../utils/db');
 const retry = require('p-retry');
 const crypto = require('crypto');
 const mime = require('mime');
@@ -192,11 +192,13 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
   } else {
     log('Finished processing posts.')
     log('No posts imported? You either entered your session key incorrectly, or are not subscribed to any artists.')
+    failsafe.del(id);
     indexer();
   }
 }
 
 module.exports = data => {
   debug('kemono:importer:patreon:' + data.id)('Starting Patreon import...')
+  failsafe.set(data.id, { importer: 'patreon', data: data }, 1800, () => {})
   scraper(data.id, data.key);
 }

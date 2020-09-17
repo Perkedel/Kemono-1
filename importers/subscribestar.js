@@ -1,7 +1,9 @@
 const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
-const { db } = require('../utils/db');
+const { to: pWrapper } = require('await-to-js');
+const debug = require('../utils/debug');
+const { db, failsafe } = require('../utils/db');
 const striptags = require('striptags');
 const scrapeIt = require('scrape-it');
 const entities = require('entities');
@@ -13,13 +15,22 @@ const checkForFlags = require('../checks/flags');
 const checkForRequests = require('../checks/requests');
 const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
-async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json') {
-  const subscribestar = await retry(() => cloudscraper.get(uri, {
+async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.json') {
+  const log = debug('kemono:importer:subscribestar:' + id);
+
+  const [err1, subscribestar] = await pWrapper(retry(() => cloudscraper.get(uri, {
     json: true,
     headers: {
       cookie: `auth_token=${key}`
     }
-  }));
+  })));
+
+  if (err1 && err1.statusCode) {
+    return log(`Error: Status code ${err1.statusCode} when contacting Patreon API.`)
+  } else if (err1) {
+    return log(err1)
+  }
+
   const data = await scrapeIt.scrapeHTML(unraw(subscribestar.html), {
     posts: {
       listItem: '.post',
@@ -58,9 +69,9 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
     }
   });
 
-  Promise.map(data.posts, async (post) => {
+  await Promise.map(data.posts, async (post) => {
     const banExists = await db('dnp').where({ id: post.user, service: 'subscribestar' });
-    if (banExists.length) return;
+    if (banExists.length) return log(`Skipping ID ${post.id}: user ${post.user} is banned`);
 
     await checkForFlags({
       service: 'subscribestar',
@@ -77,6 +88,8 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
 
     const postExists = await db('booru_posts').where({ id: post.id, service: 'subscribestar' });
     if (postExists.length) return;
+
+    log(`Importing ID ${post.id}`)
 
     const model = {
       id: post.id,
@@ -115,14 +128,22 @@ async function scraper (key, uri = 'https://www.subscribestar.com/feed/page.json
         });
     });
 
+    log(`Finished importing ${post.id}`)
     await db('booru_posts').insert(model);
   });
 
   if (data.next_url) {
-    scraper(key, data.next_url);
+    scraper(id, key, data.next_url);
   } else {
+    log('Finished processing posts.')
+    log('No posts imported? You either entered your session key incorrectly, or are not subscribed to any artists.')
+    failsafe.del(id);
     indexer();
   }
 }
 
-module.exports = data => scraper(data);
+module.exports = data => {
+  debug('kemono:importer:subscribestar:' + data.id)('Starting SubscribeStar import...')
+  failsafe.set(data.id, { importer: 'subscribestar', data: data }, 1800, () => {})
+  scraper(data.id, data.key);
+}

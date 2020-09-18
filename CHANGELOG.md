@@ -24,6 +24,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   - kemono.party-specific things (documentation, rules, donation button, etc.) have been moved to the `party` branch.
   - SubscribeStar dates and sorting now fixed; importer now stable
   - Pages are now server-side rendered for efficiency
+  - More efficient lookup indexer
   - Better handling for deleted/unavailable products in Gumroad importer
   - Gumroad importer is now properly recursive
   - Gumroad importer now uses 13-digit creator IDs instead of usernames

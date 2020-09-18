@@ -7,15 +7,11 @@ const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { db } = require('../utils/db');
 async function indexer () {
   await db.transaction(async trx => {
-    const postsData = await trx('booru_posts')
-      .select('user', 'service')
-      .orderBy('added', 'desc')
-      .limit(10000);
-    await Promise.mapSeries(postsData, async (post) => {
-      const indexExists = await trx('lookup')
-        .where({ id: post.user, service: post.service });
-      if (indexExists.length) return;
-
+    const postsData = await trx.select('user', 'service')
+      .from({ post: 'booru_posts' })
+      .whereNotExists(db.select().from('lookup').whereRaw('id = post.user'))
+      .groupBy('user', 'service')
+    await Promise.map(postsData, async (post) => {
       switch (post.service) {
         case 'patreon': {
           const api = 'https://www.patreon.com/api/user';

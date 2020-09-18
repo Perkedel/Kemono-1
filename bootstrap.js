@@ -50,12 +50,12 @@ const logfmt = str => str.trim();
     })
   });
 
-  console.log('Building lookup index...');
-  indexer();
-
   console.log('Starting webserver...');
   server();
 
+  console.log('Building lookup index...');
+  indexer();
+  
   console.log('━━━━━━━━━━━━━━━');
   console.log('\nWelcome to Kemono! [2.0.0-Lain]\n');
 

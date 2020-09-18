@@ -58,6 +58,7 @@ const list = () => shell(`
             <li>As of right now, the importer is unable to crack DRM-protected works from DLsite. (extensions .dlst and .cpd) These will not be downloaded.</li>
             <li>DLsite has a short token expiration period. If your import fails, try getting a new token by logging out and back in.</li>
           </ul>
+          If you're having trouble with the importer, <a href="mailto:admin@kemono.party">contact admin.</a> 
         </p>
       </div>
     </div>

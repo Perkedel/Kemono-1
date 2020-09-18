@@ -155,7 +155,7 @@ module.exports = () => {
     })
     .get('/:service/user/:id/rss', async (req, res) => {
       const cache = await db('lookup').where({ id: req.params.id, service: req.params.service });
-      if (!cache.length) return res.sendStatus(404);
+      if (!cache.length) return res.status(404).send('Unable to generate RSS feed; please wait for this user to be indexed.');
 
       const userPosts = await db('booru_posts')
         .where({ user: req.params.id, service: req.params.service })

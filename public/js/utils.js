@@ -30,7 +30,7 @@ function thumbHTML (data) {
     <a href="${data.href}" class="thumb-link">
       ${data.src ? `
         <div class="thumb thumb-with-image ${data.class || 'thumb-standard'}">
-          <img src="https://images.weserv.nl/?url=https://kemono.party${data.src.replace('https://kemono.party', '')}&width=500&output=jpg">
+          <img src="https://images.weserv.nl/?url=https://kemono.party${data.src.replace('https://kemono.party', '')}&width=500&output=jpg&we">
         </div>
       ` : `
         <div class="thumb thumb-with-text ${data.class || 'thumb-standard'}">

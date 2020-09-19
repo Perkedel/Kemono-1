@@ -26,7 +26,7 @@ module.exports = (opts, requestOpts = {}) => {
         .then(() => {
           request.get(requestOpts)
             .on('complete', async (res) => {
-              if (res.statusCode !== 200) return reject('Bad status code');
+              if (res.statusCode !== 200) return reject(new Error('Bad status code'));
               // filename guessing
               let extension = await FileType.fromFile(path.join(opts.ddir, tempname));
               extension = extension || {};

@@ -31,7 +31,7 @@ module.exports = async (data) => {
       await webpush.sendNotification({
         endpoint: subscription.endpoint,
         keys: subscription.keys
-      }, payload);
+      }, payload).catch(() => {});
     });
     await trx('request_subscriptions')
       .where({ request_id: requests[0].id })

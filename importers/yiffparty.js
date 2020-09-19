@@ -27,7 +27,8 @@ const sanitizePostContent = async (content) => {
       })
         .then(() => {
           content = content.replace(val, `/inline/${filename}`);
-        });
+        })
+        .catch(() => {});
     }
   });
   return content;

@@ -26,7 +26,7 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
   })));
 
   if (err1 && err1.statusCode) {
-    return log(`Error: Status code ${err1.statusCode} when contacting Patreon API.`)
+    return log(`Error: Status code ${err1.statusCode} when contacting SubscribeStar API.`)
   } else if (err1) {
     return log(err1)
   }

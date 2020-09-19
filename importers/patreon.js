@@ -63,6 +63,8 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
   }
 
   await Promise.map(patreon.data, async (post) => {
+    if (post.id !== '3517458') return;
+    
     const attr = post.attributes;
     const rel = post.relationships;
     let fileKey = `files/${rel.user.data.id}/${post.id}`;

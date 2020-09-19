@@ -8,6 +8,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
 
   - Yiff.party support
   - DLsite support
+  - Importer logs
   - Shared Files
   - Requests
   - RSS feeds
@@ -21,6 +22,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
 <details>
   <summary>Patch</summary>
 
+  - Performance improvements made to performance indexer
   - kemono.party-specific things (documentation, rules, donation button, etc.) have been moved to the `party` branch.
   - SubscribeStar dates and sorting now fixed; importer now stable
   - Pages are now server-side rendered for efficiency
@@ -36,6 +38,7 @@ Kemono uses [semantic versioning](https://semver.org/). The "API" refers to both
   - Thumbnail generator now directly checks file contents instead of relying on naming
   - Fixed existing post query and version checking in Patreon importer
   - Whitespace is now removed from Discord channel ID string
+  - Various Patreon importer bug fixes
   - Fixed Discord CSS
 </details>
 

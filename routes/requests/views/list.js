@@ -167,6 +167,7 @@ const list = props => shell(`
         <div class="paginator" id="paginator-bottom">
           ${paginator({
             o: props.query.o,
+            query: props.query,
             url: props.url
           })}
         </div>

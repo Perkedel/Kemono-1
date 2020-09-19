@@ -103,7 +103,7 @@ router
       const lookup = await db('lookup').where({ service: 'discord-channel', id: x.channel });
       return {
         id: x.channel,
-        name: lookup[0].name
+        name: lookup.length ? lookup[0].name : ''
       };
     });
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');

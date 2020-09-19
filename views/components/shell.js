@@ -10,6 +10,7 @@ const shell = (html, props = {}) => `
       ${props.compatibility ? '<link rel="stylesheet" type="text/css" href="/css/compatibility.css">' : '<link rel="stylesheet" type="text/css" href="/css/index.css">'}
       ${props.discord ? '<link rel="stylesheet" type="text/css" href="/css/discord.css">' : ''}
       ${props.service ? `<meta name="service" content="${props.service}"/>` : ''}
+      ${props.importId ? `<meta name="importId" content="${props.importId}"/>` : ''}
       ${props.count ? `<meta name="count" content="${props.count}"/>` : ''}
       ${props.posts && props.posts.length > 0 ? `
         ${props.posts[0].published ? `<meta name="published" content="${props.posts[0].published}"/>` : ''}

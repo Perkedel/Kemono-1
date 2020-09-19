@@ -170,6 +170,7 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
     });
 
     await Promise.map(postData.body.included, async (includedFile) => {
+      if (includedFile.attributes.state === 'expired') return;
       await downloadFile({
         ddir: path.join(process.env.DB_ROOT, attachmentsKey),
         name: includedFile.attributes.file_name

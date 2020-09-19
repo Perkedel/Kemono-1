@@ -26,6 +26,7 @@ module.exports = (opts, requestOpts = {}) => {
         .then(() => {
           request.get(requestOpts)
             .on('complete', async (res) => {
+              if (res.statusCode !== 200) throw new retry.AbortError('Bad status code');
               // filename guessing
               let extension = await FileType.fromFile(path.join(opts.ddir, tempname));
               extension = extension || {};
@@ -35,7 +36,6 @@ module.exports = (opts, requestOpts = {}) => {
               }
               const filename = slugify(name, { lowercase: false });
               // content integrity
-              if (res.statusCode !== 200) return reject(new Error(`Status code: ${res.statusCode}`));
               if (res.headers['content-length']) {
                 const tempstats = await fs.stat(path.join(opts.ddir, tempname));
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));

@@ -154,6 +154,34 @@ async function parseBody (body, key, opts) {
   // https://github.com/Nandaka/PixivUtil2/blob/master/PixivModelFanbox.py#L213
   const bodyText = body.text || body.html || '';
   let concatenatedText = '';
+  if (body.video) {
+    concatenatedText += ({
+      youtube: `
+        <a href="https://www.youtube.com/watch?v=${body.video.videoId}" target="_blank">
+          <div class="embed-view">
+            <h3 class="subtitle">(YouTube)</h3>
+          </div>
+        </a>
+        <br>
+      `,
+      vimeo: `
+        <a href="https://vimeo.com/${body.video.videoId}" target="_blank">
+          <div class="embed-view">
+            <h3 class="subtitle">(Vimeo)</h3>
+          </div>
+        </a>
+        <br>
+      `,
+      soundcloud: `
+        <a href="https://soundcloud.com/${body.video.videoId}" target="_blank">
+          <div class="embed-view">
+            <h3 class="subtitle">(Soundcloud)</h3>
+          </div>
+        </a>
+        <br>
+      `
+    })[body.video.serviceProvider]
+  }
   if (body.blocks) {
     await Promise.mapSeries(body.blocks, async (block) => {
       switch (block.type) {

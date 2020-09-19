@@ -75,6 +75,7 @@ module.exports = (opts, requestOpts = {}) => {
                 })
                 .catch(() => reject(new Error('Decode failed')));
             })
+            .setMaxListeners(1000)
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));
         });

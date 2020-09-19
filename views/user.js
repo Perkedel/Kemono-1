@@ -26,9 +26,11 @@ const user = props => shell(`
         <script src="/js/utils.js"></script>
         <script src="/js/user.js"></script>
         <h1>Options</h1>
-        <a href="/requests/new?user=${props.id}&service=${props.service}">Request update</a>
-        <a href="/posts/upload?user=${props.id}&service=${props.service}">Upload file</a>
-        <a href="${props.url.replace(/\/$/, '')}/rss">RSS</a>
+        <div class="results">
+          <li><a href="/requests/new?user=${props.id}&service=${props.service}">Request update</a></li>
+          <li><a href="/posts/upload?user=${props.id}&service=${props.service}">Upload file</a></li>
+          <li><a href="${props.url.replace(/\/$/, '')}/rss">RSS</a></li>
+        </div>
       </div>
       ${list({
         o: props.query.o,

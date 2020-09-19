@@ -35,7 +35,7 @@ async function scraper (id, key, from = 1) {
   const [err1, gumroad] = await pWrapper(retry(() => cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key))));
 
   if (err1 && err1.statusCode) {
-    return log(`Error: Status code ${err1.statusCode} when contacting Patreon API.`)
+    return log(`Error: Status code ${err1.statusCode} when contacting Gumroad API.`)
   } else if (err1) {
     return log(err1)
   }

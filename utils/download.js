@@ -26,7 +26,7 @@ module.exports = (opts, requestOpts = {}) => {
         .then(() => {
           request.get(requestOpts)
             .on('complete', async (res) => {
-              if (res.statusCode !== 200) throw new retry.AbortError('Bad status code');
+              if (res.statusCode !== 200) return reject('Bad status code');
               // filename guessing
               let extension = await FileType.fromFile(path.join(opts.ddir, tempname));
               extension = extension || {};
@@ -80,5 +80,9 @@ module.exports = (opts, requestOpts = {}) => {
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));
         });
     });
-  }, { retries: 25 });
+  }, {
+    onFailedAttempt: error => {
+      if (error.message === 'Bad status code') throw error;
+    }
+  });
 };

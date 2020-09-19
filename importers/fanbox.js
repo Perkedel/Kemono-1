@@ -35,7 +35,11 @@ const fileRequestOptions = (key) => {
 async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupporting?limit=50') {
   const log = debug('kemono:importer:fanbox:' + id);
 
-  const [err1, fanbox] = await pWrapper(retry(() => request.get(url, requestOptions(key))));
+  const [err1, fanbox] = await pWrapper(retry(() => request.get(url, requestOptions(key)), {
+    onFailedAttempt: error => {
+      if (error.statusCode === 401) throw error;
+    }
+  }));
 
   if (err1 && err1.statusCode === 401) {
     return log(`Error: Invalid session key`)

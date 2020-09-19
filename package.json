@@ -4,7 +4,7 @@
     "node": "~12.18"
   },
   "scripts": {
-    "dev": "supervisor -i node_modules,public -n error bootstrap.js",
+    "dev": "env DEBUG=kemono:* supervisor -i node_modules,public -n error bootstrap.js",
     "start": "node bootstrap.js",
     "lint": "semistandard --fix --verbose | snazzy"
   },

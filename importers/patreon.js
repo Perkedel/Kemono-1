@@ -4,6 +4,7 @@ const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { to: pWrapper } = require('await-to-js');
 const debug = require('../utils/debug');
 const { db, failsafe } = require('../utils/db');
+const entities = require('entities');
 const retry = require('p-retry');
 const crypto = require('crypto');
 const mime = require('mime');
@@ -33,7 +34,7 @@ const sanitizePostContent = async (content) => {
         ddir: path.join(process.env.DB_ROOT, 'inline'),
         name: filename
       }, {
-        url: val
+        url: entities.decodeHTML(val)
       })
         .then(() => {
           content = content.replace(val, `/inline/${filename}`);

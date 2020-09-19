@@ -81,6 +81,7 @@ module.exports = (opts, requestOpts = {}) => {
         });
     });
   }, {
+    retries: 25,
     onFailedAttempt: error => {
       if (error.message === 'Bad status code') throw error;
     }

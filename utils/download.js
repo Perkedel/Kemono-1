@@ -26,7 +26,13 @@ module.exports = (opts, requestOpts = {}) => {
         .then(() => {
           request.get(requestOpts)
             .on('complete', async (res) => {
-              if (res.statusCode !== 200) return reject(new Error('Bad status code'));
+              const irrecoverableCodes = [
+                400,
+                401,
+                404
+              ];
+              if (irrecoverableCodes.includes(res.statusCode)) return reject(new Error(`Irrecoverable status code: ${res.statusCode}`));
+              if (res.statusCode !== 200) return reject(new Error(`Bad status code: ${res.statusCode}`));
               // filename guessing
               let extension = await FileType.fromFile(path.join(opts.ddir, tempname));
               extension = extension || {};

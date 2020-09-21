@@ -1,4 +1,5 @@
 const agentOptions = require('../utils/agent');
+const request = require('request-promise');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { to: pWrapper } = require('await-to-js');
 const debug = require('../utils/debug');
@@ -9,6 +10,7 @@ const mime = require('mime');
 const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 const indexer = require('../init/indexer');
+const scrapeIt = require('scrape-it');
 
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
@@ -49,9 +51,32 @@ async function scraper (id, users) {
     if (err1 && err1.statusCode === 404) {
       return log(`Error: User ID ${user} not found.`)
     } else if (err1 && err1.statusCode) {
-      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party API.`)
+      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party JSON API.`)
     } else if (err1) {
       return log(err1);
+    }
+
+    const jar = request.jar();
+    const [err2, _] = await pWrapper(retry(() => cloudscraper.post(`https://yiff.party/config`, {
+      form: {
+        a: 'post_view_limit',
+        d: 'all'
+      },
+      jar: jar
+    })));
+    if (err2 && err2.statusCode) {
+      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party config API.`)
+    } else if (err2) {
+      return log(err2);
+    }
+
+    const [err3, html] = await pWrapper(retry(() => cloudscraper.get(`https://yiff.party/render_posts?s=patreon&c=${user}`, {
+      jar: jar
+    })));
+    if (err3 && err3.statusCode) {
+      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party config API.`)
+    } else if (err3) {
+      return log(err3);
     }
 
     log(`Importing user ${user}`)
@@ -105,6 +130,33 @@ async function scraper (id, users) {
           name: attachment.file_name
         }, {
           url: attachment.file_url
+        })
+          .then(res => {
+            model.attachments.push({
+              name: res.filename,
+              path: `/attachments/${user}/${post.id}/${res.filename}`
+            });
+          });
+      });
+
+      const media = scrapeIt.scrapeHTML(html, {
+        attachments: {
+          listItem: `.yp-post#p${String(post.id)} .card-attachments a`,
+          data: {
+            filename: '',
+            downloadUrl: {
+              attr: 'href'
+            }
+          }
+        }
+      })
+
+      await Promise.map(media.attachments, async (attachment) => {
+        await downloadFile({
+          ddir: path.join(process.env.DB_ROOT, `attachments/${user}/${post.id}`),
+          name: attachment.filename
+        }, {
+          url: attachment.downloadUrl
         })
           .then(res => {
             model.attachments.push({

@@ -89,7 +89,7 @@ module.exports = (opts, requestOpts = {}) => {
   }, {
     retries: 25,
     onFailedAttempt: error => {
-      if (error.message === 'Bad status code') throw error;
+      if ((/Irrecoverable status code/).test(error.message)) throw error;
     }
   });
 };

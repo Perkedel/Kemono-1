@@ -121,7 +121,8 @@ async function scraper (id, users) {
           .then(res => {
             model.file.name = res.filename;
             model.file.path = `/files/${user}/${post.id}/${res.filename}`;
-          });
+          })
+          .catch(() => {});
       }
 
       await Promise.map(post.attachments, async (attachment) => {
@@ -136,7 +137,8 @@ async function scraper (id, users) {
               name: res.filename,
               path: `/attachments/${user}/${post.id}/${res.filename}`
             });
-          });
+          })
+          .catch(() => {});
       });
 
       const media = scrapeIt.scrapeHTML(html, {
@@ -163,7 +165,8 @@ async function scraper (id, users) {
               name: res.filename,
               path: `/attachments/${user}/${post.id}/${res.filename}`
             });
-          });
+          })
+          .catch(() => {});
       });
 
       log(`Finished importing ID ${post.id}`)

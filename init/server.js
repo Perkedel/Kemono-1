@@ -87,6 +87,19 @@ module.exports = () => {
           url: req.originalUrl
         }));
     })
+    .get('/artists/random', async (_, res) => {
+      const random = await db('lookup')
+        .select('id', 'service')
+        .orderByRaw('random()')
+        .limit(1);
+      if (!random.length) return res.redirect('back');
+      res.set('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
+        .redirect(path.join(
+          '/',
+          random[0].service,
+          'user', random[0].id
+        ));
+    })
     .get('/artists/updated', async (req, res) => {
       await db.transaction(async trx => {
         const recentUsers = await trx('booru_posts')
@@ -136,10 +149,7 @@ module.exports = () => {
     .get('/posts/upload', (req, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(upload({
       query: req.query
     })))
-    .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
-    .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
-    .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
-    .get('/random', async (_, res) => {
+    .get('/posts/random', async (_, res) => {
       const random = await db('booru_posts')
         .select('service', 'user', 'id')
         .whereRaw('random() < 0.01')
@@ -153,6 +163,9 @@ module.exports = () => {
           'post', random[0].id
         ));
     })
+    .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
+    .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
+    .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
     .get('/:service/user/:id/rss', async (req, res) => {
       const cache = await db('lookup').where({ id: req.params.id, service: req.params.service });
       if (!cache.length) return res.status(404).send('Unable to generate RSS feed; please wait for this user to be indexed.');

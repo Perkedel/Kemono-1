@@ -24,6 +24,7 @@ module.exports = {
     },
     pool: {
       acquireTimeoutMillis: 1000000, // never timeout
+      min: 0,
       max: 1
     },
     acquireConnectionTimeout: 1000000

@@ -9,13 +9,14 @@ const subheader = props => ({
   posts: `
     <ul class="subheader">
       <li><a href="/posts">List</a></li>
-      <li><a href="/random">Random</a></li>
+      <li><a href="/posts/random">Random</a></li>
       <li><a href="/help/posts">Help</a></li>
     </ul>
   `,
   artists: `
     <ul class="subheader">
       <li><a href="/artists">List</a></li>
+      <li><a href="/artists/random">Random</a></li>
       <li><a href="/artists/updated">Recently Updated</a></li>
       <li><a href="/artists/favorites">Favorites</a></li>
     </ul>

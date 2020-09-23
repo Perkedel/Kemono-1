@@ -62,7 +62,7 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
     return log(err1)
   }
 
-  await Promise.map(patreon.data, async (post) => {
+  Promise.map(patreon.data, async (post) => {
     const attr = post.attributes;
     const rel = post.relationships;
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
@@ -97,6 +97,7 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
     }
 
     log(`Importing ID ${post.id}`)
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
 
     const model = {
       id: post.id,
@@ -185,6 +186,7 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
         });
     }).catch(() => {});
 
+    clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`)
     await db('booru_posts').insert(model);
   });
@@ -192,8 +194,8 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
   if (patreon.links.next) {
     scraper(id, key, 'https://' + patreon.links.next);
   } else {
-    log('Finished processing posts.')
-    log('No posts imported? You either entered your session key incorrectly, or are not subscribed to any artists.')
+    log('Finished scanning posts.')
+    log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.')
     failsafe.del(id);
     indexer();
   }

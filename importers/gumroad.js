@@ -73,7 +73,7 @@ async function scraper (id, key, from = 1) {
       }
     }
   });
-  await Promise.map(data.products, async (product) => {
+  Promise.map(data.products, async (product) => {
     const userId = product.userId;
     const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
     if (banExists.length) return log(`Skipping ID ${product.id}: user ${userId} is banned`);
@@ -92,6 +92,7 @@ async function scraper (id, key, from = 1) {
     if (postExists.length) return;
 
     log(`Importing ID ${product.id}`)
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${product.id} may be stalling`), 60000);
 
     const model = {
       id: product.id,
@@ -174,6 +175,7 @@ async function scraper (id, key, from = 1) {
         });
     });
 
+    clearTimeout(inactivityTimer);
     log(`Finished importing ${product.id}`)
     await db('booru_posts').insert(model);
   });
@@ -181,7 +183,7 @@ async function scraper (id, key, from = 1) {
   if (data.products.length) {
     scraper(id, key, from + gumroad.result_count);
   } else {
-    log('Finished processing posts.')
+    log('Finished scanning posts.')
     failsafe.del(id);
     indexer();
   }

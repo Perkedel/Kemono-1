@@ -44,7 +44,7 @@ async function scraper (importData, page = 1) {
     return log(err2)
   }
 
-  await Promise.map(dlsite.works, async (work) => {
+  Promise.map(dlsite.works, async (work) => {
     const banExists = await db('dnp').where({ id: work.maker_id, service: 'dlsite' });
     if (banExists.length) return log(`Skipping ID ${work.workno}: user ${work.maker_id} is banned`);
 
@@ -65,6 +65,7 @@ async function scraper (importData, page = 1) {
     if (postExists.length) return;
 
     log(`Importing ID ${work.workno}`)
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${work.workno} may be stalling`), 60000);
 
     const model = {
       id: work.workno,
@@ -155,6 +156,7 @@ async function scraper (importData, page = 1) {
       }
     }
 
+    clearTimeout(inactivityTimer);
     log(`Finished importing ${work.workno}.`)
     await db('booru_posts').insert(model);
   });
@@ -162,7 +164,7 @@ async function scraper (importData, page = 1) {
   if (dlsite.works.length) {
     scraper(importData, page + 1);
   } else {
-    log('Finished processing posts.')
+    log('Finished scanning posts.')
     failsafe.del(id);
     indexer();
   }

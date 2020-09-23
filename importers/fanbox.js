@@ -48,7 +48,7 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
   } else if (err1) {
     return log(err1);
   }
-  await Promise.map(fanbox.body.items, async (post) => {
+  Promise.map(fanbox.body.items, async (post) => {
     if (!post.body) return log(`Skipping ID ${post.id}: Locked`);; // locked content; nothing to do
     const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
     if (banExists.length) return log(`Skipping ID ${post.id}: user ${post.user.userId} is banned`);
@@ -70,6 +70,7 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
     if (postExists.length) return;
 
     log(`Importing ID ${post.id}`)
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
 
     const model = {
       id: post.id,
@@ -137,6 +138,7 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
       });
     }
 
+    clearTimeout(inactivityTimer);
     log(`Finished importing ID ${post.id}`)
     await db('booru_posts').insert(model);
   });
@@ -144,7 +146,7 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
   if (fanbox.body.nextUrl) {
     scraper(id, key, fanbox.body.nextUrl);
   } else {
-    log('Finished processing posts.')
+    log('Finished scanning posts.')
     failsafe.del(id);
     indexer();
   }

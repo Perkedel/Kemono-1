@@ -69,7 +69,7 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
     }
   });
 
-  await Promise.map(data.posts, async (post) => {
+  Promise.map(data.posts, async (post) => {
     const banExists = await db('dnp').where({ id: post.user, service: 'subscribestar' });
     if (banExists.length) return log(`Skipping ID ${post.id}: user ${post.user} is banned`);
 
@@ -90,6 +90,7 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
     if (postExists.length) return;
 
     log(`Importing ID ${post.id}`)
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
 
     const model = {
       id: post.id,
@@ -128,6 +129,7 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
         });
     });
 
+    clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`)
     await db('booru_posts').insert(model);
   });
@@ -135,8 +137,8 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
   if (data.next_url) {
     scraper(id, key, data.next_url);
   } else {
-    log('Finished processing posts.')
-    log('No posts imported? You either entered your session key incorrectly, or are not subscribed to any artists.')
+    log('Finished scanning posts.')
+    log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.')
     failsafe.del(id);
     indexer();
   }

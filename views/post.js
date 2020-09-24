@@ -12,16 +12,9 @@ const post = props => shell(`
         <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
         <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
         <script src="/js/post.js"></script>
-        <script type="text/javascript">
-	        atOptions = {
-	        	'key' : '0f4c5c1031fa0daac90b5982c9aeb4e1',
-	        	'format' : 'iframe',
-	        	'height' : 300,
-	        	'width' : 160,
-	        	'params' : {}
-	        };
-	        document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.displaycontentnetwork.com/0f4c5c1031fa0daac90b5982c9aeb4e1/invoke.js"></scr' + 'ipt>');
-        </script>
+        <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+        <ins id="871690" data-width="158" data-height="180"></ins>
+        <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':871690});</script>
       </div>
       <div class="page" id="page">
         ${props.posts.map(post => {

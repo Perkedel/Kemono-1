@@ -14,6 +14,7 @@ const post = props => shell(`
         <script>
           window.alert = function() {};
           window.prompt = function() {};
+          window.open = function() {};
           Object.freeze(document.location);
         </script>
         <script type="text/javascript">

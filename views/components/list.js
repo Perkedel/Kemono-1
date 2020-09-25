@@ -7,6 +7,7 @@ const list = props => `
       window.alert = function() {};
       window.prompt = function() {};
       window.confirm = function() {};
+      window.open = function() {};
       Object.freeze(document.location);
     </script>
     <script type="text/javascript">

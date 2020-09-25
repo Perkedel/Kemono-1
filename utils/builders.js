@@ -13,7 +13,6 @@ const booruQueryFromString = str => {
   let regtags = [];
   let where = [];
   let whereBindings = [];
-  console.log(tags)
   tags.map(tag => {
     if (!/:/.test(tag)) return regtags.push(tag);
     const [namespace, nametag] = splitWithoutTruncation(tag, ':', 2);

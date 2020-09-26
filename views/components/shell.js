@@ -17,6 +17,7 @@ const shell = (html, props = {}) => `
         <meta name="added" content="${props.posts[0].added}"/>
         <meta name="id" content="${props.posts[0].id}"/>
       ` : ''}
+      <meta name="trafficjunky-site-verification" content="xvtnrzqy8"/>
     </head>
     <body>
       ${html}

@@ -65,7 +65,8 @@ router
     })[req.body.service];
 
     if (!service) return res.sendStatus(400);
-
+    const banExists = await db('dnp').where({ id: xss(req.body.user), service: service });
+    if (banExists.length) return res.status(401).send('This user is banned.');
     await db('booru_posts').insert({
       id: req.id,
       user: xss(req.body.user),

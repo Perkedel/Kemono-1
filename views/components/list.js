@@ -3,9 +3,6 @@ const { paginator } = require('./paginator');
 
 const list = props => `
   <div class="vertical-views">
-    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-    <ins id="871536" data-width="468" data-height="72"></ins>
-    <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':871536});</script>
     <div class="paginator" id="paginator-top">
       ${paginator({
         o: props.o,
@@ -31,9 +28,6 @@ const list = props => `
         count: props.count
       })}
     </div>
-    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-    <ins id="871536" data-width="468" data-height="72"></ins>
-    <script type="text/javascript" data-cfasync="false" async>(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':871536});</script>
   </div> 
 `;
 

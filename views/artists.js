@@ -10,7 +10,7 @@ const artists = data => shell(`
         autocomplete="off"
         class="search-form"
         novalidate="novalidate"
-        action="/artists"
+        action="/"
         accept-charset="UTF-8"
         method="get"
         onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted"

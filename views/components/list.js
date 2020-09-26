@@ -3,23 +3,6 @@ const { paginator } = require('./paginator');
 
 const list = props => `
   <div class="vertical-views">
-    <script>
-      window.alert = function() {};
-      window.prompt = function() {};
-      window.confirm = function() {};
-      window.open = function() {};
-      Object.freeze(document.location);
-    </script>
-    <script type="text/javascript">
-	    atOptions = {
-	    	'key' : '89174c8852867044f295023fb5f0015f',
-	    	'format' : 'iframe',
-	    	'height' : 60,
-	    	'width' : 468,
-	    	'params' : {}
-	    };
-	    document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.displaycontentnetwork.com/89174c8852867044f295023fb5f0015f/invoke.js"></scr' + 'ipt>');
-    </script>
     <div class="paginator" id="paginator-top">
       ${paginator({
         o: props.o,
@@ -45,16 +28,6 @@ const list = props => `
         count: props.count
       })}
     </div>
-    <script type="text/javascript">
-	    atOptions = {
-	    	'key' : '89174c8852867044f295023fb5f0015f',
-	    	'format' : 'iframe',
-	    	'height' : 60,
-	    	'width' : 468,
-	    	'params' : {}
-	    };
-	    document.write('<scr' + 'ipt type="text/javascript" src="http' + (location.protocol === 'https:' ? 's' : '') + '://www.displaycontentnetwork.com/89174c8852867044f295023fb5f0015f/invoke.js"></scr' + 'ipt>');
-    </script>
   </div> 
 `;
 

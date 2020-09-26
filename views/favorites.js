@@ -23,7 +23,7 @@ const favorites = () => shell(`
       </table>
     </div>
   </div>
-  <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
+  <script src="/js/unfetch.js"></script>
   <script src="/js/favorites.js"></script>
 `);
 

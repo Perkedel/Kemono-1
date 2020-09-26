@@ -20,9 +20,9 @@ const user = props => shell(`
           <div id="info-block"></div>
           <div id="extra-info-block"></div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
-        <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+        <script src="/js/ppolyfill.js"></script>
+        <script src="/js/unfetch.js"></script>
+        <script src="/js/require.js"></script>
         <script src="/js/utils.js"></script>
         <script src="/js/user.js"></script>
         <h1>Options</h1>

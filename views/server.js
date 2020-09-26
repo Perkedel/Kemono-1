@@ -11,7 +11,7 @@ const server = () => shell(`
       </noscript>
     </div>
   </div>
-  <script src="https://unpkg.com/unfetch@4.1.0/polyfill/index.js"></script>
+  <script src="/js/unfetch.js"></script>
   <script src="/js/discord.js"></script>
 `, { service: 'discord', compatibility: true, discord: true });
 

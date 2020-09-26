@@ -35,7 +35,7 @@ const recent = props => shell(`
       })}
     </div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+  <script src="/js/require.js"></script>
   <script src="/js/utils.js"></script>
   <script src="/js/posts.js"></script>
 `);

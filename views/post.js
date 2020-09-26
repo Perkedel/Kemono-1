@@ -21,8 +21,8 @@ const post = props => shell(`
             (/\.(gif|jpe?g|png|webp)$/i).test(post.file.path) ? previews += `
               <a class="fileThumb" href="${post.file.path}">
                 <img
-                  data-src="https://images.weserv.nl/?url=https://kemono.party${post.file.path.replace('https://kemono.party', '')}&width=800&output=jpg&we"
-                  src="https://images.weserv.nl/?url=https://kemono.party${post.file.path.replace('https://kemono.party', '')}&width=800&output=jpg&we"
+                  data-src="/thumbnail${post.file.path.replace('https://kemono.party', '')}"
+                  src="/thumbnail${post.file.path.replace('https://kemono.party', '')}"
                 >
               </a>
               <br>
@@ -50,8 +50,8 @@ const post = props => shell(`
             (/\.(gif|jpe?g|png|webp)$/i).test(attachment.path) ? previews += `
               <a class="fileThumb" href="${attachment.path}">
                 <img
-                  data-src="https://images.weserv.nl/?url=https://kemono.party${attachment.path.replace('https://kemono.party', '')}&width=800&output=jpg&we"
-                  src="https://images.weserv.nl/?url=https://kemono.party${attachment.path.replace('https://kemono.party', '')}&width=800&output=jpg&we"
+                  data-src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
+                  src="/thumbnail${attachment.path.replace('https://kemono.party', '')}"
                 >
               </a>
               <br>

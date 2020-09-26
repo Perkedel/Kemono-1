@@ -60,8 +60,7 @@ module.exports = () => {
         })
         .pipe(res);
     })
-    .get('/', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/artists'))
-    .get('/artists', async (req, res) => {
+    .get('/', async (req, res) => {
       if (!req.query.commit) return res.send(artists({ results: [], query: req.query, url: req.originalUrl }));
       const index = await db('lookup')
         .select('*')
@@ -87,6 +86,7 @@ module.exports = () => {
           url: req.originalUrl
         }));
     })
+    .get('/artists', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').redirect('/'))
     .get('/artists/random', async (_, res) => {
       const random = await db('lookup')
         .select('id', 'service')

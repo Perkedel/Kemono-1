@@ -132,14 +132,13 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
     clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`)
     await db('booru_posts').insert(model);
-  });
+  }, { concurrency: 8 });
 
   if (data.next_url) {
     scraper(id, key, data.next_url);
   } else {
     log('Finished scanning posts.')
     log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.')
-    failsafe.del(id);
     indexer();
   }
 }

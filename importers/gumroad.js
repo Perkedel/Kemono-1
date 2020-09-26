@@ -178,13 +178,12 @@ async function scraper (id, key, from = 1) {
     clearTimeout(inactivityTimer);
     log(`Finished importing ${product.id}`)
     await db('booru_posts').insert(model);
-  });
+  }, { concurrency: 8 });
 
   if (data.products.length) {
     scraper(id, key, from + gumroad.result_count);
   } else {
     log('Finished scanning posts.')
-    failsafe.del(id);
     indexer();
   }
 }

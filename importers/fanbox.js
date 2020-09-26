@@ -141,13 +141,12 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
     clearTimeout(inactivityTimer);
     log(`Finished importing ID ${post.id}`)
     await db('booru_posts').insert(model);
-  });
+  }, { concurrency: 8 });
 
   if (fanbox.body.nextUrl) {
     scraper(id, key, fanbox.body.nextUrl);
   } else {
     log('Finished scanning posts.')
-    failsafe.del(id);
     indexer();
   }
 }

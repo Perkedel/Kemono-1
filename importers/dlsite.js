@@ -159,13 +159,12 @@ async function scraper (importData, page = 1) {
     clearTimeout(inactivityTimer);
     log(`Finished importing ${work.workno}.`)
     await db('booru_posts').insert(model);
-  });
+  }, { concurrency: 8 });
 
   if (dlsite.works.length) {
     scraper(importData, page + 1);
   } else {
     log('Finished scanning posts.')
-    failsafe.del(id);
     indexer();
   }
 }

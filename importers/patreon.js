@@ -189,14 +189,13 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
     clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`)
     await db('booru_posts').insert(model);
-  });
+  }, { concurrency: 8 });
 
   if (patreon.links.next) {
     scraper(id, key, 'https://' + patreon.links.next);
   } else {
     log('Finished scanning posts.')
     log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.')
-    failsafe.del(id);
     indexer();
   }
 }

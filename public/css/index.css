@@ -321,6 +321,7 @@ input[type="submit"] {
 thead th {
   font-weight: 700;
   text-align: left;
+  padding-right: 8px;
 }
 
 .user-icon {

@@ -88,7 +88,7 @@ const upload = props => shell(`
             name="file"
             required
           />
-          <small class="subtitle" style="margin-left: 5px;">2GB size limit</small>
+          <small class="subtitle" style="margin-left: 5px;">100MB size limit due to Cloudflare restrictions</small>
         </div>
         ${process.env.MASTER_KEY ? `
           <div>

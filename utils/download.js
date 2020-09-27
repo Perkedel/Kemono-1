@@ -25,7 +25,7 @@ module.exports = (opts, requestOpts = {}) => {
       fs.ensureFile(path.join(opts.ddir, tempname))
         .then(() => {
           request.get(requestOpts)
-            .on('complete', async (res) => {
+            .once('complete', async (res) => {
               const irrecoverableCodes = [
                 400,
                 401,
@@ -48,10 +48,6 @@ module.exports = (opts, requestOpts = {}) => {
               }
 
               pool.exec((data) => {
-                process.on('disconnect', () => {
-                  process.exit(0);
-                });
-
                 const JPEG = require('jpeg-js');
                 const fs = require('fs-extra');
                 const mime = require('mime');
@@ -81,8 +77,7 @@ module.exports = (opts, requestOpts = {}) => {
                 })
                 .catch(() => reject(new Error('Decode failed')));
             })
-            .setMaxListeners(1000)
-            .on('error', err => reject(err))
+            .once('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));
         });
     });

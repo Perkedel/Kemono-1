@@ -77,7 +77,7 @@ module.exports = (opts, requestOpts = {}) => {
                 })
                 .catch(() => reject(new Error('Decode failed')));
             })
-            .once('error', err => reject(err))
+            .on('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));
         });
     });

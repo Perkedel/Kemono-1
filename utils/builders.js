@@ -7,12 +7,20 @@ const splitWithoutTruncation = (string, separator, n) => {
   out.push(split.slice(n-1).join(separator));
   return out;
 }
-const booruQueryFromString = str => {
+
+/**
+ * Converts a regular string into a booru-style query. Returns a Knex query builder object.
+ * @constructor
+ * @param {Object} str - The plain text that will be converted into a query.
+ * @param {String} opts.order - (Optional) The column to sort against.
+ * @param {String} opts.sort - (Optional) The direction to sort. (asc/desc)
+ * @param {Object} opts.offset - (Optional) The amount of posts to skip.
+ * @param {String} opts.limit - (Optional) The maximum amount of posts to return.
+ */
+const booruQueryFromString = (str, opts = {}) => {
   let query = db('booru_posts');
   let tags = str.replace(/\s\s+/g, ' ').trim().split(' ');
   let regtags = [];
-  let where = [];
-  let whereBindings = [];
   tags.map(tag => {
     if (!/:/.test(tag)) return regtags.push(tag);
     const [namespace, nametag] = splitWithoutTruncation(tag, ':', 2);
@@ -29,21 +37,19 @@ const booruQueryFromString = str => {
     let not = namespace.startsWith('-');
     let wildcard = nametag.endsWith('*');
     if (not && wildcard) {
-      where.push(`NOT ${namespace.replace('-', '')} ILIKE '?'`);
-      whereBindings.push(nametag.replace('*', '%'))
+      query.andWhereNot(namespace.replace('-', ''), 'ILIKE', nametag.replace('*', '%'))
     } else if (!not && wildcard) {
-      where.push(`${namespace.replace('-', '')} ILIKE '?'`);
-      whereBindings.push(nametag.replace('*', '%'))
+      query.andWhere(namespace, 'ILIKE', nametag.replace('*', '%'))
     } else if (not && !wildcard) {
-      where.push(`NOT ${namespace.replace('-', '')} = '?'`);
-      whereBindings.push(nametag);
+      query.andWhereNot(namespace.replace('-', ''), '=', nametag)
     } else {
-      where.push(`${namespace.replace('-', '')} = '?'`);
-      whereBindings.push(nametag);
+      query.andWhere(namespace, '=', nametag)
     }
   });
-  query.whereRaw(where.join(' and '), whereBindings);
-  if (regtags.length) query.andWhereRaw('to_tsvector(tags) @@ websearch_to_tsquery(?)', [regtags.join(' ')])
+  if (regtags.length) query.andWhereRaw('to_tsvector(tags) @@ websearch_to_tsquery(?)', [regtags.join(' ')]);
+  if (opts.order && opts.sort) query.orderBy(opts.order, opts.sort);
+  if (opts.offset) query.offset(opts.offset);
+  if (opts.limit) query.limit(opts.limit);
   return query;
 }
 

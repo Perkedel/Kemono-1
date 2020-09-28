@@ -22,7 +22,10 @@ services:
     # ports:
     #  - 5432:5432
   kemono-app:
-    build: .
+    build:
+      context: .
+      labels:
+        - "autoheal=true"
     container_name: kemono
     restart: unless-stopped
     depends_on:
@@ -52,8 +55,6 @@ services:
     restart: always
     container_name: kemono-autoheal
     image: willfarrell/autoheal
-    environment:
-      - AUTOHEAL_CONTAINER_LABEL=all
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 volumes:

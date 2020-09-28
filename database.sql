@@ -2,6 +2,11 @@
 -- Goal for now is just to get Kemono working in SQL.
 
 -- Posts
+DO $$ BEGIN
+  CREATE TYPE post_rating AS ENUM ('safe', 'questionable', 'explicit');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 CREATE TABLE IF NOT EXISTS booru_posts (
   "id" varchar(255) NOT NULL,
   "user" varchar(255) NOT NULL,
@@ -14,7 +19,9 @@ CREATE TABLE IF NOT EXISTS booru_posts (
   "published" timestamp,
   "edited" timestamp,
   "file" jsonb NOT NULL,
-  "attachments" jsonb[] NOT NULL
+  "attachments" jsonb[] NOT NULL,
+  "tags" text NOT NULL DEFAULT 'tagme',
+  "rating" post_rating NOT NULL DEFAULT 'explicit'
 );
 CREATE INDEX IF NOT EXISTS id_idx ON booru_posts USING hash ("id");
 CREATE INDEX IF NOT EXISTS user_idx ON booru_posts USING btree ("user");
@@ -53,6 +60,20 @@ CREATE TABLE IF NOT EXISTS booru_flags (
   "user" varchar(255) NOT NULL,
   "service" varchar(20) NOT NULL
 );
+
+-- Tags
+DO $$ BEGIN
+  CREATE TYPE tag_type AS ENUM ('general', 'artist', 'character', 'copyright', 'meta');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+CREATE TABLE IF NOT EXISTS booru_tags (
+  "id" varchar(255) NOT NULL PRIMARY KEY,
+  "name" varchar(255) NOT NULL,
+  "type" tag_type NOT NULL DEFAULT 'general',
+  "created" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO booru_tags (id, "name", "type") VALUES ('tagme', 'tagme', 'meta') ON CONFLICT (id) DO NOTHING;
 
 -- Lookup
 CREATE TABLE IF NOT EXISTS lookup (

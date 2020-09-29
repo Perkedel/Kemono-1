@@ -10,7 +10,8 @@ const { db } = require('../utils/db');
 const path = require('path');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
-const { artists, post, user, server, recent, upload, updated, favorites } = require('../views');
+const { artists, post, user, server, tags, upload, updated, favorites } = require('../views');
+const { booruQueryFromString } = require('../utils/builders');
 const urljoin = require('url-join');
 
 const staticOpts = {
@@ -133,15 +134,25 @@ module.exports = () => {
       .set('Cache-Control', 'max-age=300, public, stale-while-revalidate=2592000')
       .send(favorites()))
     .get('/posts', async (req, res) => {
-      const recentPosts = await db('booru_posts')
-        .select('*')
-        .orderBy('added', 'desc')
-        .offset(Number(req.query.o) || 0)
-        .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
+      if (!req.query.commit) return res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+        .type('html')
+        .send(tags({
+          posts: await db('booru_posts').select('*')
+            .orderBy('added', 'desc')
+            .offset(Number(req.query.o) || 0)
+            .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25),
+          query: req.query,
+          url: req.path
+        }));
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
-        .send(recent({
-          posts: recentPosts,
+        .send(tags({
+          posts: await booruQueryFromString(req.query.tags, {
+            order: 'added',
+            sort: 'desc',
+            offset: Number(req.query.o) || 0,
+            limit: Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25
+          }),
           query: req.query,
           url: req.path
         }));
@@ -156,12 +167,7 @@ module.exports = () => {
         .limit(1);
       if (!random.length) return res.redirect('back');
       res.set('Cache-Control', 's-maxage=1, stale-while-revalidate=2592000')
-        .redirect(path.join(
-          '/',
-          random[0].service,
-          'user', random[0].user,
-          'post', random[0].id
-        ));
+        .redirect(path.join('/posts', random[0].service, random[0].id));
     })
     .use('/files', express.static(`${process.env.DB_ROOT}/files`, staticOpts))
     .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
@@ -203,42 +209,34 @@ module.exports = () => {
     .get('/user/:id/post/:post', (req, res) => res.redirect(path.join('/patreon/user/', req.params.id, 'post', req.params.post)))
     .get('/:service/user/:id', async (req, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
-      db.transaction(async trx => {
-        const userPosts = await trx('booru_posts')
-          .where({ user: req.params.id, service: req.params.service })
-          .orderBy('published', 'desc')
-          .offset(Number(req.query.o) || 0)
-          .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
-        const userUniqueIds = await trx('booru_posts')
-          .select('id')
-          .where({ user: req.params.id, service: req.params.service })
-          .groupBy('id');
-        res.type('html')
-          .send(user({
-            count: userUniqueIds.length,
-            service: req.params.service || 'patreon',
-            id: req.params.id,
-            posts: userPosts,
-            query: req.query,
-            url: req.path
-          }));
-      });
+      
     })
     .get('/discord/server/:id', async (_, res) => {
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
       res.type('html')
         .send(server());
     })
-    .get('/:service/:type/:id/post/:post', async (req, res) => {
+    .get('/posts/:service/:post', async (req, res) => {
       const userPosts = await db('booru_posts')
-        .where({ id: req.params.post, user: req.params.id, service: req.params.service })
+        .where({ id: req.params.post, service: req.params.service })
         .orderBy('added', 'asc');
+      const tags = {};
+      if (userPosts.length) {
+        await Promise.mapSeries(userPosts[0].tags.replace(/\s\s+/g, ' ').trim().split(' '), async tag => {
+          if (!tag) return;
+          let tagInfo = await db('booru_tags').where({ id: tag });
+          tags[tagInfo[0].type] = tags[tagInfo[0].type] ? tags[tagInfo[0].type].push(tagInfo[0].name) : [tagInfo[0].name];
+        })
+      }
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(post({
           posts: userPosts,
+          tags: tags,
+          flag: await db('booru_flags').where({ id: req.params.post, service: req.params.service }),
           service: req.params.service || 'patreon'
         }));
     })
+    .get('/:service/user/:id/post/:post', (req, res) => res.redirect(path.join('/posts', req.params.service, req.params.post)))
     .listen(process.env.PORT || 8000);
 };

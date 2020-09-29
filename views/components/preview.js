@@ -6,7 +6,7 @@ const preview = props => {
   // if you couldn't tell, i'm very bad at regex
   const inline = props.post.content.match(/(((http|https|ftp):\/\/([\w-\d]+\.)+[\w-\d]+){0,1}(\/[\w~,;\-./?%&+#=]*))/ig) || [];
   inline.reverse();
-  const href = `/${props.post.service}/user/${props.post.user}/post/${props.post.id}`;
+  const href = `/posts/${props.post.service}/${props.post.id}`;
   inline.forEach(url => {
     if ((/\.(gif|jpe?g|png|webp)$/i).test(url) && (/\/inline\//i).test(url)) {
       parent = true;

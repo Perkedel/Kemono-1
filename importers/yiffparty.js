@@ -125,7 +125,7 @@ async function scraper (id, users) {
           .catch(() => {});
       }
 
-      await Promise.map(post.attachments, async (attachment) => {
+      await Promise.mapSeries(post.attachments, async (attachment) => {
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, `attachments/${user}/${post.id}`),
           name: attachment.file_name
@@ -153,7 +153,7 @@ async function scraper (id, users) {
         }
       })
 
-      await Promise.map(media.attachments, async (attachment) => {
+      await Promise.mapSeries(media.attachments, async (attachment) => {
         await downloadFile({
           ddir: path.join(process.env.DB_ROOT, `attachments/${user}/${post.id}`),
           name: attachment.filename

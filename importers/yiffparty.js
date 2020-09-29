@@ -49,15 +49,16 @@ async function scraper (id, users) {
       }
     }));
     if (err1 && err1.statusCode === 404) {
-      return log(`Error: User ID ${user} not found.`)
+      return log(`Error: User ID ${user} not found.`);
     } else if (err1 && err1.statusCode) {
-      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party JSON API.`)
+      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party JSON API.`);
     } else if (err1) {
       return log(err1);
     }
 
     const jar = request.jar();
-    const [err2, _] = await pWrapper(retry(() => cloudscraper.post(`https://yiff.party/config`, {
+    /* eslint-disable no-unused-vars */
+    const [err2, _config] = await pWrapper(retry(() => cloudscraper.post('https://yiff.party/config', {
       form: {
         a: 'post_view_limit',
         d: 'all'
@@ -65,21 +66,22 @@ async function scraper (id, users) {
       jar: jar
     })));
     if (err2 && err2.statusCode) {
-      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party config API.`)
+      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party config API.`);
     } else if (err2) {
       return log(err2);
     }
+    /* eslint-enable no-unused-vars */
 
     const [err3, html] = await pWrapper(retry(() => cloudscraper.get(`https://yiff.party/render_posts?s=patreon&c=${user}`, {
       jar: jar
     })));
     if (err3 && err3.statusCode) {
-      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party config API.`)
+      return log(`Error: Status code ${err1.statusCode} when contacting yiff.party config API.`);
     } else if (err3) {
       return log(err3);
     }
 
-    log(`Importing user ${user}`)
+    log(`Importing user ${user}`);
 
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
@@ -89,7 +91,7 @@ async function scraper (id, users) {
       const postExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
       if (postExists.length) return;
 
-      log(`Importing ID ${post.id}`)
+      log(`Importing ID ${post.id}`);
 
       const model = {
         id: String(post.id),
@@ -151,7 +153,7 @@ async function scraper (id, users) {
             }
           }
         }
-      })
+      });
 
       await Promise.mapSeries(media.attachments, async (attachment) => {
         await downloadFile({
@@ -169,17 +171,17 @@ async function scraper (id, users) {
           .catch(() => {});
       });
 
-      log(`Finished importing ID ${post.id}`)
+      log(`Finished importing ID ${post.id}`);
       await db('booru_posts').insert(model);
     });
   }, { concurrency: 8 });
 
-  log('Finished processing posts.')
+  log('Finished processing posts.');
   indexer();
 }
 
 module.exports = data => {
-  debug('kemono:importer:yiff:' + data.id)('Starting yiff.party import...')
-  failsafe.set(data.id, { importer: 'yiffparty', data: data }, 1800, () => {})
+  debug('kemono:importer:yiff:' + data.id)('Starting yiff.party import...');
+  failsafe.set(data.id, { importer: 'yiffparty', data: data }, 1800, () => {});
   scraper(data.id, data.users);
-}
+};

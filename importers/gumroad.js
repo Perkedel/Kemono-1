@@ -35,11 +35,11 @@ async function scraper (id, key, from = 1) {
   const [err1, gumroad] = await pWrapper(retry(() => cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key))));
 
   if (err1 && err1.statusCode) {
-    return log(`Error: Status code ${err1.statusCode} when contacting Gumroad API.`)
+    return log(`Error: Status code ${err1.statusCode} when contacting Gumroad API.`);
   } else if (err1) {
-    return log(err1)
+    return log(err1);
   }
-  
+
   if (gumroad.total > 100000) return log('Error: Can\'t log in; is your session key correct?'); // not logged in
   const data = await scrapeIt.scrapeHTML(gumroad.products_html, {
     products: {
@@ -91,7 +91,7 @@ async function scraper (id, key, from = 1) {
     const postExists = await db('booru_posts').where({ id: product.id, service: 'gumroad' });
     if (postExists.length) return;
 
-    log(`Importing ID ${product.id}`)
+    log(`Importing ID ${product.id}`);
     const inactivityTimer = setTimeout(() => log(`Warning: Post ${product.id} may be stalling`), 60000);
 
     const model = {
@@ -176,20 +176,20 @@ async function scraper (id, key, from = 1) {
     });
 
     clearTimeout(inactivityTimer);
-    log(`Finished importing ${product.id}`)
+    log(`Finished importing ${product.id}`);
     await db('booru_posts').insert(model);
   }, { concurrency: 8 });
 
   if (data.products.length) {
     scraper(id, key, from + gumroad.result_count);
   } else {
-    log('Finished scanning posts.')
+    log('Finished scanning posts.');
     indexer();
   }
 }
 
 module.exports = data => {
-  debug('kemono:importer:gumroad:' + data.id)('Starting Gumroad import...')
-  failsafe.set(data.id, { importer: 'gumroad', data: data }, 1800, () => {})
+  debug('kemono:importer:gumroad:' + data.id)('Starting Gumroad import...');
+  failsafe.set(data.id, { importer: 'gumroad', data: data }, 1800, () => {});
   scraper(data.id, data.key);
-}
+};

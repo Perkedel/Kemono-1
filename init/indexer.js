@@ -10,7 +10,7 @@ async function indexer () {
     const postsData = await trx.select('user', 'service')
       .from({ post: 'booru_posts' })
       .whereNotExists(db.select().from('lookup').whereRaw('id = post.user'))
-      .groupBy('user', 'service')
+      .groupBy('user', 'service');
     await Promise.map(postsData, async (post) => {
       switch (post.service) {
         case 'patreon': {

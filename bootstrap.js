@@ -47,7 +47,7 @@ const logfmt = str => str.trim();
           require('./importers/yiffparty')(entry.data.data);
           break;
       }
-    })
+    });
   });
 
   console.log('Starting webserver...');
@@ -55,10 +55,10 @@ const logfmt = str => str.trim();
 
   console.log('Building lookup index...');
   indexer();
-  
+
   console.log('━━━━━━━━━━━━━━━');
   console.log('\nWelcome to Kemono! [2.0.0-Lain]\n');
 
-  global.console.log = (...args) => require('./utils/debug')('kemono:global:log')(...args)
-  global.console.error = (...args) => require('./utils/debug')('kemono:global:error')(...args)
+  global.console.log = (...args) => require('./utils/debug')('kemono:global:log')(...args);
+  global.console.error = (...args) => require('./utils/debug')('kemono:global:error')(...args);
 })();

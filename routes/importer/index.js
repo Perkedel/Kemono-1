@@ -1,5 +1,5 @@
 const { list, ok, tutorial, yiff, status } = require('./views');
-const { db } = require('../../utils/db')
+const { db } = require('../../utils/db');
 const express = require('express');
 const router = express.Router();
 
@@ -12,11 +12,11 @@ router
     const logs = await db('logs')
       .where('log0', 'ILIKE', '%' + ':' + req.params.id + '%')
       .orderBy('created', 'asc');
-    res.set('Cache-Control', 's-maxage=31557600, no-cache')
+    res.set('Cache-Control', 's-maxage=31557600, no-cache');
     res.send(status({
       id: req.params.id,
       log: logs
-    }))
+    }));
   });
 
 module.exports = router;

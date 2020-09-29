@@ -47,35 +47,43 @@ module.exports = (opts, requestOpts = {}) => {
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
               }
 
-              pool.exec((data) => {
-                const JPEG = require('jpeg-js');
-                const fs = require('fs-extra');
-                const mime = require('mime');
-                const path = require('path');
-                const PNG = require('png-js');
-
-                if (mime.getType(data.filename) === 'image/png') {
-                  PNG.load(path.join(data.ddir, data.tempname));
-                } else if (mime.getType(data.filename) === 'image/jpeg') {
-                  JPEG.decode(fs.readFileSync(path.join(data.ddir, data.tempname)), {
-                    tolerantDecoding: false
-                  });
-                }
-              }, [{
-                filename: filename,
-                tempname: tempname,
-                ddir: opts.ddir
-              }])
+              fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
                 .then(() => {
-                  fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
-                    .then(() => {
-                      resolve({
-                        filename: filename,
-                        res: res
-                      });
-                    });
-                })
-                .catch(() => reject(new Error('Decode failed')));
+                  resolve({
+                    filename: filename,
+                    res: res
+                  });
+                });
+
+              // pool.exec((data) => {
+              //   const JPEG = require('jpeg-js');
+              //   const fs = require('fs-extra');
+              //   const mime = require('mime');
+              //   const path = require('path');
+              //   const PNG = require('png-js');
+
+              //   if (mime.getType(data.filename) === 'image/png') {
+              //     PNG.load(path.join(data.ddir, data.tempname));
+              //   } else if (mime.getType(data.filename) === 'image/jpeg') {
+              //     JPEG.decode(fs.readFileSync(path.join(data.ddir, data.tempname)), {
+              //       tolerantDecoding: false
+              //     });
+              //   }
+              // }, [{
+              //   filename: filename,
+              //   tempname: tempname,
+              //   ddir: opts.ddir
+              // }])
+              //   .then(() => {
+              //     fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
+              //       .then(() => {
+              //         resolve({
+              //           filename: filename,
+              //           res: res
+              //         });
+              //       });
+              //   })
+              //   .catch(() => reject(new Error('Decode failed')));
             })
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));

@@ -1,12 +1,11 @@
 const { db } = require('./db');
 const splitWithoutTruncation = (string, separator, n) => {
   var split = string.split(separator);
-  if (split.length <= n)
-      return split;
-  var out = split.slice(0,n-1);
-  out.push(split.slice(n-1).join(separator));
+  if (split.length <= n) { return split; }
+  var out = split.slice(0, n - 1);
+  out.push(split.slice(n - 1).join(separator));
   return out;
-}
+};
 
 /**
  * Converts a regular string into a booru-style query. Returns a Knex query builder object.
@@ -18,9 +17,9 @@ const splitWithoutTruncation = (string, separator, n) => {
  * @param {String} opts.limit - (Optional) The maximum amount of posts to return.
  */
 const booruQueryFromString = (str, opts = {}) => {
-  let query = db('booru_posts');
-  let tags = str.replace(/\s\s+/g, ' ').trim().split(' ');
-  let regtags = [];
+  const query = db('booru_posts');
+  const tags = str.replace(/\s\s+/g, ' ').trim().split(' ');
+  const regtags = [];
   tags.map(tag => {
     if (!/:/.test(tag)) return regtags.push(tag);
     const [namespace, nametag] = splitWithoutTruncation(tag, ':', 2);
@@ -34,16 +33,16 @@ const booruQueryFromString = (str, opts = {}) => {
       'rating'
     ];
     if (!metatags.includes(namespace.replace('-', ''))) return;
-    let not = namespace.startsWith('-');
-    let wildcard = nametag.endsWith('*');
+    const not = namespace.startsWith('-');
+    const wildcard = nametag.endsWith('*');
     if (not && wildcard) {
-      query.andWhereNot(namespace.replace('-', ''), 'ILIKE', nametag.replace('*', '%'))
+      query.andWhereNot(namespace.replace('-', ''), 'ILIKE', nametag.replace('*', '%'));
     } else if (!not && wildcard) {
-      query.andWhere(namespace, 'ILIKE', nametag.replace('*', '%'))
+      query.andWhere(namespace, 'ILIKE', nametag.replace('*', '%'));
     } else if (not && !wildcard) {
-      query.andWhereNot(namespace.replace('-', ''), '=', nametag)
+      query.andWhereNot(namespace.replace('-', ''), '=', nametag);
     } else {
-      query.andWhere(namespace, '=', nametag)
+      query.andWhere(namespace, '=', nametag);
     }
   });
   if (regtags.length) query.andWhereRaw('to_tsvector(tags) @@ websearch_to_tsquery(?)', [regtags.join(' ')]);
@@ -51,6 +50,6 @@ const booruQueryFromString = (str, opts = {}) => {
   if (opts.offset) query.offset(opts.offset);
   if (opts.limit) query.limit(opts.limit);
   return query;
-}
+};
 
 module.exports = { booruQueryFromString };

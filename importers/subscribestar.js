@@ -26,9 +26,9 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
   })));
 
   if (err1 && err1.statusCode) {
-    return log(`Error: Status code ${err1.statusCode} when contacting SubscribeStar API.`)
+    return log(`Error: Status code ${err1.statusCode} when contacting SubscribeStar API.`);
   } else if (err1) {
-    return log(err1)
+    return log(err1);
   }
 
   const data = await scrapeIt.scrapeHTML(unraw(subscribestar.html), {
@@ -89,7 +89,7 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
     const postExists = await db('booru_posts').where({ id: post.id, service: 'subscribestar' });
     if (postExists.length) return;
 
-    log(`Importing ID ${post.id}`)
+    log(`Importing ID ${post.id}`);
     const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
 
     const model = {
@@ -130,21 +130,21 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
     });
 
     clearTimeout(inactivityTimer);
-    log(`Finished importing ${post.id}`)
+    log(`Finished importing ${post.id}`);
     await db('booru_posts').insert(model);
   }, { concurrency: 8 });
 
   if (data.next_url) {
     scraper(id, key, data.next_url);
   } else {
-    log('Finished scanning posts.')
-    log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.')
+    log('Finished scanning posts.');
+    log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.');
     indexer();
   }
 }
 
 module.exports = data => {
-  debug('kemono:importer:subscribestar:' + data.id)('Starting SubscribeStar import...')
-  failsafe.set(data.id, { importer: 'subscribestar', data: data }, 1800, () => {})
+  debug('kemono:importer:subscribestar:' + data.id)('Starting SubscribeStar import...');
+  failsafe.set(data.id, { importer: 'subscribestar', data: data }, 1800, () => {});
   scraper(data.id, data.key);
-}
+};

@@ -48,7 +48,8 @@ module.exports = (opts, requestOpts = {}) => {
                 const tempstats = await fs.stat(path.join(opts.ddir, tempname));
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
               } else if (!res.headers['content-length'] && mime.getType(filename) === 'image/png') {
-                await pool.exec(data => {
+                /* eslint-disable no-unused-vars */
+                const [err1, _jpg] = await pWrapper(pool.exec(data => {
                   const JPEG = require('jpeg-js');
                   const path = require('path');
                   const fs = require('fs-extra');
@@ -58,16 +59,21 @@ module.exports = (opts, requestOpts = {}) => {
                 }, [{
                   tempname: tempname,
                   ddir: opts.ddir
-                }])
+                }]));
+                if (err1) return reject(new Error('Decode failed'));
+                /* eslint-enable no-unused-vars */
               } else if (!res.headers['content-length'] && mime.getType(filename) === 'image/jpeg') {
-                await pool.exec(data => {
+                /* eslint-disable no-unused-vars */
+                const [err2, _png] = await pWrapper(pool.exec(data => {
                   const PNG = require('png-js');
                   const path = require('path');
                   PNG.load(path.join(data.ddir, data.tempname));
                 }, [{
                   tempname: tempname,
                   ddir: opts.ddir
-                }])
+                }]));
+                if (err2) return reject(new Error('Decode failed'));
+                /* eslint-enable no-unused-vars */
               }
 
               await fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename));

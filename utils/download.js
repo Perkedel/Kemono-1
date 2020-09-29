@@ -6,7 +6,9 @@ const crypto = require('crypto');
 const retry = require('p-retry');
 const fs = require('fs-extra');
 const path = require('path');
+const mime = require('mime');
 const { pool } = require('./worker');
+const { to: pWrapper } = require('await-to-js');
 
 /**
  * Wrapper for Request that automatically handles integrity checking and automatic retries when downloading files.
@@ -45,37 +47,34 @@ module.exports = (opts, requestOpts = {}) => {
               if (res.headers['content-length']) {
                 const tempstats = await fs.stat(path.join(opts.ddir, tempname));
                 if (tempstats.size !== Number(res.headers['content-length'])) return reject(new Error('Size differs from reported'));
-              }
-
-              pool.exec((data) => {
-                const JPEG = require('jpeg-js');
-                const fs = require('fs-extra');
-                const mime = require('mime');
-                const path = require('path');
-                const PNG = require('png-js');
-
-                if (mime.getType(data.filename) === 'image/png') {
-                  PNG.load(path.join(data.ddir, data.tempname));
-                } else if (mime.getType(data.filename) === 'image/jpeg') {
+              } else if (!res.headers['content-length'] && mime.getType(filename) === 'image/png') {
+                await pool.exec(data => {
+                  const JPEG = require('jpeg-js');
+                  const path = require('path');
+                  const fs = require('fs-extra');
                   JPEG.decode(fs.readFileSync(path.join(data.ddir, data.tempname)), {
                     tolerantDecoding: false
                   });
-                }
-              }, [{
+                }, [{
+                  tempname: tempname,
+                  ddir: opts.ddir
+                }])
+              } else if (!res.headers['content-length'] && mime.getType(filename) === 'image/jpeg') {
+                await pool.exec(data => {
+                  const PNG = require('png-js');
+                  const path = require('path');
+                  PNG.load(path.join(data.ddir, data.tempname));
+                }, [{
+                  tempname: tempname,
+                  ddir: opts.ddir
+                }])
+              }
+
+              await fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename));
+              resolve({
                 filename: filename,
-                tempname: tempname,
-                ddir: opts.ddir
-              }])
-                .then(() => {
-                  fs.rename(path.join(opts.ddir, tempname), path.join(opts.ddir, filename))
-                    .then(() => {
-                      resolve({
-                        filename: filename,
-                        res: res
-                      });
-                    });
-                })
-                .catch(() => reject(new Error('Decode failed')));
+                res: res
+              });
             })
             .on('error', err => reject(err))
             .pipe(fs.createWriteStream(path.join(opts.ddir, tempname)));

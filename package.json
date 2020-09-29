@@ -5,7 +5,7 @@
   },
   "scripts": {
     "dev": "env DEBUG=kemono:* supervisor -i node_modules,public -n error bootstrap.js",
-    "start": "node bootstrap.js",
+    "start": "forever --fifo bootstrap.js",
     "lint": "semistandard --fix --verbose | snazzy"
   },
   "dependencies": {
@@ -25,6 +25,7 @@
     "express-basic-auth": "^1.2.0",
     "feed": "^4.2.1",
     "file-type": "^15.0.1",
+    "forever": "^3.0.2",
     "fs-extra": "^8.1.0",
     "get-urls": "^9.2.0",
     "hasha": "^5.2.0",

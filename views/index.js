@@ -4,10 +4,10 @@ const { artists } = require('./artists');
 const { success } = require('./success');
 const { upload } = require('./upload');
 const { server } = require('./server');
+const { recent } = require('./recent');
 const { error } = require('./error');
 const { post } = require('./post');
 const { user } = require('./user');
-const { tags } = require('./tags');
 
 module.exports = {
   favorites,
@@ -17,7 +17,7 @@ module.exports = {
   artists,
   upload,
   server,
-  tags,
+  recent,
   post,
   user
 };

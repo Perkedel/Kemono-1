@@ -14,8 +14,7 @@ router
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(userBans);
   })
-  .get('/recent', (_, res) => res.redirect('/posts'))
-  .get('/posts', async (req, res) => {
+  .get('/recent', async (req, res) => {
     const recentPosts = await db
       .select('*')
       .from('booru_posts')
@@ -24,24 +23,6 @@ router
       .limit(Number(req.query.limit) && Number(req.query.limit) <= 100 ? Number(req.query.limit) : 50);
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
-  })
-  // to do; edit rating
-  // to do; revert revision
-  .post('/edit_tags', async (req, res) => {
-    if (!req.body.tags) return res.sendStatus(400);
-    const tags = req.body.tags.replace(/\s\s+/g, ' ').trim().split(' ');
-    await Promise.map(tags, async tag_id => {
-      const tagExists = await db('booru_tags').where({ id: tag_id });
-      if (tagExists.length) return;
-      await db('booru_tags').insert({
-        id: tag_id,
-        name: tag_id.replace(/_/g, ' ')
-      });
-    })
-    await db('booru_posts').where({ id: req.body.id, service: req.body.service })
-      .update('tags', req.body.tags.replace(/\s\s+/g, ' ').trim())
-    // to do; track revisions
-    res.redirect('back');
   })
   .post('/import', (req, res) => {
     if (!req.body.session_key) return res.sendStatus(401);

@@ -50,7 +50,7 @@ const artists = data => shell(`
             <option value="desc" ${data.query.order === 'desc' ? 'selected' : ''}>Descending</option>
           </select>
         </div>
-        <input type="submit" name="commit" value="Search">
+        <input type="submit" name="commit" value="Search" data-disable-with="Search">
       </form>
       <div class="vertical-views">
         ${data.results.length ? `

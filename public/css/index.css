@@ -10,14 +10,6 @@ h1, h2, h3, label {
   font-family: Tahoma;
 }
 
-h5 {
-  font-size: 1.2em;
-}
-
-h6 {
-  font-size: 1em;
-}
-
 textarea {
   width: calc(100% - 2px);
   -webkit-box-sizing: border-box;
@@ -140,26 +132,6 @@ a:link {
   flex-direction: column;
 }
 
-.sidebar * {
-  margin: 0;
-  padding: 0;
-}
-
-.sidebar input {
-  width: 100%;
-}
-
-.sidebar li {
-  display: block;
-  list-style-type: none;
-}
-
-.sidebar li a {
-  text-decoration: none;
-  line-height: 1.4em;
-  color: #87CEFA;
-}
-
 select {
   background-image: linear-gradient(#282a2e, #111111);
   border-color: #111;
@@ -177,7 +149,6 @@ input[type="text"], input[type="number"] {
   color: #fff;
   text-align: center;
   border: 0;
-  outline: none;
 }
 
 /* headers */
@@ -432,20 +403,3 @@ thead th {
   background-color: #4c4f57;
   font-size: 8pt;
 }
-
-/* tags */
-.tag-artist > a {
-  color: rgb(239, 116, 117) !important;
-}
-
-.tag-character > a {
-  color: rgb(94, 192, 122) !important;
-}
-
-.tag-copyright > a {
-  color: rgb(173, 130, 235) !important;
-}
-
-.tag-meta > a {
-  color: rgb(233, 196, 94) !important;
-}🚫

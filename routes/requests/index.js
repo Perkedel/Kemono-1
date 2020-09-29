@@ -83,7 +83,7 @@ router
     query: req.query
   })))
   .post('/new', createRequestLimiter, upload.single('image'), async (req, res) => {
-    if (!req.body.user_id) return res.status(400).send(`You didn't enter a user ID.`);
+    if (!req.body.user_id) return res.status(400).send('You didn\'t enter a user ID.');
     await request.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage?chat_id=-1001273389670&parse_mode=HTML&text=${encodeURIComponent(`
 <b>New request</b>
 <i>${req.body.title}</i> ($${req.body.price})
@@ -94,7 +94,7 @@ ${req.body.description || ''}
   gumroad: req.body.specific_id ? `https://gumroad.com/l/${req.body.specific_id}` : `https://gumroad.com/${req.body.user_id}`,
   subscribestar: req.body.specific_id ? `https://subscribestar.adult/posts/${req.body.specific_id}` : `https://subscribestar.adult/${req.body.user_id}`,
   dlsite: req.body.specific_id ? `https://www.dlsite.com/ecchi-eng/work/=/product_id/${req.body.specific_id}` : `https://www.dlsite.com/eng/circle/profile/=/maker_id/${req.body.user_id}`
-})[req.body.service]}">Link to requested user/post.</a>`.trim())}`)
+})[req.body.service]}">Link to requested user/post.</a>`.trim())}`);
     await db('requests')
       .insert({
         service: xss(req.body.service),

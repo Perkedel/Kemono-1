@@ -43,7 +43,7 @@
     "png-js": "^1.0.0",
     "qs": "^6.9.4",
     "read-chunk": "^3.2.0",
-    "redis": "^3.0.2",
+    "redis": "^2.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "retry": "^0.12.0",

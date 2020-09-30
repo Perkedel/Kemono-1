@@ -29,11 +29,13 @@ module.exports = {
   }),
   cache: new Redis({
     host: process.env.RDHOST || 'localhost',
-    port: process.env.RDPORT || 6379
+    port: process.env.RDPORT || 6379,
+    socket_keepalive: true
   }),
   failsafe: new Redis({
     host: process.env.RDHOST || 'localhost',
     port: process.env.RDPORT || 6379,
-    prefix: 'importers:'
+    prefix: 'importers:',
+    socket_keepalive: true
   })
 };

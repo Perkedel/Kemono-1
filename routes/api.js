@@ -25,7 +25,14 @@ router
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
-  // to do; edit rating
+  .post('/edit_rating', async (req, res) => {
+    if (!req.body.rating) return res.sendStatus(400);
+    if (!['safe', 'questionable', 'explicit'].includes(req.body.rating)) return res.sendStatus(400);
+    await db('booru_posts').where({ id: req.body.id, service: req.body.service })
+      .update('rating', req.body.rating)
+    // to do; track revisions
+    res.redirect('back');
+  })
   // to do; revert revision
   .post('/edit_tags', async (req, res) => {
     if (!req.body.tags) return res.sendStatus(400);

@@ -1,4 +1,4 @@
-const Redis = require('cacheman-redis');
+const Redis = require('ioredis');
 module.exports = {
   db: require('knex')({
     client: 'pg',
@@ -30,12 +30,11 @@ module.exports = {
   cache: new Redis({
     host: process.env.RDHOST || 'localhost',
     port: process.env.RDPORT || 6379,
-    socket_keepalive: true
+    keyPrefix: 'cacheman:'
   }),
   failsafe: new Redis({
     host: process.env.RDHOST || 'localhost',
     port: process.env.RDPORT || 6379,
-    prefix: 'importers:',
-    socket_keepalive: true
+    keyPrefix: 'importers:'
   })
 };

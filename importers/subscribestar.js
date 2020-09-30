@@ -145,6 +145,6 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
 
 module.exports = data => {
   debug('kemono:importer:subscribestar:' + data.id)('Starting SubscribeStar import...');
-  failsafe.set(data.id, { importer: 'subscribestar', data: data }, 1800, () => {});
+  failsafe.set(data.id, JSON.stringify({ importer: 'subscribestar', data: data }), 'EX', 1800);
   scraper(data.id, data.key);
 };

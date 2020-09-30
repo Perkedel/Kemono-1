@@ -25,29 +25,34 @@ const logfmt = str => str.trim();
   process.env.VAPID_PUBLIC_KEY = vapid.publicKey;
 
   console.log('Restarting unfinished imports...');
-  failsafe.scan(0, 1000, function (err, result) {
-    if (err) return console.log(err);
-    result.entries.map(entry => {
-      switch (entry.data.importer) {
-        case 'patreon':
-          require('./importers/patreon')(entry.data.data);
-          break;
-        case 'fanbox':
-          require('./importers/fanbox')(entry.data.data);
-          break;
-        case 'gumroad':
-          require('./importers/gumroad')(entry.data.data);
-          break;
-        case 'subscribestar':
-          require('./importers/subscribestar')(entry.data.data);
-          break;
-        case 'dlsite':
-          require('./importers/dlsite')(entry.data.data);
-          break;
-        case 'yiffparty':
-          require('./importers/yiffparty')(entry.data.data);
-          break;
-      }
+  const stream = failsafe.scanStream({ match: 'importers:*' });
+  stream.on('data', result => {
+    result.map(key => {
+      console.log(key)
+      failsafe.get(key.replace('importers:', ''), function (err, val) {
+        val = JSON.parse(val);
+        if (err) return console.log(err);
+        switch (entry.importer) {
+          case 'patreon':
+            require('./importers/patreon')(entry.data);
+            break;
+          case 'fanbox':
+            require('./importers/fanbox')(entry.data);
+            break;
+          case 'gumroad':
+            require('./importers/gumroad')(entry.data);
+            break;
+          case 'subscribestar':
+            require('./importers/subscribestar')(entry.data);
+            break;
+          case 'dlsite':
+            require('./importers/dlsite')(entry.data);
+            break;
+          case 'yiffparty':
+            require('./importers/yiffparty')(entry.data.data);
+            break;
+        }
+      });
     });
   });
 
@@ -62,8 +67,4 @@ const logfmt = str => str.trim();
 
   global.console.log = (...args) => require('./utils/debug')('kemono:global:log')(...args);
   global.console.error = (...args) => require('./utils/debug')('kemono:global:error')(...args);
-
-  // prevent redis connection from dying
-  setInterval(() => cache.set(crypto.randomBytes(5).toString('hex'), 'ping', 1, () => {}), 5000)
-  setInterval(() => failsafe.set(crypto.randomBytes(5).toString('hex'), 'ping', 1, () => {}), 5000)
 })();

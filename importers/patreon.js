@@ -202,6 +202,6 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
 
 module.exports = data => {
   debug('kemono:importer:patreon:' + data.id)('Starting Patreon import...');
-  failsafe.set(data.id, { importer: 'patreon', data: data }, 1800, () => {});
+  failsafe.set(data.id, JSON.stringify({ importer: 'patreon', data: data }), 'EX', 1800);
   scraper(data.id, data.key);
 };

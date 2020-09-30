@@ -173,6 +173,6 @@ async function scraper (importData, page = 1) {
 
 module.exports = data => {
   debug('kemono:importer:dlsite:' + data.id)('Starting DLsite import...');
-  failsafe.set(data.id, { importer: 'dlsite', data: data }, 1800, () => {});
+  failsafe.set(data.id, JSON.stringify({ importer: 'dlsite', data: data }), 'EX', 1800);
   scraper(data);
 };

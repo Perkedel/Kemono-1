@@ -45,7 +45,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 1m
-      timeout: 10s
+      timeout: 2m
       retries: 3
       start_period: 30s
   autoheal:

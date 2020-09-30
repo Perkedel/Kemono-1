@@ -184,6 +184,6 @@ async function scraper (id, users) {
 
 module.exports = data => {
   debug('kemono:importer:yiff:' + data.id)('Starting yiff.party import...');
-  failsafe.set(data.id, { importer: 'yiffparty', data: data }, 1800, () => {});
+  failsafe.set(data.id, JSON.stringify({ importer: 'yiffparty', data: data }), 'EX', 1800);
   scraper(data.id, data.users);
 };

@@ -190,6 +190,6 @@ async function scraper (id, key, from = 1) {
 
 module.exports = data => {
   debug('kemono:importer:gumroad:' + data.id)('Starting Gumroad import...');
-  failsafe.set(data.id, { importer: 'gumroad', data: data }, 1800, () => {});
+  failsafe.set(data.id, JSON.stringify({ importer: 'gumroad', data: data }), 'EX', 1800);
   scraper(data.id, data.key);
 };

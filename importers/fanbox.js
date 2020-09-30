@@ -280,6 +280,6 @@ async function parseBody (body, key, opts) {
 
 module.exports = data => {
   debug('kemono:importer:fanbox:' + data.id)('Starting Pixiv Fanbox import...');
-  failsafe.set(data.id, { importer: 'fanbox', data: data }, 1800, () => {});
+  failsafe.set(data.id, JSON.stringify({ importer: 'fanbox', data: data }), 'EX', 1800);
   scraper(data.id, data.key);
 };

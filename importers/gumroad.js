@@ -92,7 +92,7 @@ async function scraper (id, key, from = 1) {
     if (postExists.length) return;
 
     log(`Importing ID ${product.id}`);
-    const inactivityTimer = setTimeout(() => log(`Warning: Post ${product.id} may be stalling`), 60000);
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${product.id} may be stalling`), 120000);
 
     const model = {
       id: product.id,

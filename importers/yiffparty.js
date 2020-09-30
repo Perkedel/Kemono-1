@@ -82,6 +82,7 @@ async function scraper (id, users) {
     }
 
     log(`Importing user ${user}`);
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
 
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
@@ -171,6 +172,7 @@ async function scraper (id, users) {
           .catch(() => {});
       });
 
+      clearTimeout(inactivityTimer);
       log(`Finished importing ID ${post.id}`);
       await db('booru_posts').insert(model);
     });

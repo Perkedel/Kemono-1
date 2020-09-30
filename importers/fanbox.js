@@ -70,7 +70,7 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
     if (postExists.length) return;
 
     log(`Importing ID ${post.id}`);
-    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 120000);
 
     const model = {
       id: post.id,

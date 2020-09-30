@@ -82,7 +82,6 @@ async function scraper (id, users) {
     }
 
     log(`Importing user ${user}`);
-    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 120000);
 
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
@@ -93,7 +92,8 @@ async function scraper (id, users) {
       if (postExists.length) return;
 
       log(`Importing ID ${post.id}`);
-
+      const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 120000);
+      
       const model = {
         id: String(post.id),
         user: user,

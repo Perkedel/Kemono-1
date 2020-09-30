@@ -1,6 +1,7 @@
 require('dotenv').config();
 const webpush = require('./utils/push');
-const { db, failsafe } = require('./utils/db');
+const { db, failsafe, cache } = require('./utils/db');
+const crypto = require('crypto');
 const fs = require('fs-extra');
 const path = require('path');
 const indexer = require('./init/indexer');
@@ -61,4 +62,8 @@ const logfmt = str => str.trim();
 
   global.console.log = (...args) => require('./utils/debug')('kemono:global:log')(...args);
   global.console.error = (...args) => require('./utils/debug')('kemono:global:error')(...args);
+
+  // prevent redis connection from dying
+  setInterval(() => cache.set(crypto.randomBytes(5).toString('hex'), 'ping', 1, () => {}), 5000)
+  setInterval(() => failsafe.set(crypto.randomBytes(5).toString('hex'), 'ping', 1, () => {}), 5000)
 })();

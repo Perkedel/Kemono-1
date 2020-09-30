@@ -32,24 +32,24 @@ const logfmt = str => str.trim();
       failsafe.get(key.replace('importers:', ''), function (err, val) {
         val = JSON.parse(val);
         if (err) return console.log(err);
-        switch (entry.importer) {
+        switch (val.importer) {
           case 'patreon':
-            require('./importers/patreon')(entry.data);
+            require('./importers/patreon')(val.data);
             break;
           case 'fanbox':
-            require('./importers/fanbox')(entry.data);
+            require('./importers/fanbox')(val.data);
             break;
           case 'gumroad':
-            require('./importers/gumroad')(entry.data);
+            require('./importers/gumroad')(val.data);
             break;
           case 'subscribestar':
-            require('./importers/subscribestar')(entry.data);
+            require('./importers/subscribestar')(val.data);
             break;
           case 'dlsite':
-            require('./importers/dlsite')(entry.data);
+            require('./importers/dlsite')(val.data);
             break;
           case 'yiffparty':
-            require('./importers/yiffparty')(entry.data.data);
+            require('./importers/yiffparty')(val.data);
             break;
         }
       });

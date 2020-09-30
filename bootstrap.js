@@ -28,7 +28,6 @@ const logfmt = str => str.trim();
   const stream = failsafe.scanStream({ match: 'importers:*' });
   stream.on('data', result => {
     result.map(key => {
-      console.log(key)
       failsafe.get(key.replace('importers:', ''), function (err, val) {
         val = JSON.parse(val);
         if (err) return console.log(err);

@@ -1,5 +1,5 @@
 const { list, ok, tutorial, yiff, status } = require('./views');
-const { db } = require('../../utils/db');
+const { logdb } = require('../../utils/db');
 const express = require('express');
 const router = express.Router();
 
@@ -9,7 +9,7 @@ router
   .get('/ok', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(ok()))
   .get('/yiff', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(yiff()))
   .get('/status/:id', async (req, res) => {
-    const logs = await db('logs')
+    const logs = await logdb('logs')
       .where('log0', 'ILIKE', '%' + ':' + req.params.id + '%')
       .orderBy('created', 'asc');
     res.set('Cache-Control', 's-maxage=31557600, no-cache');

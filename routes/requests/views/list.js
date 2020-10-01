@@ -99,7 +99,7 @@ const list = props => shell(`
               <tr class="artist-row">
                 <td>
                   <a href="${request.image}" target="_blank">
-                    ${request.image ? `<img src="https://images.weserv.nl/?url=https://kemono.party${request.image}&width=200&output=jpg&we">` : '<span class="subtitle">No image</span>'}
+                    ${request.image ? `<img src="https://images.weserv.nl/?url=https://kemono.party${request.image}&width=200&output=jpg">` : '<span class="subtitle">No image</span>'}
                   </a>
                 </td>
                 <td>

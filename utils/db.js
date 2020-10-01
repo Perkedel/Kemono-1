@@ -11,7 +11,8 @@ module.exports = {
     pool: {
       acquireTimeoutMillis: 1000000, // never timeout
       max: 100
-    }
+    },
+    acquireConnectionTimeout: 1000000
   }),
   logdb: require('knex')({
     client: 'pg',
@@ -23,9 +24,9 @@ module.exports = {
     },
     pool: {
       acquireTimeoutMillis: 1000000, // never timeout
-      min: 0,
       max: 1
-    }
+    },
+    acquireConnectionTimeout: 1000000
   }),
   cache: new Redis({
     host: process.env.RDHOST || 'localhost',

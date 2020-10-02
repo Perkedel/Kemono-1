@@ -33,7 +33,7 @@ services:
     ports:
       - 8000:8000
     env_file:
-      - .env
+      - /root/Kemono/.env
     environment:
       - PGUSER=nano
       - PGPASSWORD=shinonome
@@ -53,7 +53,7 @@ services:
     hostname: ouroboros
     image: pyouroboros/ouroboros
     env_file:
-      - .env.ouroboros
+      - /root/Kemono/.env.ouroboros
     environment:
       - CLEANUP=true
       - INTERVAL=30

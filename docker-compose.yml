@@ -22,7 +22,7 @@ services:
     # ports:
     #  - 5432:5432
   kemono-app:
-    image: openyiff/kemono
+    image: openyiff/kemonoparty
     container_name: kemono
     restart: unless-stopped
     depends_on:

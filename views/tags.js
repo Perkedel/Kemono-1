@@ -22,7 +22,7 @@ const tags = props => shell(`
           <h5>Tags</h5>
           ${Object.keys(props.tags).map(namespace => {
             return `
-              ${props.tags[namespace].map(tag => `<li ${namespace !== 'general' ? `class="tag-${namespace}` : ''}"><a href="/posts?tags=${namespace !== 'general' ? `${namespace}%3A` : ''}${tag.replace(/ +/g, '_')}&commit=Search">${tag}</a></li>`).join('')}
+              ${props.tags[namespace].map(tag => `<li ${namespace !== 'general' ? `class="tag-${namespace}` : ''}"><a href="/posts?tags=${tag.replace(/ +/g, '_')}&commit=Search">${tag}</a></li>`).join('')}
             `
           }).join('')}
         </div>

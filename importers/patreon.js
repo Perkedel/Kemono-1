@@ -57,9 +57,9 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
   }));
 
   if (err1 && err1.statusCode) {
-    return log(`Error: Status code ${err1.statusCode} when contacting Patreon API.`)
+    return log(`Error: Status code ${err1.statusCode} when contacting Patreon API.`);
   } else if (err1) {
-    return log(err1)
+    return log(err1);
   }
 
   Promise.map(patreon.data, async (post) => {
@@ -96,8 +96,8 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
       attachmentsKey = `files/edits/${rel.user.data.id}/${post.id}/${crypto.randomBytes(5).toString('hex')}`;
     }
 
-    log(`Importing ID ${post.id}`)
-    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
+    log(`Importing ID ${post.id}`);
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 120000);
 
     const model = {
       id: post.id,
@@ -187,21 +187,21 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
     }).catch(() => {});
 
     clearTimeout(inactivityTimer);
-    log(`Finished importing ${post.id}`)
+    log(`Finished importing ${post.id}`);
     await db('booru_posts').insert(model);
   }, { concurrency: 8 });
 
   if (patreon.links.next) {
     scraper(id, key, 'https://' + patreon.links.next);
   } else {
-    log('Finished scanning posts.')
-    log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.')
+    log('Finished scanning posts.');
+    log('No posts detected? You either entered your session key incorrectly, or are not subscribed to any artists.');
     indexer();
   }
 }
 
 module.exports = data => {
-  debug('kemono:importer:patreon:' + data.id)('Starting Patreon import...')
-  failsafe.set(data.id, { importer: 'patreon', data: data }, 1800, () => {})
+  debug('kemono:importer:patreon:' + data.id)('Starting Patreon import...');
+  failsafe.set(data.id, JSON.stringify({ importer: 'patreon', data: data }), 'EX', 1800);
   scraper(data.id, data.key);
-}
+};

@@ -109,7 +109,7 @@ router
     res.send(success({
       currentPage: 'import',
       redirect: '/importer/status/' + importId
-    }))
+    }));
   })
   .get('/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);

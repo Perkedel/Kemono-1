@@ -31,17 +31,17 @@ async function scraper (importData, page = 1) {
 
   const [err1, auth] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/authorize`, requestOptions(importData.key))));
   if (err1 && err1.statusCode) {
-    return log(`Error: Status code ${err1.statusCode} when authenticating.`)
+    return log(`Error: Status code ${err1.statusCode} when authenticating.`);
   } else if (err1) {
-    return log(err1)
+    return log(err1);
   }
 
   const key = auth.sid;
   const [err2, dlsite] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key))));
   if (err2 && err2.statusCode) {
-    return log(`Error: Status code ${err2.statusCode} when contacting DLsite API.`)
+    return log(`Error: Status code ${err2.statusCode} when contacting DLsite API.`);
   } else if (err2) {
-    return log(err2)
+    return log(err2);
   }
 
   Promise.map(dlsite.works, async (work) => {
@@ -64,8 +64,8 @@ async function scraper (importData, page = 1) {
     const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
     if (postExists.length) return;
 
-    log(`Importing ID ${work.workno}`)
-    const inactivityTimer = setTimeout(() => log(`Warning: Post ${work.workno} may be stalling`), 60000);
+    log(`Importing ID ${work.workno}`);
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${work.workno} may be stalling`), 120000);
 
     const model = {
       id: work.workno,
@@ -100,12 +100,14 @@ async function scraper (importData, page = 1) {
         });
     }
 
-    [err3, _] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key))));
+    /* eslint-disable no-unused-vars */
+    const [err3, _] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key))));
     if (err3 && err3.statusCode) {
-      return log(`Error: Status code ${err1.statusCode} when refreshing download token.`)
+      return log(`Error: Status code ${err1.statusCode} when refreshing download token.`);
     } else if (err3) {
-      return log(err3)
+      return log(err3);
     }
+    /* eslint-enable no-unused-vars */
 
     const jar = request.jar(); // required for auth dance
     const res = await downloadFile({
@@ -122,8 +124,8 @@ async function scraper (importData, page = 1) {
 
     // handle split files
     if (res.filename.endsWith('.Untitled')) {
-      log(`ID ${work.workno}: HTML/unknown file downloaded.`)
-      log(`ID ${work.workno}: Scanning for multipart files...`)
+      log(`ID ${work.workno}: HTML/unknown file downloaded.`);
+      log(`ID ${work.workno}: Scanning for multipart files...`);
       const splitFileData = scrapeIt.scrapeHTML(await fs.readFile(path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`, res.filename), 'utf8'), {
         parts: {
           listItem: '.work_download a',
@@ -136,7 +138,7 @@ async function scraper (importData, page = 1) {
       });
 
       if (splitFileData.parts.length) {
-        log(`ID ${work.workno}: ${splitFileData.parts.length} parts found.`)
+        log(`ID ${work.workno}: ${splitFileData.parts.length} parts found.`);
         await Promise.map(splitFileData.parts, async (part) => {
           await downloadFile({
             ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
@@ -157,20 +159,20 @@ async function scraper (importData, page = 1) {
     }
 
     clearTimeout(inactivityTimer);
-    log(`Finished importing ${work.workno}.`)
+    log(`Finished importing ${work.workno}.`);
     await db('booru_posts').insert(model);
   }, { concurrency: 8 });
 
   if (dlsite.works.length) {
     scraper(importData, page + 1);
   } else {
-    log('Finished scanning posts.')
+    log('Finished scanning posts.');
     indexer();
   }
 }
 
 module.exports = data => {
-  debug('kemono:importer:dlsite:' + data.id)('Starting DLsite import...')
-  failsafe.set(data.id, { importer: 'dlsite', data: data }, 1800, () => {})
+  debug('kemono:importer:dlsite:' + data.id)('Starting DLsite import...');
+  failsafe.set(data.id, JSON.stringify({ importer: 'dlsite', data: data }), 'EX', 1800);
   scraper(data);
-}
+};

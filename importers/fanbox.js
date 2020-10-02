@@ -42,14 +42,14 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
   }));
 
   if (err1 && err1.statusCode === 401) {
-    return log(`Error: Invalid session key`)
+    return log('Error: Invalid session key');
   } else if (err1 && err1.statusCode) {
-    return log(`Error: Status code ${err1.statusCode} when contacting Pixiv Fanbox API.`)
+    return log(`Error: Status code ${err1.statusCode} when contacting Pixiv Fanbox API.`);
   } else if (err1) {
     return log(err1);
   }
   Promise.map(fanbox.body.items, async (post) => {
-    if (!post.body) return log(`Skipping ID ${post.id}: Locked`);; // locked content; nothing to do
+    if (!post.body) return log(`Skipping ID ${post.id}: Locked`); // locked content; nothing to do
     const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
     if (banExists.length) return log(`Skipping ID ${post.id}: user ${post.user.userId} is banned`);
 
@@ -69,8 +69,8 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
     const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
     if (postExists.length) return;
 
-    log(`Importing ID ${post.id}`)
-    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 60000);
+    log(`Importing ID ${post.id}`);
+    const inactivityTimer = setTimeout(() => log(`Warning: Post ${post.id} may be stalling`), 120000);
 
     const model = {
       id: post.id,
@@ -139,14 +139,14 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
     }
 
     clearTimeout(inactivityTimer);
-    log(`Finished importing ID ${post.id}`)
+    log(`Finished importing ID ${post.id}`);
     await db('booru_posts').insert(model);
   }, { concurrency: 8 });
 
   if (fanbox.body.nextUrl) {
     scraper(id, key, fanbox.body.nextUrl);
   } else {
-    log('Finished scanning posts.')
+    log('Finished scanning posts.');
     indexer();
   }
 }
@@ -181,7 +181,7 @@ async function parseBody (body, key, opts) {
         </a>
         <br>
       `
-    })[body.video.serviceProvider]
+    })[body.video.serviceProvider];
   }
   if (body.blocks) {
     await Promise.mapSeries(body.blocks, async (block) => {
@@ -279,7 +279,7 @@ async function parseBody (body, key, opts) {
 }
 
 module.exports = data => {
-  debug('kemono:importer:fanbox:' + data.id)('Starting Pixiv Fanbox import...')
-  failsafe.set(data.id, { importer: 'fanbox', data: data }, 1800, () => {})
+  debug('kemono:importer:fanbox:' + data.id)('Starting Pixiv Fanbox import...');
+  failsafe.set(data.id, JSON.stringify({ importer: 'fanbox', data: data }), 'EX', 1800);
   scraper(data.id, data.key);
 };

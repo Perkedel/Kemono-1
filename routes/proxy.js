@@ -16,7 +16,7 @@ const cacheMiddleware = () => {
         res.set('x-proxy-cache', 'MISS');
         return next();
       }
-      res.set('x-proxy-cache', 'HIT').send(reply);
+      res.set('x-proxy-cache', 'HIT').send(JSON.parse(reply));
     });
   };
 };
@@ -29,7 +29,7 @@ router
     options.json = true;
     retry(() => cloudscraper.get(`${api}/${req.params.id}`, options))
       .then(user => {
-        cache.set(req.originalUrl, user, 2629800, () => {});
+        cache.set(req.originalUrl, JSON.stringify(user), 'EX', 2629800);
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
       })
@@ -45,7 +45,7 @@ router
       }
     })
       .then(user => {
-        cache.set(req.originalUrl, user, 2629800, () => {});
+        cache.set(req.originalUrl, JSON.stringify(user), 'EX', 2629800);
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
       })
@@ -74,7 +74,7 @@ router
         name: 'h2.creator-profile-card__name.js-creator-name'
       });
 
-      cache.set(req.originalUrl, user, 31557600, () => {});
+      cache.set(req.originalUrl, JSON.stringify(user), 'EX', 31557600);
       res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {
@@ -97,7 +97,7 @@ router
         name: '.profile_main_info-name'
       });
 
-      cache.set(req.originalUrl, user, 31557600, () => {});
+      cache.set(req.originalUrl, JSON.stringify(user), 'EX', 31557600);
       res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {
@@ -111,7 +111,7 @@ router
       const user = scrapeIt.scrapeHTML(html, {
         name: '.prof_maker_name'
       });
-      cache.set(req.originalUrl, user, 31557600, () => {});
+      cache.set(req.originalUrl, JSON.stringify(user), 'EX', 31557600);
       res.setHeader('Cache-Control', 'max-age=31557600, public, stale-while-revalidate=2592000');
       res.json(user);
     } catch (err) {

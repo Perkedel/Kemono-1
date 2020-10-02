@@ -22,7 +22,7 @@ services:
     # ports:
     #  - 5432:5432
   kemono-app:
-    build: .
+    image: openyiff/kemono
     container_name: kemono
     restart: unless-stopped
     depends_on:
@@ -48,6 +48,19 @@ services:
       timeout: 2m
       retries: 3
       start_period: 30s
+  ouroboros:
+    container_name: ouroboros
+    hostname: ouroboros
+    image: pyouroboros/ouroboros
+    env_file:
+      - .env.ouroboros
+    environment:
+      - CLEANUP=true
+      - INTERVAL=30
+      - MONITOR=kemono
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   autoheal:
     restart: always
     container_name: kemono-autoheal

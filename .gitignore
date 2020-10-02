@@ -4,4 +4,5 @@ storage/
 !/routes/board
 node_modules/
 .env
+.env.ouroboros
 yarn-error.log

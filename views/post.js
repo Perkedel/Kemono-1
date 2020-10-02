@@ -26,7 +26,7 @@ const post = props => shell(`
             return `
               <div>
                 <h6>${capitalize(namespace)}</h6>
-                ${props.tags[namespace].map(tag => `<li ${namespace !== 'general' ? `class="tag-${namespace}` : ''}"><a href="/posts?tags=${namespace !== 'general' ? `${namespace}%3A` : ''}${tag.replace(/ +/g, '_')}">${tag}</a></li>`).join('')}
+                ${props.tags[namespace].map(tag => `<li ${namespace !== 'general' ? `class="tag-${namespace}` : ''}"><a href="/posts?tags=${namespace !== 'general' ? `${namespace}%3A` : ''}${tag.replace(/ +/g, '_')}&commit=Search">${tag}</a></li>`).join('')}
               </div>
             `
           }).join('')}

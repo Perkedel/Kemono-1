@@ -134,25 +134,29 @@ module.exports = () => {
       .set('Cache-Control', 'max-age=300, public, stale-while-revalidate=2592000')
       .send(favorites()))
     .get('/posts', async (req, res) => {
-      if (!req.query.commit) return res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
-        .type('html')
-        .send(tags({
-          posts: await db('booru_posts').select('*')
-            .orderBy('added', 'desc')
-            .offset(Number(req.query.o) || 0)
-            .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25),
-          query: req.query,
-          url: req.path
-        }));
+      const booruPosts = req.query.commit ? await booruQueryFromString(req.query.tags, {
+        order: 'added',
+        sort: 'desc',
+        offset: Number(req.query.o) || 0,
+        limit: Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25
+      }) : await db('booru_posts').select('*')
+        .orderBy('added', 'desc')
+        .offset(Number(req.query.o) || 0)
+        .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
+      const booruTags = {};
+      await Promise.mapSeries(booruPosts, post => {
+        return Promise.mapSeries(post.tags.replace(/\s\s+/g, ' ').trim().split(' '), async tag => {
+          if (!tag) return;
+          let tagInfo = await db('booru_tags').where({ id: tag });
+          if (booruTags[tagInfo[0].type] && booruTags[tagInfo[0].type].includes(tagInfo[0].name)) return;
+          booruTags[tagInfo[0].type] ? booruTags[tagInfo[0].type].push(tagInfo[0].name) : booruTags[tagInfo[0].type] = [tagInfo[0].name];
+        })
+      });
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(tags({
-          posts: await booruQueryFromString(req.query.tags, {
-            order: 'added',
-            sort: 'desc',
-            offset: Number(req.query.o) || 0,
-            limit: Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25
-          }),
+          posts: booruPosts,
+          tags: booruTags,
           query: req.query,
           url: req.path
         }));
@@ -225,7 +229,8 @@ module.exports = () => {
         await Promise.mapSeries(userPosts[0].tags.replace(/\s\s+/g, ' ').trim().split(' '), async tag => {
           if (!tag) return;
           let tagInfo = await db('booru_tags').where({ id: tag });
-          tags[tagInfo[0].type] = tags[tagInfo[0].type] ? tags[tagInfo[0].type].push(tagInfo[0].name) : [tagInfo[0].name];
+          if (tags[tagInfo[0].type] && tags[tagInfo[0].type].includes(tagInfo[0].name)) return;
+          tags[tagInfo[0].type] ? tags[tagInfo[0].type].push(tagInfo[0].name) : tags[tagInfo[0].type] = [tagInfo[0].name];
         })
       }
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')

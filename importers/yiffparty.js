@@ -1,3 +1,4 @@
+const { workerData } = require('worker_threads');
 const agentOptions = require('../utils/agent');
 const request = require('request-promise');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
@@ -182,8 +183,6 @@ async function scraper (id, users) {
   indexer();
 }
 
-module.exports = data => {
-  debug('kemono:importer:yiff:' + data.id)('Starting yiff.party import...');
-  failsafe.set(data.id, JSON.stringify({ importer: 'yiffparty', data: data }), 'EX', 1800);
-  scraper(data.id, data.users);
-};
+debug('kemono:importer:yiff:' + workerData.id)('Starting yiff.party import...');
+failsafe.set(workerData.id, JSON.stringify({ importer: 'yiffparty', data: workerData }), 'EX', 1800);
+scraper(workerData.id, workerData.users);

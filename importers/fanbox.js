@@ -1,3 +1,4 @@
+const { workerData } = require('worker_threads');
 const { db, failsafe } = require('../utils/db');
 const request = require('request-promise');
 const { to: pWrapper } = require('await-to-js');
@@ -278,8 +279,6 @@ async function parseBody (body, key, opts) {
   return `${bodyText}<br>${concatenatedText}`;
 }
 
-module.exports = data => {
-  debug('kemono:importer:fanbox:' + data.id)('Starting Pixiv Fanbox import...');
-  failsafe.set(data.id, JSON.stringify({ importer: 'fanbox', data: data }), 'EX', 1800);
-  scraper(data.id, data.key);
-};
+debug('kemono:importer:fanbox:' + workerData.id)('Starting Pixiv Fanbox import...');
+failsafe.set(workerData.id, JSON.stringify({ importer: 'fanbox', data: workerData }), 'EX', 1800);
+scraper(workerData.id, workerData.key);

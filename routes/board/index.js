@@ -116,10 +116,7 @@ router
         body: url2a(greentext(await quotes(xss(req.body.body))))
       }));
 
-    db('board_replies')
-      .insert({ reply: Number(nextId), in: Number(req.params.id) })
-      .asCallback(() => {});
-
+    await db('board_replies').insert({ reply: Number(nextId), in: Number(req.params.id) })
     res.redirect(`/board/thread/${req.params.id}`);
   })
   .get('/new', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(nu()))

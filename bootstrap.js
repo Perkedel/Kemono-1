@@ -1,8 +1,7 @@
 require('dotenv').config();
 const webpush = require('./utils/push');
-const { db, failsafe, cache } = require('./utils/db');
+const { db, failsafe } = require('./utils/db');
 const blocked = require('blocked-at')
-const crypto = require('crypto');
 const fs = require('fs-extra');
 const path = require('path');
 const indexer = require('./init/indexer');

@@ -1,3 +1,4 @@
+const { workerData } = require('worker_threads');
 const { db, failsafe } = require('../utils/db');
 const request = require('request-promise');
 const scrapeIt = require('scrape-it');
@@ -171,8 +172,7 @@ async function scraper (importData, page = 1) {
   }
 }
 
-module.exports = data => {
-  debug('kemono:importer:dlsite:' + data.id)('Starting DLsite import...');
-  failsafe.set(data.id, JSON.stringify({ importer: 'dlsite', data: data }), 'EX', 1800);
-  scraper(data);
-};
+
+debug('kemono:importer:dlsite:' + workerData.id)('Starting DLsite import...');
+failsafe.set(workerData.id, JSON.stringify({ importer: 'dlsite', data: workerData }), 'EX', 1800);
+scraper(workerData);

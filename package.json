@@ -5,7 +5,7 @@
   },
   "scripts": {
     "dev": "env DEBUG=kemono:* supervisor -i node_modules,public -n error bootstrap.js",
-    "start": "0x --collect-only --output-dir /storage/0x bootstrap.js",
+    "start": "0x --collect-only bootstrap.js",
     "lint": "semistandard --fix --verbose | snazzy"
   },
   "dependencies": {

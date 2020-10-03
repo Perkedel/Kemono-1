@@ -70,5 +70,8 @@ const logfmt = str => str.trim();
   // debug
   blocked((time, stack) => {
     console.log(`Blocked for ${time}ms, operation started here:`, stack)
+  }, {
+    trimFalsePositives: true,
+    threshold: 50
   })
 })();

@@ -5,7 +5,7 @@
   },
   "scripts": {
     "dev": "env DEBUG=kemono:* supervisor -i node_modules,public -n error bootstrap.js",
-    "start": "forever --fifo bootstrap.js",
+    "start": "0x --collect-only --output-dir /storage/0x bootstrap.js",
     "lint": "semistandard --fix --verbose | snazzy"
   },
   "dependencies": {
@@ -61,6 +61,7 @@
     "xss": "^1.0.7"
   },
   "devDependencies": {
+    "0x": "^4.10.2",
     "mongo-lazy-connect": "^2.3.0",
     "mongodb": "^3.3.3",
     "semistandard": "*",

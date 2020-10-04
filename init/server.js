@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
 const express = require('express');
+const morgan = require('morgan');
 const fs = require('fs-extra');
 const sharp = require('sharp');
 const { db } = require('../utils/db');
@@ -21,6 +22,9 @@ const staticOpts = {
 module.exports = () => {
   express()
     .set('trust proxy', true)
+    .use(morgan((tokens, req, res) => {
+      return tokens['response-time'](req, res) > 100 ? `${tokens.url(req, res)} taking too long: ${tokens['response-time'](req, res)}ms` : '' 
+    }))
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(express.static('public', {

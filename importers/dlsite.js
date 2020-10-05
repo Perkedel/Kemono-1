@@ -13,6 +13,9 @@ const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 const indexer = require('../init/indexer');
 
+const { default: pq } = require('p-queue');
+const queue = new pq({ concurrency: 10 });
+
 const requestOptions = (key, jp) => {
   return {
     json: true,
@@ -46,23 +49,23 @@ async function scraper (importData, page = 1) {
   }
 
   Promise.map(dlsite.works, async (work) => {
-    const banExists = await db('dnp').where({ id: work.maker_id, service: 'dlsite' });
+    const banExists = await queue.add(() => db('dnp').where({ id: work.maker_id, service: 'dlsite' }));
     if (banExists.length) return log(`Skipping ID ${work.workno}: user ${work.maker_id} is banned`);
 
-    await checkForFlags({
+    await queue.add(() => checkForFlags({
       service: 'dlsite',
       entity: 'user',
       entityId: work.maker_id,
       id: work.workno
-    });
+    }));
 
-    await checkForRequests({
+    await queue.add(() => checkForRequests({
       service: 'dlsite',
       userId: work.maker_id,
       id: work.workno
-    });
+    }));
 
-    const postExists = await db('booru_posts').where({ id: work.workno, service: 'dlsite' });
+    const postExists = await queue.add(() => db('booru_posts').where({ id: work.workno, service: 'dlsite' }));
     if (postExists.length) return;
 
     log(`Importing ID ${work.workno}`);
@@ -161,8 +164,8 @@ async function scraper (importData, page = 1) {
 
     clearTimeout(inactivityTimer);
     log(`Finished importing ${work.workno}.`);
-    await db('booru_posts').insert(model);
-  }, { concurrency: 8 });
+    await queue.add(() => db('booru_posts').insert(model));
+  });
 
   if (dlsite.works.length) {
     scraper(importData, page + 1);

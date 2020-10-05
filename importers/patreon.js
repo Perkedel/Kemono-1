@@ -18,6 +18,9 @@ const indexer = require('../init/indexer');
 const isImage = require('is-image');
 const getUrls = require('get-urls');
 
+const { default: pq } = require('p-queue');
+const queue = new pq({ concurrency: 10 });
+
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
   if (!content) return '';
@@ -68,25 +71,25 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
     let fileKey = `files/${rel.user.data.id}/${post.id}`;
     let attachmentsKey = `attachments/${rel.user.data.id}/${post.id}`;
 
-    const banExists = await db('dnp').where({ id: rel.user.data.id, service: 'patreon' });
+    const banExists = await queue.add(() => db('dnp').where({ id: rel.user.data.id, service: 'patreon' }));
     if (banExists.length) return log(`Skipping ID ${post.id}: user ${rel.user.data.id} is banned`);
 
-    await checkForFlags({
+    await queue.add(() => checkForFlags({
       service: 'patreon',
       entity: 'user',
       entityId: rel.user.data.id,
       id: post.id
-    });
+    }));
 
-    await checkForRequests({
+    await queue.add(() => checkForRequests({
       service: 'patreon',
       userId: rel.user.data.id,
       id: post.id
-    });
+    }));
 
-    const existingPosts = await db('booru_posts')
+    const existingPosts = await queue.add(() => db('booru_posts')
       .where({ id: post.id, service: 'patreon' })
-      .orderBy('edited', 'asc');
+      .orderBy('edited', 'asc'));
     if (existingPosts.length && !existingPosts[0].edited) {
       return;
     } else if (existingPosts.length && new Date(existingPosts[existingPosts.length - 1].edited).getTime() >= new Date(attr.edited_at).getTime()) {
@@ -188,8 +191,8 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
 
     clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`);
-    await db('booru_posts').insert(model);
-  }, { concurrency: 8 });
+    await queue.add(() => db('booru_posts').insert(model));
+  });
 
   if (patreon.links.next) {
     scraper(id, key, 'https://' + patreon.links.next);

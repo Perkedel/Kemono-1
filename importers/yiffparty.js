@@ -13,6 +13,9 @@ const Promise = require('bluebird');
 const indexer = require('../init/indexer');
 const scrapeIt = require('scrape-it');
 
+const { default: pQ } = require('p-queue');
+const queue = new pQ({ concurrency: 10 });
+
 const sanitizePostContent = async (content) => {
   // mirror and replace any inline images
   if (!content) return '';
@@ -86,10 +89,10 @@ async function scraper (id, users) {
 
     await Promise.map(yiff.posts, async (post) => {
       // intentionally doesn't support flags to prevent version downgrading and edit erasing
-      const banExists = await db('dnp').where({ id: user, service: 'patreon' });
+      const banExists = await queue.add(() => db('dnp').where({ id: user, service: 'patreon' }));
       if (banExists.length) return log(`Skipping ID ${post.id}: user ${user} is banned`);
 
-      const postExists = await db('booru_posts').where({ id: String(post.id), service: 'patreon' });
+      const postExists = await queue.add(() => db('booru_posts').where({ id: String(post.id), service: 'patreon' }));
       if (postExists.length) return;
 
       log(`Importing ID ${post.id}`);
@@ -175,9 +178,9 @@ async function scraper (id, users) {
 
       clearTimeout(inactivityTimer);
       log(`Finished importing ID ${post.id}`);
-      await db('booru_posts').insert(model);
+      await queue.add(() => db('booru_posts').insert(model));
     });
-  }, { concurrency: 8 });
+  });
 
   log('Finished processing posts.');
   indexer();

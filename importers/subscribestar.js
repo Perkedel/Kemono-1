@@ -16,6 +16,10 @@ const checkForFlags = require('../checks/flags');
 const checkForRequests = require('../checks/requests');
 const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
+
+const { default: pq } = require('p-queue');
+const queue = new pq({ concurrency: 10 });
+
 async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.json') {
   const log = debug('kemono:importer:subscribestar:' + id);
 
@@ -71,23 +75,23 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
   });
 
   Promise.map(data.posts, async (post) => {
-    const banExists = await db('dnp').where({ id: post.user, service: 'subscribestar' });
+    const banExists = await queue.add(() => db('dnp').where({ id: post.user, service: 'subscribestar' }));
     if (banExists.length) return log(`Skipping ID ${post.id}: user ${post.user} is banned`);
 
-    await checkForFlags({
+    await queue.add(() => checkForFlags({
       service: 'subscribestar',
       entity: 'user',
       entityId: post.user,
       id: post.id
-    });
+    }));
 
-    await checkForRequests({
+    await queue.add(() => checkForRequests({
       service: 'subscribestar',
       userId: post.user,
       id: post.id
-    });
+    }));
 
-    const postExists = await db('booru_posts').where({ id: post.id, service: 'subscribestar' });
+    const postExists = await queue.add(() => db('booru_posts').where({ id: post.id, service: 'subscribestar' }));
     if (postExists.length) return;
 
     log(`Importing ID ${post.id}`);
@@ -132,8 +136,8 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
 
     clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`);
-    await db('booru_posts').insert(model);
-  }, { concurrency: 8 });
+    await queue.add(() => db('booru_posts').insert(model));
+  });
 
   if (data.next_url) {
     scraper(id, key, data.next_url);

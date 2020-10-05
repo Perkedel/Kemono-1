@@ -14,6 +14,9 @@ const Promise = require('bluebird');
 const { URL } = require('url');
 const indexer = require('../init/indexer');
 
+const { default: pq } = require('p-queue');
+const queue = new pq({ concurrency: 10 });
+
 const apiOptions = key => {
   return {
     json: true,
@@ -76,20 +79,20 @@ async function scraper (id, key, from = 1) {
   });
   Promise.map(data.products, async (product) => {
     const userId = product.userId;
-    const banExists = await db('dnp').where({ id: userId, service: 'gumroad' });
+    const banExists = await queue.add(() => db('dnp').where({ id: userId, service: 'gumroad' }));
     if (banExists.length) return log(`Skipping ID ${product.id}: user ${userId} is banned`);
-    await checkForFlags({
+    await queue.add(() => checkForFlags({
       service: 'gumroad',
       entity: 'user',
       entityId: userId,
       id: product.id
-    });
-    await checkForRequests({
+    }));
+    await queue.add(() => checkForRequests({
       service: 'gumroad',
       userId: userId,
       id: product.id
-    });
-    const postExists = await db('booru_posts').where({ id: product.id, service: 'gumroad' });
+    }));
+    const postExists = await queue.add(() => db('booru_posts').where({ id: product.id, service: 'gumroad' }));
     if (postExists.length) return;
 
     log(`Importing ID ${product.id}`);
@@ -178,8 +181,8 @@ async function scraper (id, key, from = 1) {
 
     clearTimeout(inactivityTimer);
     log(`Finished importing ${product.id}`);
-    await db('booru_posts').insert(model);
-  }, { concurrency: 8 });
+    await queue.add(() => db('booru_posts').insert(model));
+  });
 
   if (data.products.length) {
     scraper(id, key, from + gumroad.result_count);

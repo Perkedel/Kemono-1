@@ -13,6 +13,9 @@ const checkForFlags = require('../checks/flags');
 const downloadFile = require('../utils/download');
 const Promise = require('bluebird');
 
+const { default: pq } = require('p-queue');
+const queue = new pq({ concurrency: 10 });
+
 const requestOptions = (key) => {
   return {
     json: true,
@@ -51,23 +54,23 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
   }
   Promise.map(fanbox.body.items, async (post) => {
     if (!post.body) return log(`Skipping ID ${post.id}: Locked`); // locked content; nothing to do
-    const banExists = await db('dnp').where({ id: post.user.userId, service: 'fanbox' });
+    const banExists = await queue.add(() => db('dnp').where({ id: post.user.userId, service: 'fanbox' }));
     if (banExists.length) return log(`Skipping ID ${post.id}: user ${post.user.userId} is banned`);
 
-    await checkForFlags({
+    await queue.add(() => checkForFlags({
       service: 'fanbox',
       entity: 'user',
       entityId: post.user.userId,
       id: post.id
-    });
+    }));
 
-    await checkForRequests({
+    await queue.add(() => checkForRequests({
       service: 'fanbox',
       userId: post.user.userId,
       id: post.id
-    });
+    }));
 
-    const postExists = await db('booru_posts').where({ id: post.id, service: 'fanbox' });
+    const postExists = await queue.add(() => db('booru_posts').where({ id: post.id, service: 'fanbox' }));
     if (postExists.length) return;
 
     log(`Importing ID ${post.id}`);
@@ -141,8 +144,8 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
 
     clearTimeout(inactivityTimer);
     log(`Finished importing ID ${post.id}`);
-    await db('booru_posts').insert(model);
-  }, { concurrency: 8 });
+    await queue.add(() => db('booru_posts').insert(model));
+  });
 
   if (fanbox.body.nextUrl) {
     scraper(id, key, fanbox.body.nextUrl);

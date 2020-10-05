@@ -16,7 +16,9 @@ const cacheMiddleware = () => {
         res.set('x-proxy-cache', 'MISS');
         return next();
       }
-      res.set('x-proxy-cache', 'HIT').send(JSON.parse(reply));
+      res.set('x-proxy-cache', 'HIT')
+        .type('json')
+        .send(reply);
     });
   };
 };

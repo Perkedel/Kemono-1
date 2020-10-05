@@ -29,10 +29,10 @@ const updated = data => shell(`
           ${data.results.map(artist => artist ? `
             <tr class="artist-row">
               <td>
-                <div class="user-icon" data-user="${artist.id}" data-service="${artist.service}"></div>
+                <div class="user-icon" data-user="${artist.user}" data-service="${artist.service}"></div>
               </td>
               <td>
-                <a href="/${artist.service}/${artist.service === 'discord' ? 'server' : 'user'}/${artist.id}">${artist.name}</a>
+                <a href="/${artist.service}/${artist.service === 'discord' ? 'server' : 'user'}/${artist.user}">${artist.name}</a>
               </td>
               <td>
                 <div>${transliterate(artist.name) !== artist.name ? transliterate(artist.name) : '<span class="subtitle">(N/A)</span>'}</div>
@@ -48,7 +48,7 @@ const updated = data => shell(`
                 })[artist.service]}
               </td>
               <td>
-                ${artist.updated}
+                ${artist.max}
               </td>
             </tr>
           ` : '').join('')}

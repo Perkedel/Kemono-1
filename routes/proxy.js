@@ -31,7 +31,7 @@ router
     const options = cloudscraper.defaultParams;
     options.json = true;
     retry(() => cloudscraper.get(`${api}/${req.params.id}`, options))
-      .then(user => {
+      .then(async user => {
         cache.set(req.originalUrl, await bfj.stringify(user), 'EX', 2629800);
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);
@@ -47,7 +47,7 @@ router
         cookie: process.env.FANBOX_KEY ? `FANBOXSESSID=${process.env.FANBOX_KEY}` : undefined
       }
     })
-      .then(user => {
+      .then(async user => {
         cache.set(req.originalUrl, await bfj.stringify(user), 'EX', 2629800);
         res.setHeader('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000');
         res.json(user);

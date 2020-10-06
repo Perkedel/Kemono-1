@@ -12,29 +12,27 @@ const path = require('path');
  * @param {String} data.id - The ID of the post being checked
  */
 module.exports = async (data) => {
-  await db.transaction(async trx => {
-    const requests = await trx('requests')
-      .where({ user: data.userId, service: data.service })
-      .where({ status: 'open' });
-    if (!requests.length) return;
-    if (requests[0].post_id && requests[0].post_id !== data.id) return;
-    await trx('requests')
-      .where({ user: data.userId })
-      .update({ status: 'fulfilled' });
-    const subscriptions = await trx('request_subscriptions').where({ request_id: requests[0].id });
-    await Promise.map(subscriptions, async subscription => {
-      const payload = JSON.stringify({
-        title: `Request #${requests[0].id} fulfilled`,
-        body: 'Click to view the requested user/post.',
-        url: path.join('/', data.service, 'user', data.userId, requests[0].post_id ? `post/${requests[0].post_id}` : '')
-      });
-      await webpush.sendNotification({
-        endpoint: subscription.endpoint,
-        keys: subscription.keys
-      }, payload).catch(() => {});
+  const requests = await db('requests')
+    .where({ user: data.userId, service: data.service })
+    .where({ status: 'open' });
+  if (!requests.length) return;
+  if (requests[0].post_id && requests[0].post_id !== data.id) return;
+  await db('requests')
+    .where({ user: data.userId })
+    .update({ status: 'fulfilled' });
+  const subscriptions = await db('request_subscriptions').where({ request_id: requests[0].id });
+  await Promise.map(subscriptions, async subscription => {
+    const payload = JSON.stringify({
+      title: `Request #${requests[0].id} fulfilled`,
+      body: 'Click to view the requested user/post.',
+      url: path.join('/', data.service, 'user', data.userId, requests[0].post_id ? `post/${requests[0].post_id}` : '')
     });
-    await trx('request_subscriptions')
-      .where({ request_id: requests[0].id })
-      .del();
+    await webpush.sendNotification({
+      endpoint: subscription.endpoint,
+      keys: subscription.keys
+    }, payload).catch(() => {});
   });
+  await db('request_subscriptions')
+    .where({ request_id: requests[0].id })
+    .del();
 };

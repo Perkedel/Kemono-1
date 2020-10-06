@@ -86,47 +86,43 @@ router
   })
   .post('/:id/vote_up', async (req, res) => {
     const ip = req.headers['CF-Connecting-IP'] || req.ip;
-    await db.transaction(async trx => {
-      const requests = await trx('requests')
-        .where({ id: req.params.id });
-      if (!requests.length) return res.sendStatus(404);
-      if (requests[0].ips.includes(await hasha.async(ip))) {
-        return res.status(401).send(error({
-          currentPage: 'requests',
-          message: 'You already voted on this request.'
-        }));
-      }
-      await trx('requests')
-        .where({ id: req.params.id })
-        .increment('votes', 1);
-      await trx('requests')
-        .where({ id: req.params.id })
-        .update({ ips: requests[0].ips.concat([await hasha.async(ip)]) });
-      res.send(success({
+    const requests = await db('requests')
+      .where({ id: req.params.id });
+    if (!requests.length) return res.sendStatus(404);
+    if (requests[0].ips.includes(await hasha.async(ip))) {
+      return res.status(401).send(error({
         currentPage: 'requests',
-        redirect: req.headers.referer || '/requests'
+        message: 'You already voted on this request.'
       }));
-    });
+    }
+    await db('requests')
+      .where({ id: req.params.id })
+      .increment('votes', 1);
+    await db('requests')
+      .where({ id: req.params.id })
+      .update({ ips: requests[0].ips.concat([await hasha.async(ip)]) });
+    res.send(success({
+      currentPage: 'requests',
+      redirect: req.headers.referer || '/requests'
+    }));
   })
   .post('/:id/subscribe', async (req, res) => {
-    await db.transaction(async trx => {
-      const request = await trx('requests').where({ id: req.params.id });
-      if (!request.length) return res.sendStatus(404);
-
-      await trx('request_subscriptions')
-        .insert({
-          request_id: req.params.id,
-          endpoint: req.body.endpoint,
-          expirationTime: req.body.expirationTime || null,
-          keys: req.body.keys
-        });
-      const payload = JSON.stringify({
-        title: 'Success',
-        body: `You'll be notified when request #${req.params.id} is fulfilled.`
+    const request = await db('requests').where({ id: req.params.id });
+    if (!request.length) return res.sendStatus(404);
+    
+    await db('request_subscriptions')
+      .insert({
+        request_id: req.params.id,
+        endpoint: req.body.endpoint,
+        expirationTime: req.body.expirationTime || null,
+        keys: req.body.keys
       });
-      await webpush.sendNotification(req.body, payload);
-      res.status(201).json({});
+    const payload = JSON.stringify({
+      title: 'Success',
+      body: `You'll be notified when request #${req.params.id} is fulfilled.`
     });
+    await webpush.sendNotification(req.body, payload);
+    res.status(201).json({});
   });
 
 module.exports = router;

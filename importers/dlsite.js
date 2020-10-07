@@ -165,7 +165,7 @@ async function scraper (importData, page = 1) {
     clearTimeout(inactivityTimer);
     log(`Finished importing ${work.workno}.`);
     await queue.add(() => db('booru_posts').insert(model));
-  });
+  }, { concurrency: 5 });
 
   if (dlsite.works.length) {
     scraper(importData, page + 1);

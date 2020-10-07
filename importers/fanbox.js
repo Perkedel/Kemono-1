@@ -145,7 +145,7 @@ async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupportin
     clearTimeout(inactivityTimer);
     log(`Finished importing ID ${post.id}`);
     await queue.add(() => db('booru_posts').insert(model));
-  });
+  }, { concurrency: 5 });
 
   if (fanbox.body.nextUrl) {
     scraper(id, key, fanbox.body.nextUrl);

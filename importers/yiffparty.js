@@ -180,7 +180,7 @@ async function scraper (id, users) {
       log(`Finished importing ID ${post.id}`);
       await queue.add(() => db('booru_posts').insert(model));
     });
-  });
+  }, { concurrency: 5 });
 
   log('Finished processing posts.');
   indexer();

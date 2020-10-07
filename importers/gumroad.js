@@ -182,7 +182,7 @@ async function scraper (id, key, from = 1) {
     clearTimeout(inactivityTimer);
     log(`Finished importing ${product.id}`);
     await queue.add(() => db('booru_posts').insert(model));
-  });
+  }, { concurrency: 5 });
 
   if (data.products.length) {
     scraper(id, key, from + gumroad.result_count);

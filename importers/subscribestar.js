@@ -137,7 +137,7 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
     clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`);
     await queue.add(() => db('booru_posts').insert(model));
-  });
+  }, { concurrency: 5 });
 
   if (data.next_url) {
     scraper(id, key, data.next_url);

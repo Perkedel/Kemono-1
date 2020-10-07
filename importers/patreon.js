@@ -192,7 +192,7 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
     clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`);
     await queue.add(() => db('booru_posts').insert(model));
-  });
+  }, { concurrency: 5 });
 
   if (patreon.links.next) {
     scraper(id, key, 'https://' + patreon.links.next);

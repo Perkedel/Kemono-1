@@ -105,13 +105,16 @@ module.exports = () => {
         ));
     })
     .get('/artists/updated', async (req, res) => {
-      const index = await db('booru_posts')
-        .join('lookup', 'booru_posts.user', '=', 'lookup.id')
-        .select('user', 'booru_posts.service', 'lookup.name')
-        .max('added')
-        .groupBy('user', 'booru_posts.service', 'lookup.name')
-        .orderByRaw('max(added) desc')
-        .limit(50);
+      const index = await db('posts')
+        .with('posts', db('booru_posts')
+          .select('user', 'service')
+          .max('added')
+          .groupBy('user', 'service')
+          .orderByRaw('max(added) desc')
+          .limit(50)
+        )
+        .join('lookup', 'posts.user', '=', 'lookup.id')
+        .select('user', 'posts.service', 'lookup.name', 'max');
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(updated({

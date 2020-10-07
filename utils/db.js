@@ -9,7 +9,7 @@ module.exports = {
       database: process.env.PGDATABASE
     },
     pool: {
-      max: 100
+      max: 200
     }
   })
   .on(''),

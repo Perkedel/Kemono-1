@@ -9,11 +9,10 @@ module.exports = {
       database: process.env.PGDATABASE
     },
     pool: {
-      acquireTimeoutMillis: 1000000, // never timeout
       max: 100
-    },
-    acquireConnectionTimeout: 1000000
-  }),
+    }
+  })
+  .on(''),
   logdb: require('knex')({
     client: 'pg',
     connection: {
@@ -23,11 +22,9 @@ module.exports = {
       database: process.env.PGDATABASE
     },
     pool: {
-      acquireTimeoutMillis: 1000000, // never timeout
       min: 0,
       max: 1
-    },
-    acquireConnectionTimeout: 1000000
+    }
   }),
   cache: new Redis({
     host: process.env.RDHOST || 'localhost',

@@ -11,8 +11,7 @@ module.exports = {
     pool: {
       max: 200
     }
-  })
-  .on(''),
+  }),
   logdb: require('knex')({
     client: 'pg',
     connection: {

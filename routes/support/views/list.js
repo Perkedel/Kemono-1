@@ -10,7 +10,7 @@ const list = () => shell(`
       <div class="page" id="page">
         <h1>Support kemono.party</h1>
         <p>
-          This project was started as a small project out of pure boredom over one winter vacation, and has grown beyond what I could ever imagine. While I will always find ways to keep the site running one way or another, I'd like to provide bounties for developers to work on Kemono when I can't, or make upgrades as Kemono's userbase grows exponentially. I don't want to pressure my users to reach monthly donation goals and put terabytes of archived content in limbo, but I would also like to keep personal costs within sanity.<br>
+          This project was started as a small project out of pure boredom over one winter vacation, and has grown beyond what I could ever imagine. While I will always find ways to keep the site running one way or another, I'd like to provide bounties for developers to work on Kemono when I can't, make upgrades as Kemono's userbase grows exponentially, and fund research into paysite APIs to create more scrapers. I don't want to pressure my users to reach monthly donation goals and put terabytes of archived content in limbo, but I would also like to keep personal costs within sanity.<br>
           Even if you do not have the resources or funds to help out in the ways below, <i>thank you for using kemono.party.</i> The continued usage of the site alone gives me the drive to continue working on it.
         </p>
         <a href="https://liberapay.com/kemono.party/donate" target="_blank"><img src="https://liberapay.com/assets/widgets/donate.svg"></a>

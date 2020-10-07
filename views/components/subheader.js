@@ -42,6 +42,11 @@ const subheader = props => ({
       <li><a href="/board">List</a></li>
       <li><a href="/board/new">New</a></li>
     </ul>
+  `,
+  support: `
+    <ul class="subheader">
+      <li><a href="/support">List</a></li>
+    </ul>
   `
 })[props.currentPage];
 

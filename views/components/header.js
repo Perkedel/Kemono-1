@@ -13,7 +13,7 @@ const header = props => `
     <li ${props.currentPage === 'requests' ? 'class="current-page"' : ''}><a href="/requests">Requests</a></li>
     <li ${props.currentPage === 'board' ? 'class="current-page"' : ''}><a href="/board">Board</a></li>
     <li ${props.currentPage === 'help' ? 'class="current-page"' : ''}><a href="/help">Help</a></li>
-    <li><a href="https://liberapay.com/kemono.party" target="_blank">Donate</a></li>
+    <li ${props.currentPage === 'support' ? 'class="current-page"' : ''}><a href="/support">Support <span style="color:#ff6961">❤︎</span></a></li>
   </ul>
 `;
 

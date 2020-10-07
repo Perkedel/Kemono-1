@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { api, proxy, board, importer, help, requests } = require('../routes');
+const { api, proxy, board, importer, help, requests, support } = require('../routes');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
@@ -39,6 +39,7 @@ module.exports = () => {
     .use('/board', board)
     .use('/requests', requests)
     .use('/importer', importer)
+    .use('/support', support)
     .get('/thumbnail/*', async (req, res) => {
       const file = `${process.env.DB_ROOT}/${req.params[0]}`;
       const fileExists = await fs.pathExists(file);

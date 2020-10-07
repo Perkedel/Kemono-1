@@ -34,7 +34,7 @@ const scrapeOptions = key => {
 };
 
 async function scraper (id, key, from = 1) {
-  const log = debug('kemono:importer:gumroad:' + id);
+  const log = debug('kemono:importer:status:' + id);
 
   const [err1, gumroad] = await pWrapper(retry(() => cloudscraper.get(`https://gumroad.com/discover_search?from=${from}&user_purchases_only=true`, apiOptions(key))));
 
@@ -192,6 +192,6 @@ async function scraper (id, key, from = 1) {
   }
 }
 
-debug('kemono:importer:gumroad:' + workerData.id)('Starting Gumroad import...');
+debug('kemono:importer:status:' + workerData.id)('Starting Gumroad import...');
 failsafe.set(workerData.id, JSON.stringify({ importer: 'gumroad', data: workerData }), 'EX', 1800);
 scraper(workerData.id, workerData.key);

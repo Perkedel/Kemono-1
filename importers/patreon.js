@@ -48,7 +48,7 @@ const sanitizePostContent = async (content) => {
   return content;
 };
 async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-version=1.0') {
-  const log = debug('kemono:importer:patreon:' + id);
+  const log = debug('kemono:importer:status:' + id);
 
   const [err1, patreon] = await pWrapper(retry(() => {
     return cloudscraper.get(uri, {
@@ -203,6 +203,6 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
   }
 }
 
-debug('kemono:importer:patreon:' + workerData.id)('Starting Patreon import...');
+debug('kemono:importer:status:' + workerData.id)('Starting Patreon import...');
 failsafe.set(workerData.id, JSON.stringify({ importer: 'patreon', data: workerData }), 'EX', 1800);
 scraper(workerData.id, workerData.key);

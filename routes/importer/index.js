@@ -10,7 +10,7 @@ router
   .get('/yiff', (_, res) => res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000').send(yiff()))
   .get('/status/:id', async (req, res) => {
     const logs = await logdb('logs')
-      .where('log0', 'ILIKE', '%' + ':' + req.params.id + '%')
+      .where('log0', 'LIKE', '%' + 'kemono:importer:status:' + req.params.id + '%')
       .orderBy('created', 'asc');
     res.set('Cache-Control', 's-maxage=31557600, no-cache');
     res.send(status({

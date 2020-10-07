@@ -37,7 +37,7 @@ const fileRequestOptions = (key) => {
 };
 
 async function scraper (id, key, url = 'https://api.fanbox.cc/post.listSupporting?limit=50') {
-  const log = debug('kemono:importer:fanbox:' + id);
+  const log = debug('kemono:importer:status:' + id);
 
   const [err1, fanbox] = await pWrapper(retry(() => request.get(url, requestOptions(key)), {
     onFailedAttempt: error => {
@@ -282,6 +282,6 @@ async function parseBody (body, key, opts) {
   return `${bodyText}<br>${concatenatedText}`;
 }
 
-debug('kemono:importer:fanbox:' + workerData.id)('Starting Pixiv Fanbox import...');
+debug('kemono:importer:status:' + workerData.id)('Starting Pixiv Fanbox import...');
 failsafe.set(workerData.id, JSON.stringify({ importer: 'fanbox', data: workerData }), 'EX', 1800);
 scraper(workerData.id, workerData.key);

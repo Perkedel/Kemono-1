@@ -2,6 +2,7 @@ require('dotenv').config();
 const webpush = require('./utils/push');
 const { db, failsafe } = require('./utils/db');
 const { Worker } = require('worker_threads');
+const blocked = require('blocked-at')
 const fs = require('fs-extra');
 const path = require('path');
 const indexer = require('./init/indexer');
@@ -78,4 +79,11 @@ const logfmt = str => str.trim();
 
   global.console.log = (...args) => require('./utils/debug')('kemono:global:log')(...args);
   global.console.error = (...args) => require('./utils/debug')('kemono:global:error')(...args);
+
+  // debug
+  blocked((time, stack) => {
+    console.log(`Blocked for ${time}ms, operation started here:`, stack)
+  }, {
+    threshold: 100
+  })
 })();

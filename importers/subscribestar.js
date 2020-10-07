@@ -21,7 +21,7 @@ const { default: pq } = require('p-queue');
 const queue = new pq({ concurrency: 10 });
 
 async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.json') {
-  const log = debug('kemono:importer:subscribestar:' + id);
+  const log = debug('kemono:importer:status:' + id);
 
   const [err1, subscribestar] = await pWrapper(retry(() => cloudscraper.get(uri, {
     json: true,
@@ -137,7 +137,7 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
     clearTimeout(inactivityTimer);
     log(`Finished importing ${post.id}`);
     await queue.add(() => db('booru_posts').insert(model));
-  });
+  }, { concurrency: 5 });
 
   if (data.next_url) {
     scraper(id, key, data.next_url);
@@ -148,6 +148,6 @@ async function scraper (id, key, uri = 'https://www.subscribestar.com/feed/page.
   }
 }
 
-debug('kemono:importer:subscribestar:' + workerData.id)('Starting SubscribeStar import...');
+debug('kemono:importer:status:' + workerData.id)('Starting SubscribeStar import...');
 failsafe.set(workerData.id, JSON.stringify({ importer: 'subscribestar', data: workerData }), 'EX', 1800);
 scraper(workerData.id, workerData.key);

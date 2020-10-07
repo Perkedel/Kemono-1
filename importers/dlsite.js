@@ -31,7 +31,7 @@ const fileRequestOptions = (key, jp) => {
 };
 
 async function scraper (importData, page = 1) {
-  const log = debug('kemono:importer:dlsite:' + importData.id);
+  const log = debug('kemono:importer:status:' + importData.id);
 
   const [err1, auth] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/authorize`, requestOptions(importData.key))));
   if (err1 && err1.statusCode) {
@@ -165,7 +165,7 @@ async function scraper (importData, page = 1) {
     clearTimeout(inactivityTimer);
     log(`Finished importing ${work.workno}.`);
     await queue.add(() => db('booru_posts').insert(model));
-  });
+  }, { concurrency: 5 });
 
   if (dlsite.works.length) {
     scraper(importData, page + 1);
@@ -176,6 +176,6 @@ async function scraper (importData, page = 1) {
 }
 
 
-debug('kemono:importer:dlsite:' + workerData.id)('Starting DLsite import...');
+debug('kemono:importer:status:' + workerData.id)('Starting DLsite import...');
 failsafe.set(workerData.id, JSON.stringify({ importer: 'dlsite', data: workerData }), 'EX', 1800);
 scraper(workerData);

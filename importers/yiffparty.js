@@ -42,7 +42,7 @@ const sanitizePostContent = async (content) => {
 
 async function scraper (id, users) {
   const userArray = users.split(',');
-  const log = debug('kemono:importer:yiff:' + id);
+  const log = debug('kemono:importer:status:' + id);
 
   await Promise.map(userArray, async (user) => {
     const [err1, yiff] = await pWrapper(retry(() => cloudscraper.get(`https://yiff.party/${user}.json`, {
@@ -180,12 +180,12 @@ async function scraper (id, users) {
       log(`Finished importing ID ${post.id}`);
       await queue.add(() => db('booru_posts').insert(model));
     });
-  });
+  }, { concurrency: 5 });
 
   log('Finished processing posts.');
   indexer();
 }
 
-debug('kemono:importer:yiff:' + workerData.id)('Starting yiff.party import...');
+debug('kemono:importer:status:' + workerData.id)('Starting yiff.party import...');
 failsafe.set(workerData.id, JSON.stringify({ importer: 'yiffparty', data: workerData }), 'EX', 1800);
 scraper(workerData.id, workerData.users);

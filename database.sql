@@ -114,4 +114,4 @@ CREATE TABLE IF NOT EXISTS logs (
   "log" text[] NOT NULL,
   "created" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX IF NOT EXISTS log0_idx ON logs USING btree ("log0");
+CREATE INDEX IF NOT EXISTS log_idx ON logs USING GIN (to_tsvector('english', log0));

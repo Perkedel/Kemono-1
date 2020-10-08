@@ -23,7 +23,7 @@ module.exports = () => {
   express()
     .set('trust proxy', true)
     .use(morgan((tokens, req, res) => {
-      return tokens['response-time'](req, res) > 100 ? `${tokens.url(req, res)} taking too long: ${tokens['response-time'](req, res)}ms` : '' 
+      return tokens['response-time'](req, res) > 100 ? `${tokens.url(req, res)} taking too long: ${tokens['response-time'](req, res)}ms` : null; 
     }))
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())

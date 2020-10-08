@@ -33,7 +33,7 @@ const fileRequestOptions = (key, jp) => {
 async function scraper (importData, page = 1) {
   const log = debug('kemono:importer:status:' + importData.id);
 
-  const [err1, auth] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/authorize`, requestOptions(importData.key))));
+  const [err1, auth] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/authorize`, requestOptions(importData.key))));
   if (err1 && err1.statusCode) {
     return log(`Error: Status code ${err1.statusCode} when authenticating.`);
   } else if (err1) {
@@ -41,7 +41,7 @@ async function scraper (importData, page = 1) {
   }
 
   const key = auth.sid;
-  const [err2, dlsite] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key))));
+  const [err2, dlsite] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/purchases?sync=true&limit=1000&page=${page}`, requestOptions(key))));
   if (err2 && err2.statusCode) {
     return log(`Error: Status code ${err2.statusCode} when contacting DLsite API.`);
   } else if (err2) {
@@ -105,7 +105,7 @@ async function scraper (importData, page = 1) {
     }
 
     /* eslint-disable no-unused-vars */
-    const [err3, _] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download_token?workno=${work.workno}`, requestOptions(key))));
+    const [err3, _] = await pWrapper(retry(() => request.get(`https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/download_token?workno=${work.workno}`, requestOptions(key))));
     if (err3 && err3.statusCode) {
       return log(`Error: Status code ${err1.statusCode} when refreshing download token.`);
     } else if (err3) {
@@ -117,7 +117,7 @@ async function scraper (importData, page = 1) {
     const res = await downloadFile({
       ddir: path.join(process.env.DB_ROOT, `/attachments/dlsite/${work.maker_id}/${work.workno}`)
     }, Object.assign({
-      url: `https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/dlsite/download?workno=${work.workno}`,
+      url: `https://play.dlsite.com/${importData.jp ? '' : 'eng/'}api/download?workno=${work.workno}`,
       jar: jar
     }, fileRequestOptions(key, importData.jp)));
 

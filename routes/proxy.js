@@ -18,6 +18,7 @@ const cacheMiddleware = () => {
         return next();
       }
       res.set('x-proxy-cache', 'HIT')
+        .set('Cache-Control', 'max-age=2629800, public, stale-while-revalidate=2592000')
         .type('json')
         .send(reply);
     });

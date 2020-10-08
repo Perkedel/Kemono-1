@@ -8,7 +8,7 @@ const express = require('express');
 const morgan = require('morgan');
 const fs = require('fs-extra');
 const sharp = require('sharp');
-const { db } = require('../utils/db');
+const { db, cache } = require('../utils/db');
 const path = require('path');
 const Promise = require('bluebird');
 const { Feed } = require('feed');
@@ -18,6 +18,20 @@ const urljoin = require('url-join');
 const staticOpts = {
   dotfiles: 'allow',
   setHeaders: (res) => res.setHeader('Cache-Control', 's-maxage=31557600, no-cache')
+};
+
+const cacheMiddleware = () => {
+  return (req, res, next) => {
+    cache.get(req.originalUrl, (_, reply) => {
+      if (!reply) {
+        res.set('x-kemono-cache', 'MISS');
+        return next();
+      }
+      res.set('x-kemono-cache', 'HIT')
+        .set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
+        .send(reply);
+    });
+  };
 };
 
 module.exports = () => {
@@ -73,6 +87,7 @@ module.exports = () => {
         })
         .pipe(res);
     })
+    .use(cacheMiddleware())
     .get('/', async (req, res) => {
       if (!req.query.commit) return res.send(artists({ results: [], query: req.query, url: req.originalUrl }));
       const index = await db('lookup')
@@ -91,6 +106,11 @@ module.exports = () => {
         })[req.query.order])
         .offset(Number(req.query.o) || 0)
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 250 ? Number(req.query.limit) : 25);
+      cache.set(req.originalUrl, artists({
+        results: index,
+        query: req.query,
+        url: req.originalUrl
+      }), 'EX', 60);
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(artists({
@@ -124,6 +144,11 @@ module.exports = () => {
         )
         .join('lookup', 'posts.user', '=', 'lookup.id')
         .select('user', 'posts.service', 'lookup.name', 'max');
+      cache.set(req.originalUrl, updated({
+        results: index,
+        query: req.query,
+        url: req.originalUrl
+      }), 'EX', 60);
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(updated({
@@ -141,6 +166,11 @@ module.exports = () => {
         .orderBy('added', 'desc')
         .offset(Number(req.query.o) || 0)
         .limit(Number(req.query.limit) && Number(req.query.limit) <= 50 ? Number(req.query.limit) : 25);
+      cache.set(req.originalUrl, recent({
+        posts: recentPosts,
+        query: req.query,
+        url: req.path
+      }), 'EX', 60);
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(recent({
@@ -199,6 +229,7 @@ module.exports = () => {
         }
         feed.addItem(item);
       });
+      cache.set(req.originalUrl, feed.rss2(), 'EX', 60);
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .send(feed.rss2());
     })
@@ -215,6 +246,14 @@ module.exports = () => {
         .select('id')
         .where({ user: req.params.id, service: req.params.service })
         .groupBy('id');
+      cache.set(req.originalUrl, user({
+        count: userUniqueIds.length,
+        service: req.params.service || 'patreon',
+        id: req.params.id,
+        posts: userPosts,
+        query: req.query,
+        url: req.path
+      }), 'EX', 60);
       res.type('html')
         .send(user({
           count: userUniqueIds.length,
@@ -234,6 +273,10 @@ module.exports = () => {
       const userPosts = await db('booru_posts')
         .where({ id: req.params.post, user: req.params.id, service: req.params.service })
         .orderBy('added', 'asc');
+      cache.set(req.originalUrl, post({
+        posts: userPosts,
+        service: req.params.service || 'patreon'
+      }), 'EX', 60);
       res.set('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000')
         .type('html')
         .send(post({

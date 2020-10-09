@@ -3,6 +3,7 @@ const { api, proxy, board, importer, help, requests, support } = require('../rou
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
+const toobusy = require('toobusy-js');
 const express = require('express');
 const morgan = require('morgan');
 const fs = require('fs-extra');
@@ -39,6 +40,13 @@ module.exports = () => {
     .use(morgan((tokens, req, res) => {
       return tokens['response-time'](req, res) > 100 ? `${tokens.url(req, res)} taking too long: ${tokens['response-time'](req, res)}ms` : null; 
     }))
+    .use((req, res, next) => {
+      if (toobusy()) {
+        res.send(503, 'Server is busy.');
+      } else {
+        next();
+      }
+    })
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(express.static('public', {

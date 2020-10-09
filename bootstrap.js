@@ -1,7 +1,6 @@
 require('dotenv').config();
 const webpush = require('./utils/push');
-const { db, failsafe, logdb } = require('./utils/db');
-const { Worker } = require('worker_threads');
+const { db, failsafe } = require('./utils/db');
 const blocked = require('blocked-at')
 const fs = require('fs-extra');
 const path = require('path');
@@ -34,34 +33,22 @@ const logfmt = str => str.trim();
         if (err) return console.log(err);
         switch (val.importer) {
           case 'patreon':
-            new Worker('./importers/patreon.js', {
-              workerData: val.data
-            });
+            require('./importers/patreon')(val.data);
             break;
           case 'fanbox':
-            new Worker('./importers/fanbox.js', {
-              workerData: val.data
-            });
+            require('./importers/fanbox')(val.data);
             break;
           case 'gumroad':
-            new Worker('./importers/gumroad.js', {
-              workerData: val.data
-            });
+            require('./importers/gumroad')(val.data);
             break;
           case 'subscribestar':
-            new Worker('./importers/subscribestar.js', {
-              workerData: val.data
-            });
+            require('./importers/subscribestar')(val.data);
             break;
           case 'dlsite':
-            new Worker('./importers/dlsite.js', {
-              workerData: val.data
-            });
+            require('./importers/dlsite')(val.data);
             break;
           case 'yiffparty':
-            new Worker('./importers/yiffparty.js', {
-              workerData: val.data
-            });
+            require('./importers/yiffparty')(val.data);
             break;
         }
       });

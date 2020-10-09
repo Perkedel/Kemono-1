@@ -2,7 +2,6 @@ const { db } = require('../utils/db');
 const upload = require('./upload');
 const fs = require('fs-extra');
 const path = require('path');
-const { Worker } = require('worker_threads');
 const Promise = require('bluebird');
 const express = require('express');
 const router = express.Router();
@@ -30,70 +29,54 @@ router
     const importId = crypto.randomBytes(5).toString('hex');
     switch (req.body.service) {
       case 'patreon':
-        new Worker('./importers/patreon.js', {
-          workerData: {
-            id: importId,
-            key: req.body.session_key
-          }
+        require('../importers/patreon')({
+          id: importId,
+          key: req.body.session_key
         });
         break;
       case 'fanbox':
-        new Worker('./importers/fanbox.js', {
-          workerData: {
-            id: importId,
-            key: req.body.session_key
-          }
+        require('../importers/fanbox')({
+          id: importId,
+          key: req.body.session_key
         });
         break;
       case 'gumroad':
-        new Worker('./importers/gumroad.js', {
-          workerData: {
-            id: importId,
-            key: req.body.session_key
-          }
+        require('../importers/gumroad')({
+          id: importId,
+          key: req.body.session_key
         });
         break;
       case 'subscribestar':
-        new Worker('./importers/subscribestar.js', {
-          workerData: {
-            id: importId,
-            key: req.body.session_key
-          }
+        require('../importers/subscribestar')({
+          id: importId,
+          key: req.body.session_key
         });
         break;
       case 'dlsite':
-        new Worker('./importers/dlsite.js', {
-          workerData: {
-            id: importId,
-            key: req.body.session_key
-          }
-        })
+        require('../importers/dlsite')({
+          id: importId,
+          key: req.body.session_key
+        });
         break;
       case 'dlsite-jp':
-        new Worker('./importers/dlsite.js', {
-          workerData: {
-            id: importId,
-            key: req.body.session_key,
-            jp: true
-          }
+        require('../importers/dlsite')({
+          id: importId,
+          key: req.body.session_key,
+          jp: true
         });
         break;
       case 'yiffparty':
         if (!req.body.users) return res.sendStatus(400);
-        new Worker('./importers/yiffparty.js', {
-          workerData: {
-            id: importId,
-            users: req.body.users.replace(/\s+/g, '').trim()
-          }
+        require('../importers/yiffparty')({
+          id: importId,
+          users: req.body.users.replace(/\s+/g, '').trim()
         });
         break;
       case 'discord':
         if (!req.body.channel_ids) return res.sendStatus(400);
-        new Worker('./importers/discord.js', {
-          workerData: {
-            key: req.body.session_key,
-            channels: req.body.channel_ids.replace(/\s+/g, '').trim()
-          }
+        require('../importers/discord')({
+          key: req.body.session_key,
+          channels: req.body.channel_ids.replace(/\s+/g, '').trim()
         });
         break;
     }

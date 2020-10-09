@@ -1,3 +1,4 @@
+const { workerData } = require('worker_threads');
 const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const retry = require('p-retry');
@@ -191,8 +192,6 @@ async function scraper (id, key, from = 1) {
   }
 }
 
-module.exports = data => {
-  debug('kemono:importer:status:' + data.id)('Starting Gumroad import...');
-  failsafe.set(data.id, JSON.stringify({ importer: 'gumroad', data: data }), 'EX', 1800);
-  scraper(data.id, data.key);
-};
+debug('kemono:importer:status:' + workerData.id)('Starting Gumroad import...');
+failsafe.set(workerData.id, JSON.stringify({ importer: 'gumroad', data: workerData }), 'EX', 1800);
+scraper(workerData.id, workerData.key);

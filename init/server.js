@@ -3,7 +3,6 @@ const { api, proxy, board, importer, help, requests, support } = require('../rou
 const bodyParser = require('body-parser');
 // const readChunk = require('read-chunk');
 // const imageType = require('image-type');
-const toobusy = require('toobusy-js');
 const express = require('express');
 const fs = require('fs-extra');
 // const sharp = require('sharp');
@@ -36,14 +35,6 @@ const cacheMiddleware = () => {
 module.exports = () => {
   express()
     .set('trust proxy', true)
-    .use((req, res, next) => {
-      // mitigate event loop issues
-      if (toobusy()) {
-        res.send(503, 'Server is busy. Please try again in a bit.');
-      } else {
-        next();
-      }
-    })
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(express.static('public', {

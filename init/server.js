@@ -1,11 +1,12 @@
 require('dotenv').config();
 const { api, proxy, board, importer, help, requests, support } = require('../routes');
 const bodyParser = require('body-parser');
-// const readChunk = require('read-chunk');
-// const imageType = require('image-type');
+const readChunk = require('read-chunk');
+const imageType = require('image-type');
 const express = require('express');
+const morgan = require('morgan');
 const fs = require('fs-extra');
-// const sharp = require('sharp');
+const gm = require('gm');
 const { db, cache } = require('../utils/db');
 const path = require('path');
 const Promise = require('bluebird');
@@ -35,6 +36,9 @@ const cacheMiddleware = () => {
 module.exports = () => {
   express()
     .set('trust proxy', true)
+    .use(morgan((tokens, req, res) => {
+      return tokens['response-time'](req, res) > 500 ? `${tokens.url(req, res)} taking too long: ${tokens['response-time'](req, res)}ms` : null; 
+    }))
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(express.static('public', {
@@ -54,26 +58,17 @@ module.exports = () => {
       const file = `${process.env.DB_ROOT}/${req.params[0]}`;
       const fileExists = await fs.pathExists(file);
       if (!fileExists) return res.sendStatus(404);
-      return fs.createReadStream(file).pipe(res);
-      // const type = imageType(await readChunk(file, 0, imageType.minimumBytes));
-      // let ext = type ? type.ext : '';
-      // ext = ext === 'jpg' ? 'jpeg' : ext;
-      // const fileSupported = sharp.format[ext] ? sharp.format[ext].input.file : false;
-      // if (!fileSupported) return res.sendStatus(404);
-      // res.setHeader('Cache-Control', 'max-age=31557600, public');
-      // sharp(file, { failOnError: false })
-      //   .jpeg({
-      //     quality: 60,
-      //     chromaSubsampling: '4:2:0',
-      //     progressive: true
-      //   })
-      //   .resize({ width: Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, withoutEnlargement: true })
-      //   .setMaxListeners(250)
-      //   .on('error', () => {
-      //     fs.createReadStream(file)
-      //       .pipe(res);
-      //   })
-      //   .pipe(res);
+      if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
+      const type = imageType(await readChunk(file, 0, imageType.minimumBytes));
+      if (!type) return res.status(404).send('Not an image.');
+      res.set('Cache-Control', 'max-age=31557600, public');
+      gm(file)
+        .resize(Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, null, '>')
+        .quality(60)
+        .interlace('Line')
+        .noProfile()
+        .stream('jpg')
+        .pipe(res);
     })
     .use(cacheMiddleware())
     .get('/', async (req, res) => {

@@ -58,19 +58,20 @@ module.exports = () => {
       const file = `${process.env.DB_ROOT}/${req.params[0]}`;
       const fileExists = await fs.pathExists(file);
       if (!fileExists) return res.sendStatus(404);
-      if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
-      
-      res.set('Cache-Control', 'max-age=31557600, public');
-      gm(file).identify(function (err, _) {
-        if (err) return res.status(404).send('Not an image.');
-        gm(file)
-          .resize(Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, null, '>')
-          .quality(60)
-          .interlace('Line')
-          .noProfile()
-          .stream('jpg')
-          .pipe(res);
-      });
+      return fs.createReadStream(file).pipe(res);
+      // if (process.env.DISABLE_THUMBNAILS === 'true') return fs.createReadStream(file).pipe(res);
+
+      // res.set('Cache-Control', 'max-age=31557600, public');
+      // gm(file).identify(function (err, _) {
+      //   if (err) return res.status(404).send('Not an image.');
+      //   gm(file)
+      //     .resize(Number(req.query.size) && Number(req.query.size) <= 800 ? Number(req.query.size) : 800, null, '>')
+      //     .quality(60)
+      //     .interlace('Line')
+      //     .noProfile()
+      //     .stream('jpg')
+      //     .pipe(res);
+      // });
     })
     .use(cacheMiddleware())
     .get('/', async (req, res) => {

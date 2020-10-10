@@ -2,7 +2,6 @@ require('dotenv').config();
 const webpush = require('./utils/push');
 const { db, failsafe, logdb } = require('./utils/db');
 const { Worker } = require('worker_threads');
-const blocked = require('blocked-at')
 const fs = require('fs-extra');
 const path = require('path');
 const indexer = require('./init/indexer');
@@ -91,12 +90,5 @@ const logfmt = str => str.trim();
       await db.destroy();
       await logdb.destroy();
       process.exit(code);
-    }); 
-
-  // debug
-  blocked((time, stack) => {
-    console.log(`Blocked for ${time}ms, operation started here:`, stack)
-  }, {
-    threshold: 100
-  })
+    });
 })();

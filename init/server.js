@@ -196,8 +196,8 @@ module.exports = () => {
     .use('/attachments', express.static(`${process.env.DB_ROOT}/attachments`, staticOpts))
     .use('/inline', express.static(`${process.env.DB_ROOT}/inline`, staticOpts))
     .get('/:service/user/:id/rss', async (req, res) => {
-      const cache = await db('lookup').where({ id: req.params.id, service: req.params.service });
-      if (!cache.length) return res.status(404).send('Unable to generate RSS feed; please wait for this user to be indexed.');
+      const name = await db('lookup').where({ id: req.params.id, service: req.params.service });
+      if (!name.length) return res.status(404).send('Unable to generate RSS feed; please wait for this user to be indexed.');
 
       const userPosts = await db('booru_posts')
         .where({ user: req.params.id, service: req.params.service })
@@ -205,8 +205,8 @@ module.exports = () => {
         .limit(10);
 
       const feed = new Feed({
-        title: cache[0].name,
-        description: `Feed for posts from ${cache[0].name}.`,
+        title: name[0].name,
+        description: `Feed for posts from ${name[0].name}.`,
         id: urljoin(process.env.PUBLIC_ORIGIN, req.params.service, 'user', req.params.id),
         link: urljoin(process.env.PUBLIC_ORIGIN, req.params.service, 'user', req.params.id),
         generator: 'Kemono',

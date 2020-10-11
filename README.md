@@ -19,7 +19,6 @@ Kemono's codebase consists of both importers to handle API data and a frontend t
 - Yarn
 - PostgreSQL
 - Redis
-- GraphicsMagick
 
 ## Running
 ### Quick Start

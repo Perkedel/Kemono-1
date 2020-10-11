@@ -94,9 +94,14 @@ const logfmt = str => str.trim();
     }); 
 
   // debug
-  blocked((time, stack) => {
+  blocked((time, stack, { type, resource }) => {
     console.log(`Blocked for ${time}ms, operation started here:`, stack)
+    if (type === 'HTTPPARSER' && resource) {
+      console.log(`URL related to blocking operation: ${resource.resource.incoming.url}`)
+    }
   }, {
-    threshold: 100
+    threshold: 100,
+    resourcesCap: 100
+    // trimFalsePositives: true
   })
 })();

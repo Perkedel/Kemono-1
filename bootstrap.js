@@ -100,8 +100,7 @@ const logfmt = str => str.trim();
       console.log(`URL related to blocking operation: ${resource.resource.incoming.url}`)
     }
   }, {
-    threshold: 100,
-    resourcesCap: 100
+    threshold: 100
     // trimFalsePositives: true
   })
 })();

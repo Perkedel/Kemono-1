@@ -25,83 +25,83 @@ router
     res.setHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=2592000');
     res.json(recentPosts);
   })
-  // .post('/import', (req, res) => {
-  //   if (!req.body.session_key) return res.sendStatus(401);
-  //   const importId = crypto.randomBytes(5).toString('hex');
-  //   switch (req.body.service) {
-  //     case 'patreon':
-  //       new Worker('./importers/patreon.js', {
-  //         workerData: {
-  //           id: importId,
-  //           key: req.body.session_key
-  //         }
-  //       });
-  //       break;
-  //     case 'fanbox':
-  //       new Worker('./importers/fanbox.js', {
-  //         workerData: {
-  //           id: importId,
-  //           key: req.body.session_key
-  //         }
-  //       });
-  //       break;
-  //     case 'gumroad':
-  //       new Worker('./importers/gumroad.js', {
-  //         workerData: {
-  //           id: importId,
-  //           key: req.body.session_key
-  //         }
-  //       });
-  //       break;
-  //     case 'subscribestar':
-  //       new Worker('./importers/subscribestar.js', {
-  //         workerData: {
-  //           id: importId,
-  //           key: req.body.session_key
-  //         }
-  //       });
-  //       break;
-  //     case 'dlsite':
-  //       new Worker('./importers/dlsite.js', {
-  //         workerData: {
-  //           id: importId,
-  //           key: req.body.session_key
-  //         }
-  //       })
-  //       break;
-  //     case 'dlsite-jp':
-  //       new Worker('./importers/dlsite.js', {
-  //         workerData: {
-  //           id: importId,
-  //           key: req.body.session_key,
-  //           jp: true
-  //         }
-  //       });
-  //       break;
-  //     case 'yiffparty':
-  //       if (!req.body.users) return res.sendStatus(400);
-  //       new Worker('./importers/yiffparty.js', {
-  //         workerData: {
-  //           id: importId,
-  //           users: req.body.users.replace(/\s+/g, '').trim()
-  //         }
-  //       });
-  //       break;
-  //     case 'discord':
-  //       if (!req.body.channel_ids) return res.sendStatus(400);
-  //       new Worker('./importers/discord.js', {
-  //         workerData: {
-  //           key: req.body.session_key,
-  //           channels: req.body.channel_ids.replace(/\s+/g, '').trim()
-  //         }
-  //       });
-  //       break;
-  //   }
-  //   res.send(success({
-  //     currentPage: 'import',
-  //     redirect: '/importer/status/' + importId
-  //   }));
-  // })
+  .post('/import', (req, res) => {
+    if (!req.body.session_key) return res.sendStatus(401);
+    const importId = crypto.randomBytes(5).toString('hex');
+    switch (req.body.service) {
+      case 'patreon':
+        new Worker('./importers/patreon.js', {
+          workerData: {
+            id: importId,
+            key: req.body.session_key
+          }
+        });
+        break;
+      case 'fanbox':
+        new Worker('./importers/fanbox.js', {
+          workerData: {
+            id: importId,
+            key: req.body.session_key
+          }
+        });
+        break;
+      case 'gumroad':
+        new Worker('./importers/gumroad.js', {
+          workerData: {
+            id: importId,
+            key: req.body.session_key
+          }
+        });
+        break;
+      case 'subscribestar':
+        new Worker('./importers/subscribestar.js', {
+          workerData: {
+            id: importId,
+            key: req.body.session_key
+          }
+        });
+        break;
+      case 'dlsite':
+        new Worker('./importers/dlsite.js', {
+          workerData: {
+            id: importId,
+            key: req.body.session_key
+          }
+        })
+        break;
+      case 'dlsite-jp':
+        new Worker('./importers/dlsite.js', {
+          workerData: {
+            id: importId,
+            key: req.body.session_key,
+            jp: true
+          }
+        });
+        break;
+      case 'yiffparty':
+        if (!req.body.users) return res.sendStatus(400);
+        new Worker('./importers/yiffparty.js', {
+          workerData: {
+            id: importId,
+            users: req.body.users.replace(/\s+/g, '').trim()
+          }
+        });
+        break;
+      case 'discord':
+        if (!req.body.channel_ids) return res.sendStatus(400);
+        new Worker('./importers/discord.js', {
+          workerData: {
+            key: req.body.session_key,
+            channels: req.body.channel_ids.replace(/\s+/g, '').trim()
+          }
+        });
+        break;
+    }
+    res.send(success({
+      currentPage: 'import',
+      redirect: '/importer/status/' + importId
+    }));
+  })
   .get('/lookup', async (req, res) => {
     if (req.query.q.length > 35) return res.sendStatus(400);
     const index = await db('lookup')

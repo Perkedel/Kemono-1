@@ -2,7 +2,6 @@ require('dotenv').config();
 const webpush = require('./utils/push');
 const { db, failsafe, logdb } = require('./utils/db');
 const { Worker } = require('worker_threads');
-const blocked = require('blocked-at')
 const fs = require('fs-extra');
 const path = require('path');
 const indexer = require('./init/indexer');
@@ -91,16 +90,5 @@ const logfmt = str => str.trim();
       await db.destroy();
       await logdb.destroy();
       process.exit(code);
-    }); 
-
-  // debug
-  blocked((time, stack, { type, resource }) => {
-    console.log(`Blocked for ${time}ms, operation started here:`, stack)
-    if (type === 'HTTPPARSER' && resource) {
-      console.log(`URL related to blocking operation: ${resource.resource.incoming.url}`)
-    }
-  }, {
-    threshold: 100
-    // trimFalsePositives: true
-  })
+    });
 })();

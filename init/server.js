@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { api, proxy, board, importer, help, requests, support } = require('../routes');
+const toobusy = require('toobusy-js');
 const bodyParser = require('body-parser');
 const readChunk = require('read-chunk');
 const imageType = require('image-type');
@@ -35,6 +36,13 @@ const cacheMiddleware = () => {
 module.exports = () => {
   express()
     .set('trust proxy', true)
+    .use((_, res, next) => {
+      if (toobusy()) {
+        res.send(503, 'The server is busy. Please try again in a bit.');
+      } else {
+        next();
+      }
+    })
     .use(bodyParser.urlencoded({ extended: false }))
     .use(bodyParser.json())
     .use(express.static('public', {

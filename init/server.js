@@ -53,7 +53,7 @@ module.exports = () => {
     }))
     .use('/api', api)
     .use('/help', help)
-    // .use('/proxy', proxy)
+    .use('/proxy', proxy)
     .use('/board', board)
     .use('/requests', requests)
     .use('/importer', importer)

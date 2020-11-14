@@ -24,48 +24,48 @@ const logfmt = str => str.trim();
   webpush.setVapidDetails(process.env.PUBLIC_ORIGIN, vapid.publicKey, vapid.privateKey);
   process.env.VAPID_PUBLIC_KEY = vapid.publicKey;
 
-  console.log('Restarting unfinished imports...');
-  const stream = failsafe.scanStream({ match: 'importers:*' });
-  stream.on('data', result => {
-    result.map(key => {
-      failsafe.get(key.replace('importers:', ''), function (err, val) {
-        val = JSON.parse(val);
-        if (err) return console.log(err);
-        switch (val.importer) {
-          case 'patreon':
-            new Worker('./importers/patreon.js', {
-              workerData: val.data
-            });
-            break;
-          case 'fanbox':
-            new Worker('./importers/fanbox.js', {
-              workerData: val.data
-            });
-            break;
-          case 'gumroad':
-            new Worker('./importers/gumroad.js', {
-              workerData: val.data
-            });
-            break;
-          case 'subscribestar':
-            new Worker('./importers/subscribestar.js', {
-              workerData: val.data
-            });
-            break;
-          case 'dlsite':
-            new Worker('./importers/dlsite.js', {
-              workerData: val.data
-            });
-            break;
-          case 'yiffparty':
-            new Worker('./importers/yiffparty.js', {
-              workerData: val.data
-            });
-            break;
-        }
-      });
-    });
-  });
+  // console.log('Restarting unfinished imports...');
+  // const stream = failsafe.scanStream({ match: 'importers:*' });
+  // stream.on('data', result => {
+  //   result.map(key => {
+  //     failsafe.get(key.replace('importers:', ''), function (err, val) {
+  //       val = JSON.parse(val);
+  //       if (err) return console.log(err);
+  //       switch (val.importer) {
+  //         case 'patreon':
+  //           new Worker('./importers/patreon.js', {
+  //             workerData: val.data
+  //           });
+  //           break;
+  //         case 'fanbox':
+  //           new Worker('./importers/fanbox.js', {
+  //             workerData: val.data
+  //           });
+  //           break;
+  //         case 'gumroad':
+  //           new Worker('./importers/gumroad.js', {
+  //             workerData: val.data
+  //           });
+  //           break;
+  //         case 'subscribestar':
+  //           new Worker('./importers/subscribestar.js', {
+  //             workerData: val.data
+  //           });
+  //           break;
+  //         case 'dlsite':
+  //           new Worker('./importers/dlsite.js', {
+  //             workerData: val.data
+  //           });
+  //           break;
+  //         case 'yiffparty':
+  //           new Worker('./importers/yiffparty.js', {
+  //             workerData: val.data
+  //           });
+  //           break;
+  //       }
+  //     });
+  //   });
+  // });
 
   console.log('Starting webserver...');
   server();

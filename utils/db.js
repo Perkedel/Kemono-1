@@ -9,7 +9,7 @@ module.exports = {
       database: process.env.PGDATABASE
     },
     pool: {
-      max: 200
+      max: 1000
     }
   }),
   logdb: require('knex')({

@@ -1,4 +1,3 @@
-const { workerData } = require('worker_threads');
 const { db } = require('../utils/db');
 const Promise = require('bluebird');
 const agentOptions = require('../utils/agent');
@@ -117,4 +116,4 @@ async function processChannel (id, server, key, before) {
   }
 }
 
-scraper(workerData.key, workerData.channels);
+module.exports = data => scraper(data.key, data.channels);

@@ -1,4 +1,4 @@
-const { workerData } = require('worker_threads');
+
 const agentOptions = require('../utils/agent');
 const cloudscraper = require('cloudscraper').defaults({ agentOptions });
 const { to: pWrapper } = require('await-to-js');
@@ -203,6 +203,8 @@ async function scraper (id, key, uri = 'https://api.patreon.com/stream?json-api-
   }
 }
 
-debug('kemono:importer:status:' + workerData.id)('Starting Patreon import...');
-failsafe.set(workerData.id, JSON.stringify({ importer: 'patreon', data: workerData }), 'EX', 1800);
-scraper(workerData.id, workerData.key);
+module.exports = data => {
+  debug('kemono:importer:patreon:' + data.id)('Starting Patreon import...');
+  failsafe.set(data.id, JSON.stringify({ importer: 'patreon', data: data }), 'EX', 1800);
+  scraper(data.id, data.key);
+};

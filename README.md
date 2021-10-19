@@ -1,3 +1,9 @@
+```
+This repository contains the obsolete, original version of Kemono, and has not been updated in over a year as of this writing. It is HIGHLY recommended you use Kemono2/Kitsune instead. No support for Kemono1 instances are guaranteed.
+```
+
+---
+
 [![Telegram](https://img.shields.io/badge/-telegram-blue)](https://t.me/kemonoparty)
 
 [Kemono](https://kemono.party) is an open-source reimplementation of [yiff.party](https://yiff.party/). It archives and dumps data, images, and files from paysites like Patreon.
